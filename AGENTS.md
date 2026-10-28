@@ -44,4 +44,4 @@ Current review boundaries and deferred deployment checks are in docs/REVIEW.md.
 
 - Persistent user direction: all work must support eventual shared cloud deployment. Keep state in PostgreSQL, same-origin relative browser APIs, environment-based deployment settings and incremental data migration. Memory sender remains development-only. Do not present local/config checks as cloud, load or backup/restore acceptance.
 
-- Latest local follow-up: context-aware navigation and post-issuance reset link, verified with 43 focused backend and 45 DOM checks plus isolated browser issuance→link→reset form. See docs/NAVIGATION.md. No credential in URLs/storage, no real user password changes. Local commit only; do not automatically push this follow-up.
+- Latest local follow-up: context-aware navigation and post-issuance reset link, verified with 43 focused backend and 45 DOM checks plus isolated browser issuance→link→reset form. See docs/NAVIGATION.md. No credential in URLs/storage, no real user password changes. User subsequently explicitly authorized pushing this follow-up to PearCrown/zhusuan; use a normal fast-forward push and verify the remote result.
