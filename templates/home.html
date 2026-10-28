@@ -36,7 +36,7 @@
           <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="128" aria-describedby="login-password-error">
           <p id="login-password-error" class="field-error"></p>
           <button class="primary" type="submit">登录账号</button>
-          <p class="note">忘记密码？找回功能尚未开放，请联系项目维护人员。邮箱和短信登录将在后续接入。</p>
+          <p class="note">忘记密码？请联系维护人员核实账号，取得凭据后<a href="/password/reset/">重置密码</a>。邮箱和短信登录将在后续接入。</p>
         </form>
         <form id="register-form" method="post" action="/" novalidate hidden>
           <h3 class="sr-only">注册学生账号</h3>
@@ -68,7 +68,7 @@
           <div id="teaching-row" hidden><dt>授权教学班级</dt><dd id="identity-teaching"></dd></div>
         </dl>
         <p class="hint">身份以服务器当前分配为准。班级暂以编号展示，教师可进入授权班级查看名单。</p>
-        <div class="actions"><a id="maintenance-link" class="secondary button-link" href="/maintenance/" hidden>进入维护台</a><a id="teacher-link" class="secondary button-link" href="/teacher/" hidden>查看授权班级</a><button id="refresh" class="secondary" type="button">刷新身份</button><button id="logout" class="secondary" type="button">退出登录</button></div>
+        <div class="actions"><a id="password-change-link" class="secondary button-link" href="/password/change/" hidden>修改密码</a><a id="maintenance-link" class="secondary button-link" href="/maintenance/" hidden>进入维护台</a><a id="teacher-link" class="secondary button-link" href="/teacher/" hidden>查看授权班级</a><button id="refresh" class="secondary" type="button">刷新身份</button><button id="logout" class="secondary" type="button">退出登录</button></div>
       </section>
       <button id="retry" class="secondary" type="button" hidden>重新确认状态</button>
     </section>

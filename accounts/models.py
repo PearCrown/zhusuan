@@ -74,3 +74,12 @@ class RateLimitBucket(models.Model):
         constraints = [
             models.CheckConstraint(condition=models.Q(attempts__gte=1), name="rate_limit_attempts_positive"),
         ]
+
+
+class ManualPasswordReset(models.Model):
+    user = models.OneToOneField("User", on_delete=models.PROTECT)
+    digest = models.CharField(max_length=64, unique=True)
+    issued_revision = models.PositiveBigIntegerField()
+    auth_stamp = models.CharField(max_length=64, default="")
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True, blank=True)

@@ -77,3 +77,37 @@ def logout(request):
         raise ApiError("invalid_fields", "退出请求不接受额外字段。")
     end_login(request)
     return success({"loggedOut": True, "csrfToken": get_token(request)})
+
+
+@login_required_api
+@sensitive_post_parameters("currentPassword", "newPassword")
+@sensitive_variables()
+@requires_json_body
+@api_methods("POST")
+def password_change(request):
+    from .passwords import parse_password_payload, change_password
+    from .rate_limits import consume_limit, canonical_address
+    for scope, subject, limit in [("password_change_ip", canonical_address(request.META.get("REMOTE_ADDR")), 120), ("password_change_user", str(request.account_user.pk), 10)]:
+        blocked = limited_response(consume_limit(scope, subject, window=600, limit=limit))
+        if blocked is not None:
+            return blocked
+    change_password(request.account_user.pk, parse_password_payload(read_json(request)))
+    end_login(request)
+    return success({"passwordChanged": True, "loginRequired": True, "csrfToken": get_token(request)})
+
+
+@api_endpoint
+@sensitive_post_parameters("credential", "newPassword")
+@sensitive_variables()
+@requires_json_body
+@api_methods("POST")
+def password_reset(request):
+    from .passwords import parse_password_payload, redeem_manual_reset
+    from .rate_limits import consume_limit, canonical_address
+    blocked = limited_response(consume_limit("password_reset_ip", canonical_address(request.META.get("REMOTE_ADDR")), window=600, limit=60))
+    if blocked is not None:
+        return blocked
+    redeem_manual_reset(parse_password_payload(read_json(request), reset=True))
+    # Also clear any other account currently signed in on this browser.
+    end_login(request)
+    return success({"passwordChanged": True, "loginRequired": True, "csrfToken": get_token(request)})

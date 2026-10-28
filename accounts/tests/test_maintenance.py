@@ -155,6 +155,11 @@ class MaintenanceTests(TestCase):
         self.owner.groups.clear()
         self.assertEqual(self.client.get("/maintenance/").status_code, 403)
 
+    def test_unknown_maintenance_action_does_not_fall_through_to_grant(self):
+        from django.core.exceptions import ValidationError
+        with self.assertRaises(ValidationError):
+            apply(self.owner.pk, "password_reset", {})
+
     def test_bootstrap_is_audited_without_staff_and_last_revoke_refused(self):
         call_command("provision_maintainer", self.user.username, stdout=StringIO())
         self.user.refresh_from_db()

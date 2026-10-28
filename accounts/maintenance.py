@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from functools import wraps
 import logging
 
@@ -78,8 +79,15 @@ class GrantForm(EnrollmentForm):
     grant = forms.BooleanField(label="授予授权（取消勾选为撤销）", required=False)
 
 
-FORM_TYPES = {"account": AccountForm, "create_class": ClassForm, "class": ClassUpdateForm, "enrollment": EnrollmentForm, "grant": GrantForm}
-LABELS = {"account": "修改账号启用状态与教师身份", "create_class": "创建班级", "class": "修改班级", "enrollment": "调整学生归属", "grant": "调整教师班级授权"}
+class ResetIssueForm(ConfirmedForm):
+    user = forms.ModelChoiceField(label="已核实归属的账号", queryset=User.objects.none())
+    version = forms.IntegerField(label="账号当前版本号", min_value=0)
+    verified = forms.BooleanField(label="我已通过线下方式核实请求者是账号本人")
+    maintainerPassword = forms.CharField(label="你的维护账号当前密码（再次确认）", widget=forms.PasswordInput, strip=False, max_length=128)
+
+
+FORM_TYPES = {"account": AccountForm, "create_class": ClassForm, "class": ClassUpdateForm, "enrollment": EnrollmentForm, "grant": GrantForm, "password_reset": ResetIssueForm}
+LABELS = {"account": "修改账号启用状态与教师身份", "create_class": "创建班级", "class": "修改班级", "enrollment": "调整学生归属", "grant": "调整教师班级授权", "password_reset": "协助重置密码"}
 
 
 def build_form(action, data=None):
@@ -105,6 +113,8 @@ def conflict():
 
 @transaction.atomic
 def apply(actor_id, action, data):
+    if action not in {"create_class", "class", "account", "enrollment", "grant"}:
+        raise ValidationError("不支持此维护操作。")
     actor = User.objects.select_for_update().get(pk=actor_id)
     if not allowed(actor):
         raise ValidationError("维护权限已失效，请重新登录。")
@@ -176,6 +186,8 @@ def apply(actor_id, action, data):
 
 @never_cache
 @safe_maintenance
+@sensitive_post_parameters("maintainerPassword")
+@sensitive_variables()
 @require_http_methods(["GET", "POST"])
 def workspace(request, action=None):
     try:
@@ -185,6 +197,9 @@ def workspace(request, action=None):
     if not allowed(request.user):
         return HttpResponse('需要维护人员身份与权限。请先在<a href="/">账号中心登录</a>。', status=403)
     form = None
+    reset_credential = None
+    reset_expiry = None
+    reset_target = None
     if action:
         form = build_form(action, request.POST if request.method == "POST" else None)
         if request.method == "GET" and request.GET.get("user") and "user" in form.fields:
@@ -203,11 +218,24 @@ def workspace(request, action=None):
             form.initial.update(classroom=target_class, version=target_class.maintenance_version, code=target_class.code, name=target_class.name, active=target_class.is_active)
         if request.method == "POST" and form.is_valid():
             try:
-                apply(request.user.pk, action, form.cleaned_data)
+                if action == "password_reset":
+                    from .passwords import issue_manual_reset
+                    from .rate_limits import consume_limit
+                    if not consume_limit("reset_issue_actor", str(request.user.pk), window=600, limit=10).allowed:
+                        raise ValidationError("维护身份校验过于频繁，请10分钟后再试。")
+                    decision = consume_limit("reset_issue_user", str(form.cleaned_data["user"].pk), window=900, limit=3)
+                    if not decision.allowed:
+                        raise ValidationError("该账号重置凭据生成过于频繁，请15分钟后再试。")
+                    reset_credential, reset_expiry = issue_manual_reset(request.user.pk, form.cleaned_data["user"].pk, form.cleaned_data["version"], form.cleaned_data["maintainerPassword"])
+                    reset_target = form.cleaned_data["user"].username
+                    form = build_form(action)
+                else:
+                    apply(request.user.pk, action, form.cleaned_data)
             except (ValidationError, IntegrityError) as error:
                 form.add_error(None, error if isinstance(error, ValidationError) else "记录冲突，未保存，请核对后重试。")
             else:
-                return redirect("/maintenance/?saved=1")
+                if reset_credential is None:
+                    return redirect("/maintenance/?saved=1")
     elif request.method == "POST":
         return HttpResponse("请选择具体维护操作。", status=405)
     users = Paginator(editable_users().order_by("username").prefetch_related("groups", "class_grants__classroom").select_related("enrollment__classroom"), 30).get_page(request.GET.get("page"))
@@ -216,7 +244,7 @@ def workspace(request, action=None):
         user.maintenance_grants = "、".join(grant.classroom.code for grant in user.class_grants.all()) or "无"
     events = list(MaintenanceEvent.objects.select_related("actor").order_by("-pk")[:50])
     for event in events:
-        event.action_label = LABELS.get(event.action, "本机维护身份引导")
+        event.action_label = {"password_changed": "用户修改密码", "password_reset_issued": "生成重置凭据", "password_reset_completed": "用户完成密码重置", **LABELS}.get(event.action, "本机维护身份引导")
     return render(request, "maintenance.html", {"form": form, "action_label": LABELS.get(action), "users": users,
         "classes": Classroom.objects.order_by("code")[:100], "events": events,
-        "operations": LABELS.items(), "saved": request.GET.get("saved") == "1"})
+        "operations": LABELS.items(), "saved": request.GET.get("saved") == "1", "reset_credential": reset_credential, "reset_expiry": reset_expiry, "reset_target": reset_target})

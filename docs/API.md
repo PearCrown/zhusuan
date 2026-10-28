@@ -4,6 +4,8 @@
 
 第6组另提供 `/teacher/` 和受保护的班级列表、学生名单及名单CSV接口，详见 [TEACHER_ACCESS.md](TEACHER_ACCESS.md)。第7组HTML维护页见 [MAINTENANCE.md](MAINTENANCE.md)，最新本地后端137项、DOM状态24项通过；下方早期验证数为历史记录。
 
+第8组新增POST `/auth/password/change`、`/auth/password/reset`，字段、一次性凭据、限流及失败语义见 [PASSWORDS.md](PASSWORDS.md)。最新全套157项通过，后续密码/维护38项定向及33项DOM检查通过；上方各组数字为阶段历史。
+
 ## 通用返回
 
 成功：`{"ok": true, "data": {...}}`

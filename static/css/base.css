@@ -48,6 +48,8 @@ footer { color: #626c61; font-size: 12px; text-align: center; padding: 0 20px 28
 .maintenance-form select { width: 100%; min-height: 44px; font: inherit; }
 .maintenance-form input[type="checkbox"] { width: 22px; min-height: 22px; height: 22px; vertical-align: middle; }
 .maintenance-form .errorlist { color: #952c26; }
+#password-form input { margin-bottom: 16px; }
+#issued-reset-credential { display: block; overflow-wrap: anywhere; }
 h1.workspace-title { font-family: inherit; font-size: 28px; }
 .class-list { padding: 0; list-style: none; display: grid; gap: 10px; }
 .class-list button { width: 100%; text-align: left; overflow-wrap: anywhere; }

@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–7 passed locally; GitHub contains the published groups 1–6. Group 7 adds restricted HTML maintenance, atomic audit and permanent invalidation of old session hashes using session_revision. No real maintenance account was provisioned. Do not start password/OTP groups or publish before handoff. Preserve local data and remote history; never upload secrets or runtimes. Apply mandatory autonomous review and keep PROGRESS.md current.
+Groups 1–8 passed locally; GitHub contains groups 1–6. Group 8 provides password change and maintainer-assisted one-use recovery with reauthentication, hashed credentials bound to revision/auth state, audit and full old-session invalidation. No real password was changed or real maintainer provisioned. Do not start game/contacts/OTP work or publish before handoff. Preserve data and apply mandatory autonomous review.
 
 ## Persistent architecture and business decisions
 
