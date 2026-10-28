@@ -7,7 +7,8 @@ from django.views.decorators.cache import never_cache
 @require_safe
 @never_cache
 def home(request):
-    return render(request, "home.html")
+    from django.conf import settings
+    return render(request, "home.html", {"verification_available": settings.CONTACT_MESSAGE_BACKEND != "disabled"})
 
 
 @require_safe

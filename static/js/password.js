@@ -26,6 +26,11 @@
       return body.data;
     } finally { clearTimeout(timer); }
   }
+  function showLogin() {
+    const back = document.getElementById("password-back");
+    if (back) back.hidden = true;
+    document.getElementById("password-login").hidden = false;
+  }
   form.addEventListener("submit", event => {
     event.preventDefault();
     if (busy) return;
@@ -48,7 +53,7 @@
         await request(`/auth/password/${form.dataset.mode}`, payload, csrf.csrfToken);
         if (started !== epoch) return;
         form.hidden = true;
-        document.getElementById("password-login").hidden = false;
+        showLogin();
         message("密码已更新，所有旧登录已失效。请重新登录。");
       } catch (error) {
         if (started !== epoch) return;
@@ -59,11 +64,11 @@
         } else if (error.code === "csrf_failed") message("安全校验已变化，请重新填写后提交。", true);
         else if (error.code === "authentication_required") {
           form.hidden = true;
-          document.getElementById("password-login").hidden = false;
+          showLogin();
           message("登录已失效，请重新登录。", true);
         } else if (error.code === "rate_limited") message(`操作过于频繁，请稍后重试${error.wait ? `（约${error.wait}秒）` : ""}。`, true);
         else {
-          document.getElementById("password-login").hidden = false;
+          showLogin();
           message("结果未确认，请尝试使用新密码登录；若仍失败，再联系维护人员。不要连续重复提交。", true);
         }
       } finally {

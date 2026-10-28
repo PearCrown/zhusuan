@@ -206,10 +206,24 @@ class PasswordTests(TestCase):
         data = {"user": self.user.pk, "version": 0, "confirm": "on", "csrfmiddlewaretoken": token, "maintainerPassword": OLD}
         response = self.client.post("/maintenance/password_reset/", data)
         self.assertFalse(ManualPasswordReset.objects.exists())
+        self.assertNotContains(response, 'id="manual-reset-link"')
         response = self.client.post("/maintenance/password_reset/", {**data, "verified": "on"})
         self.assertEqual(response.status_code, 200)
         credential = response.context["reset_credential"]
         self.assertTrue(credential)
+        self.assertContains(response, 'id="manual-reset-link"')
+        self.assertContains(response, 'href="/password/reset/"')
+        self.assertContains(response, '先复制上方凭据')
+        self.assertNotContains(response, 'class="maintenance-form"')
+        self.assertNotContains(response, '可维护账号（')
+        from html.parser import HTMLParser
+        class Links(HTMLParser):
+            def __init__(self): super().__init__(); self.hrefs=[]
+            def handle_starttag(self, tag, attrs):
+                if tag == "a": self.hrefs.extend(v for k,v in attrs if k == "href")
+        links=Links(); links.feed(response.content.decode())
+        self.assertTrue(all(credential not in href for href in links.hrefs))
+        self.assertNotContains(self.client.get("/maintenance/password_reset/"), 'id="manual-reset-link"')
         self.assertNotIn(OLD, response.content.decode())
         self.assertIn("no-store", response["Cache-Control"])
         self.assertNotIn(credential, self.client.get("/maintenance/password_reset/").content.decode())

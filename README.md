@@ -152,7 +152,7 @@ Windows使用已有数据库时，使用 `.venv\Scripts\python.exe` 执行上述
 
 命令不创建账号、不设置密码，也不自动开启Django管理站点。维护人员进入维护台后可以创建班级、分配教师身份、安排学生归属和授权教师班级。**教师身份与班级授权是两件事，缺一不能读取班级数据。** 维护人员也不会自动获得所有班级成绩权限。
 
-具体步骤见 [维护台说明](docs/MAINTENANCE.md)；可选的手动教师演示见 [LOCAL_DEMO.md](docs/LOCAL_DEMO.md)。不要通过修改浏览器页面、localStorage或客户端role字段获得身份，服务器不会信任这些值。
+生成恢复凭据成功后，先复制凭据，再点击该页的“打开重置密码页面”；不需要退出登录或手输地址。具体步骤见 [维护台说明](docs/MAINTENANCE.md)；可选的手动教师演示见 [LOCAL_DEMO.md](docs/LOCAL_DEMO.md)。不要通过修改浏览器页面、localStorage或客户端role字段获得身份，服务器不会信任这些值。
 
 ## 已有版本如何升级
 
@@ -186,7 +186,7 @@ Windows使用已有数据库时，使用 `.venv\Scripts\python.exe` 执行上述
 
 ## 验证码为什么收不到
 
-默认 `CONTACT_MESSAGE_BACKEND=disabled`，页面会明确提示尚未开放。代码中的memory发送器仅为显式开启的开发测试工具，不发送真实消息，不公开验证码读取接口，生产模式会拒绝启用它。不要把开发模式当成正式短信或邮件服务。
+默认 `CONTACT_MESSAGE_BACKEND=disabled`，首页不展示未开放的验证码入口；直接打开验证页仍会明确提示尚未开放。代码中的memory发送器仅为显式开启的开发测试工具，不发送真实消息，不公开验证码读取接口，生产模式会拒绝启用它。不要把开发模式当成正式短信或邮件服务。
 
 本地流程已经实现5分钟有效、连续输错5次锁定、一次性消费、用途/浏览器/账号状态绑定和限流。绑定需要当前密码验证，找回只使用已验证联系方式，不能用旧User.email字段或未验证地址找回。详情见 [验证码流程](docs/CODE_FLOWS.md)。
 
@@ -230,6 +230,7 @@ npm run test:ui
 
 ## 进一步阅读
 
+- [密码恢复入口与导航说明](docs/NAVIGATION.md)
 - [阶段记录](PROGRESS.md) · [自主复查](docs/REVIEW.md) · [发布审查](docs/PUBLISH_REVIEW.md)
 - [账号API](docs/API.md) · [数据与角色](docs/DATA_MODEL.md) · [教师范围](docs/TEACHER_ACCESS.md)
 - [维护台](docs/MAINTENANCE.md) · [改密与人工恢复](docs/PASSWORDS.md)

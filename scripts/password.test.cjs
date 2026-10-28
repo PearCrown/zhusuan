@@ -73,3 +73,9 @@ test('invalid reset credential stays generic and clears credential input',async 
   const a=await setup(t,'reset');a.respond(url=>url==='/auth/csrf'?ok({csrfToken:'fresh'}):fail('reset_invalid'));
   await a.submit();await a.idle();assert.match(a.id('password-status').textContent,/固定安全提示/);assert.equal(a.id('reset-credential').value,'');
 });
+
+test('completed password step shows one return link instead of duplicate navigation',async t=>{
+  const a=await setup(t);await a.submit();await a.idle();
+  assert.equal(a.id('password-back').hidden,true);
+  assert.equal(a.id('password-login').hidden,false);
+});
