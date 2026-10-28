@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–13 local scope delivered: 228 backend and 44 DOM passed, subsequent archive targeted 7 passed. Isolated 19-table backup/restore and auth/game/teacher checks passed without touching development data. User requested GitHub upload preparation; inspect docs/PUBLISH_REVIEW.md and do not claim pushed until remote verified. Never upload database archives, credentials or local helpers. See docs/BACKUP_RESTORE.md. Preserve data and mandatory review.
+Groups 1–13 local scope delivered: 228 backend and 44 DOM passed, subsequent archive targeted 7 passed. Isolated 19-table backup/restore and auth/game/teacher checks passed without touching development data. User explicitly authorized uploading to PearCrown/zhusuan and clarifying README. Inspect docs/PUBLISH_REVIEW.md; push only reviewed files/history without force, and verify the remote before claiming published. Never upload database archives, credentials or local helpers. See docs/BACKUP_RESTORE.md. Preserve data and mandatory review.
 
 ## Persistent architecture and business decisions
 
