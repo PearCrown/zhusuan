@@ -157,3 +157,5 @@
 会话保存错误保护继承Django的SessionMiddleware，仅补充API失败响应，不另造认证系统。新受保护API同样会被识别；页面视图继续使用框架行为。
 
 框架依据：https://docs.djangoproject.com/en/5.2/topics/auth/passwords/ 和 https://docs.djangoproject.com/en/5.2/ref/csrf/ 。
+
+第11组新增 `/auth/code/{bind|login|reset}/{request|verify}`，默认发送关闭，严格字段、会话及失败语义见 [CODE_FLOWS.md](CODE_FLOWS.md)。

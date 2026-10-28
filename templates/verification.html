@@ -1,0 +1,11 @@
+{% load static %}
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>联系方式验证 · 铸算</title><link rel="stylesheet" href="{% static 'css/base.css' %}"><script src="{% static 'js/verification.js' %}" defer></script></head><body>
+<header class="masthead"><a href="/">返回账号中心</a></header><main class="teacher-main"><section class="card"><h1>联系方式验证</h1>
+<p>邮箱和短信发送服务尚未开放，当前请使用用户名密码登录；忘记密码可联系维护人员。此入口为后续验证流程预留。</p>
+<p>首次绑定需要已登录并验证当前密码；验证码登录和找回只适用于已经验证绑定的普通账号。已有联系方式的更换、解绑暂未开放。维护账号请使用原登录和恢复渠道。</p>
+<label for="code-purpose">操作</label><select id="code-purpose"><option value="login">验证码登录</option><option value="bind">首次绑定联系方式</option><option value="reset">找回密码</option></select>
+<form id="code-request" method="post" action="/verification/"><label for="code-kind">联系方式类型</label><select id="code-kind"><option value="email">邮箱</option><option value="phone">手机号</option></select><label for="code-destination">邮箱或手机号</label><input id="code-destination" required maxlength="254" autocomplete="off"><p class="hint">手机号需包含+国家码，例如+86。邮箱当前支持英文字母地址，大小写视为相同。</p>
+<div id="code-reauth" hidden><label for="code-password">当前密码</label><input id="code-password" type="password" maxlength="128" autocomplete="current-password"></div><button type="submit" class="primary">申请验证码</button></form>
+<form id="code-verify" method="post" action="/verification/" hidden><label for="code-value">六位验证码</label><input id="code-value" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+<div id="code-new" hidden><label for="code-new-password">新密码</label><input id="code-new-password" type="password" maxlength="128" autocomplete="new-password"><label for="code-confirm">确认新密码</label><input id="code-confirm" type="password" maxlength="128" autocomplete="new-password"><p>新密码至少12个字符，成功后所有旧设备登录失效。</p></div><button type="submit" class="primary">验证并完成</button></form>
+<p id="code-status" class="status" role="status" aria-live="polite">请选择操作。</p><noscript>请启用JavaScript。</noscript></section></main></body></html>

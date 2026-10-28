@@ -9,7 +9,7 @@
   <script src="{% static 'js/accounts.js' %}" defer></script>
 </head>
 <body>
-  <header class="masthead"><a href="/" class="brand">铸算<span>·</span>华夏纪</a><span class="edition">账号中心 · 本地开发版</span></header>
+  <header class="masthead"><a href="/" class="brand">铸算<span>·</span>华夏纪</a><a href="/verification/">联系方式验证</a><span class="edition">账号中心 · 本地开发版</span></header>
   <main>
     <section class="intro" aria-labelledby="intro-title">
       <p class="eyebrow">从这里，开启探索</p>
@@ -36,7 +36,7 @@
           <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="128" aria-describedby="login-password-error">
           <p id="login-password-error" class="field-error"></p>
           <button class="primary" type="submit">登录账号</button>
-          <p class="note">忘记密码？请联系维护人员核实账号，取得凭据后<a href="/password/reset/">重置密码</a>。邮箱和短信登录将在后续接入。<a href="/game/">查看游戏接入样例</a>（游玩需登录）。</p>
+          <p class="note">忘记密码？请联系维护人员核实账号，取得凭据后<a href="/password/reset/">重置密码</a>。邮箱和短信登录将在后续接入。<a href="/game/">查看游戏接入样例</a>（游玩需登录）。<a href="/verification/">联系方式验证入口</a>（发送服务尚未开放）。</p>
         </form>
         <form id="register-form" method="post" action="/" novalidate hidden>
           <h3 class="sr-only">注册学生账号</h3>

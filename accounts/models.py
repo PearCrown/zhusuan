@@ -112,3 +112,20 @@ class VerifiedContact(models.Model):
 
     def __str__(self):
         return f"VerifiedContact({self.pk}, {self.kind})"
+
+
+class ContactChallenge(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey("User", null=True, on_delete=models.PROTECT)
+    purpose = models.CharField(max_length=8)
+    kind = models.CharField(max_length=8)
+    destination = models.CharField(max_length=254)
+    browser_digest = models.CharField(max_length=64)
+    code_digest = models.CharField(max_length=64)
+    auth_stamp = models.CharField(max_length=64)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+    consumed_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(attempts__lte=5), name="contact_code_attempts_max")]

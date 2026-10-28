@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–10 passed locally: 195 backend checks, last UI regression 41 from stage 9 (no UI changes in stage 10). Stage 10 adds VerifiedContact schema and disabled/development-memory message adapter only; no public contact or code flow yet. See docs/CONTACTS.md. Do not begin stage 11 or upload until authorized. Preserve data and apply mandatory autonomous review.
+Groups 1–11 local scope delivered: full backend 209 passed, then 17 code-flow targeted checks including three added checks passed; UI 44 passed. Code flows only work with explicit development memory sender; real messages remain disabled. See docs/CODE_FLOWS.md. Do not add providers, send real messages or upload without authorization. Preserve data and mandatory autonomous review.
 
 ## Persistent architecture and business decisions
 

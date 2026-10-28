@@ -2,8 +2,10 @@ from django.urls import include, path
 
 from core.views import home, live
 from accounts.password_pages import password_page
+from accounts.code_views import page as verification_page
 
 urlpatterns = [
+    path("verification/", verification_page),
     path("auth/", include("accounts.urls")),
     path("teacher/", include("classrooms.urls")),
     path("game/", include("gameplay.urls")),

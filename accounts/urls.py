@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, code_views
 
 urlpatterns = [
     path("csrf", views.csrf, name="auth-csrf"),
@@ -11,3 +11,7 @@ urlpatterns = [
     path("password/change", views.password_change, name="auth-password-change"),
     path("password/reset", views.password_reset, name="auth-password-reset"),
 ]
+
+for purpose in ("bind", "login", "reset"):
+    for stage in ("request", "verify"):
+        urlpatterns.append(path(f"code/{purpose}/{stage}", code_views.operation, {"purpose": purpose, "stage": stage}))
