@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–12 local scope delivered: full backend 220 passed; subsequent cloud/cleanup targeted 10 passed. Last UI 44 from stage 11; no UI changes in stage 12. Production configuration and cleanup are preparation, not deployment. See docs/CLOUD_DEPLOYMENT.md. Do not publish/upload, send messages, add providers or create scheduled jobs without authorization. Preserve data and mandatory review.
+Groups 1–13 local scope delivered: 228 backend and 44 DOM passed, subsequent archive targeted 7 passed. Isolated 19-table backup/restore and auth/game/teacher checks passed without touching development data. User requested GitHub upload preparation; inspect docs/PUBLISH_REVIEW.md and do not claim pushed until remote verified. Never upload database archives, credentials or local helpers. See docs/BACKUP_RESTORE.md. Preserve data and mandatory review.
 
 ## Persistent architecture and business decisions
 

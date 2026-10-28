@@ -17,3 +17,5 @@ backups/
 *.backup
 *.sql.gz
 .pgpass
+
+*.dump.manifest.json
