@@ -16,3 +16,18 @@ def live(request):
     response = JsonResponse({"status": "ok"})
     response["Cache-Control"] = "no-store"
     return response
+
+
+@require_safe
+@never_cache
+def ready(request):
+    # DB connectivity only. Migration checks run separately during release.
+    from django.db import connection, DatabaseError
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            if cursor.fetchone() != (1,):
+                return JsonResponse({"status": "unavailable"}, status=503)
+    except DatabaseError:
+        return JsonResponse({"status": "unavailable"}, status=503)
+    return JsonResponse({"status": "ok"})

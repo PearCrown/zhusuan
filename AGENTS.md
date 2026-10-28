@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–11 local scope delivered: full backend 209 passed, then 17 code-flow targeted checks including three added checks passed; UI 44 passed. Code flows only work with explicit development memory sender; real messages remain disabled. See docs/CODE_FLOWS.md. Do not add providers, send real messages or upload without authorization. Preserve data and mandatory autonomous review.
+Groups 1–12 local scope delivered: full backend 220 passed; subsequent cloud/cleanup targeted 10 passed. Last UI 44 from stage 11; no UI changes in stage 12. Production configuration and cleanup are preparation, not deployment. See docs/CLOUD_DEPLOYMENT.md. Do not publish/upload, send messages, add providers or create scheduled jobs without authorization. Preserve data and mandatory review.
 
 ## Persistent architecture and business decisions
 
@@ -41,3 +41,5 @@ The user explicitly requires proactive omission checks without reminders. This i
 8. Report briefly: completed result, material limitation, next step. Never promise zero omissions or treat a passing test count as proof of completeness. Do not rely on the user to request this review.
 
 Current review boundaries and deferred deployment checks are in docs/REVIEW.md.
+
+- Persistent user direction: all work must support eventual shared cloud deployment. Keep state in PostgreSQL, same-origin relative browser APIs, environment-based deployment settings and incremental data migration. Memory sender remains development-only. Do not present local/config checks as cloud, load or backup/restore acceptance.

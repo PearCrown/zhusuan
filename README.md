@@ -1,6 +1,6 @@
 # 铸算·华夏纪 · 账号与基础权限模块
 
-本仓库是《铸算·华夏纪》的账号与基础权限模块，采用 Django、PostgreSQL 和模板页面。本地已完成第1—11组，包含受限维护台、密码恢复及可玩的章节接入样例；尚无完整游戏或共同云端。第7—11组未同步GitHub，已发布版本仍为第1—6组。
+本仓库是《铸算·华夏纪》的账号与基础权限模块，采用 Django、PostgreSQL 和模板页面。本地已完成第1—12组，包含受限维护台、密码恢复及可玩的章节接入样例；尚无完整游戏或共同云端。第7—12组未同步GitHub，已发布版本仍为第1—6组。
 
 ## 已实现与未实现
 
@@ -209,6 +209,7 @@ npm run test:ui
 - [修改密码与人工协助重置](docs/PASSWORDS.md)
 - [联系方式与发送器基础](docs/CONTACTS.md)
 - [验证码本地流程与开放边界](docs/CODE_FLOWS.md)
+- [云端部署配置、健康探测与数据维护](docs/CLOUD_DEPLOYMENT.md)
 - [章节、存档、计分与题库版本接口](docs/GAME_INTEGRATION.md)
 - [可选的本地教师演示准备](docs/LOCAL_DEMO.md)
 - [自主复查与已知边界](docs/REVIEW.md)
@@ -219,3 +220,5 @@ npm run test:ui
 - Django支持周期：https://www.djangoproject.com/download/
 - Python兼容范围：https://docs.djangoproject.com/en/5.2/faq/install/
 - PostgreSQL二进制来源：https://www.enterprisedb.com/download-postgresql-binaries
+
+第12组新增独立config.production、非秘密生产环境模板、数据库就绪探测和验证码过期记录分批清理。当前尚未部署云端，也未完成备份恢复或100人容量验收，见云端部署说明。

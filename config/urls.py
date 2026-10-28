@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from core.views import home, live
+from core.views import home, live, ready
 from accounts.password_pages import password_page
 from accounts.code_views import page as verification_page
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path("password/reset/", password_page, {"mode": "reset"}),
     path("", home, name="home"),
     path("health/live/", live, name="health-live"),
+    path("health/ready/", ready, name="health-ready"),
 ]

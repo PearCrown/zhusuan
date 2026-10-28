@@ -123,7 +123,7 @@ class ContactChallenge(models.Model):
     browser_digest = models.CharField(max_length=64)
     code_digest = models.CharField(max_length=64)
     auth_stamp = models.CharField(max_length=64)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(db_index=True)
     attempts = models.PositiveSmallIntegerField(default=0)
     consumed_at = models.DateTimeField(null=True)
 
