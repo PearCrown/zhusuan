@@ -1,0 +1,55 @@
+:root { color-scheme: light; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; color: #253e37; background: #f5f2e9; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+.masthead { max-width: 1180px; margin: auto; padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #d9ded2; }
+.brand { font-family: "STSong", "SimSun", serif; font-size: 23px; font-weight: 700; color: inherit; text-decoration: none; letter-spacing: .1em; }
+.brand span { color: #a65437; }
+.edition { font-size: 12px; color: #626c61; }
+main { max-width: 1100px; margin: 65px auto; padding: 0 32px; display: grid; grid-template-columns: 1fr 1.05fr; gap: 72px; align-items: start; }
+.intro { padding-top: 55px; }
+.eyebrow { font-size: 12px; letter-spacing: .18em; color: #80613d; margin: 0 0 20px; }
+h1 { font-family: "STSong", "SimSun", serif; font-size: clamp(38px, 4.8vw, 62px); line-height: 1.45; font-weight: 500; margin: 0 0 22px; letter-spacing: .04em; }
+p { line-height: 1.8; }
+.intro-copy { color: #626c61; font-size: 15px; }
+.scope-note { border-top: 1px solid #d9ded2; display: flex; gap: 16px; align-items: center; margin-top: 60px; padding-top: 26px; color: #626c61; font-size: 13px; }
+.seal { border: 1px solid #a65437; padding: 6px; color: #a65437; font-family: "SimSun", serif; font-size: 24px; }
+.card { padding: 34px; background: #fffdf7; border: 1px solid #d9ded2; border-radius: 12px; box-shadow: 0 12px 40px #253e3708; min-width: 0; }
+.card .eyebrow { margin-bottom: 10px; }
+h2 { font-size: 23px; font-weight: 600; margin: 0; }
+h3 { font-size: 21px; overflow-wrap: anywhere; }
+.status { margin: 18px 0; padding: 10px 12px; background: #edf1e9; border-radius: 5px; font-size: 13px; }
+.status.error, .error { color: #952c26; background: #fff0ec; }
+.switcher { display: flex; border-bottom: 1px solid #d9ded2; margin-bottom: 23px; gap: 20px; }
+.switcher button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 10px 0; color: #626c61; }
+.switcher button[aria-pressed="true"] { border-bottom-color: #285548; color: #285548; font-weight: 700; }
+label { display: block; font-size: 13px; margin-bottom: 8px; }
+input { width: 100%; padding: 12px; min-height: 44px; border: 1px solid #b5c0b4; border-radius: 5px; background: #fff; font: inherit; color: inherit; }
+input[aria-invalid="true"] { border-color: #a7392f; }
+button { font: inherit; font-size: 14px; cursor: pointer; min-height: 44px; border-radius: 5px; padding: 10px 16px; }
+button:disabled { opacity: .55; cursor: wait; }
+:focus-visible { outline: 3px solid #b08b49; outline-offset: 3px; }
+.primary { width: 100%; background: #285548; color: #fff; border: 1px solid #285548; margin-top: 5px; }
+.primary:hover:enabled { background: #1c4338; }
+.secondary { background: transparent; color: #285548; border: 1px solid #a6b5a6; }
+.hint, .note { color: #626c61; font-size: 12px; margin: 8px 0; }
+.note { margin-top: 18px; }
+.field-error { color: #952c26; font-size: 12px; margin: 5px 0 16px; }
+.field-error:empty { margin: 0 0 18px; }
+dl { margin: 22px 0; }
+dl div { padding: 12px 0; border-bottom: 1px solid #e4e7dc; }
+dt { font-size: 12px; color: #626c61; margin-bottom: 5px; }
+dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+footer { color: #626c61; font-size: 12px; text-align: center; padding: 0 20px 28px; letter-spacing: .12em; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.button-link { display: inline-flex; align-items: center; min-height: 44px; border-radius: 5px; padding: 10px 16px; font-size: 14px; text-decoration: none; }
+.teacher-main { display: block; max-width: 1000px; margin-top: 32px; }
+h1.workspace-title { font-family: inherit; font-size: 28px; }
+.class-list { padding: 0; list-style: none; display: grid; gap: 10px; }
+.class-list button { width: 100%; text-align: left; overflow-wrap: anywhere; }
+#roster { border-top: 1px solid #d9ded2; margin-top: 28px; padding-top: 24px; }
+.table-wrap { overflow-x: auto; margin-top: 16px; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid #d9ded2; overflow-wrap: anywhere; font-size: 14px; }
+@media (max-width: 760px) { .masthead { padding: 20px; flex-wrap: wrap; } main { display: block; margin: 28px auto; padding: 0 20px; } .intro { padding: 0; } h1 { font-size: 36px; } .scope-note { margin: 20px 0 26px; padding-top: 10px; } .card { padding: 24px; } }

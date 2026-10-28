@@ -1,0 +1,6 @@
+{
+  "name": "huaxia-account-ui-checks",
+  "private": true,
+  "scripts": { "test:ui": "node --test scripts/frontend.test.cjs scripts/teacher.test.cjs" },
+  "devDependencies": { "jsdom": "26.1.0" }
+}

@@ -1,0 +1,33 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>授权班级 · 铸算·华夏纪</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <script src="{% static 'js/teacher.js' %}" defer></script>
+</head>
+<body>
+  <header class="masthead"><a href="/" class="brand">铸算<span>·</span>华夏纪</a><a href="/">返回账号中心</a></header>
+  <main class="teacher-main">
+    <section class="card" aria-labelledby="teacher-title">
+      <p class="eyebrow">教师工作区 · 基础权限验收</p>
+      <h1 id="teacher-title" class="workspace-title">我的授权班级</h1>
+      <p class="note">这里只显示当前授权班级及在班的启用账号。游戏进度与成绩尚未接入；班级归属和教师授权由后续维护后台管理。</p>
+      <p id="teacher-status" class="status" role="status" aria-live="polite" aria-atomic="true">正在检查班级访问权限…</p>
+      <noscript><p class="error">请启用 JavaScript，才能查看授权班级。</p></noscript>
+      <button id="reload-classes" class="secondary" type="button">刷新授权班级</button>
+      <ul id="class-list" class="class-list" aria-label="授权班级列表"></ul>
+      <div class="actions"><button id="classes-prev" class="secondary" type="button" hidden>上一页班级</button><button id="classes-next" class="secondary" type="button" hidden>下一页班级</button></div>
+      <section id="roster" aria-labelledby="roster-title" hidden>
+        <h2 id="roster-title"></h2>
+        <p id="roster-summary" class="hint"></p>
+        <button id="export-roster" class="secondary" type="button">导出本班名单 CSV</button>
+        <div class="table-wrap"><table><thead><tr><th scope="col">用户名</th><th scope="col">显示名称</th></tr></thead><tbody id="students-body"></tbody></table></div>
+        <div class="actions"><button id="students-prev" class="secondary" type="button" hidden>上一页学生</button><button id="students-next" class="secondary" type="button" hidden>下一页学生</button></div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

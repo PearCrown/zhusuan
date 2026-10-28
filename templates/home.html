@@ -1,0 +1,78 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>铸算·华夏纪 · 账号中心</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <script src="{% static 'js/accounts.js' %}" defer></script>
+</head>
+<body>
+  <header class="masthead"><a href="/" class="brand">铸算<span>·</span>华夏纪</a><span class="edition">账号中心 · 本地开发版</span></header>
+  <main>
+    <section class="intro" aria-labelledby="intro-title">
+      <p class="eyebrow">从这里，开启探索</p>
+      <h1 id="intro-title">以算为钥，<br>走进华夏。</h1>
+      <p class="intro-copy">登录你的账号，为之后的章节探索做好准备。</p>
+      <div class="scope-note"><span class="seal" aria-hidden="true">算</span><p>当前可体验账号注册与登录。<br>章节、游戏进度与成绩面板将逐步接入。</p></div>
+    </section>
+    <section class="card" aria-labelledby="panel-title">
+      <p class="eyebrow">你的探索通行证</p>
+      <h2 id="panel-title">欢迎来到账号中心</h2>
+      <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true">正在确认登录状态…</p>
+      <noscript><p class="error">请启用浏览器 JavaScript，才能使用此账号页面。</p></noscript>
+      <div id="guest" hidden>
+        <nav class="switcher" aria-label="账号操作">
+          <button id="show-login" type="button" aria-pressed="true">登录</button>
+          <button id="show-register" type="button" aria-pressed="false">注册学生账号</button>
+        </nav>
+        <form id="login-form" method="post" action="/" novalidate>
+          <h3 class="sr-only">登录账号</h3>
+          <label for="login-username">用户名</label>
+          <input id="login-username" name="username" autocomplete="username" required maxlength="64" aria-describedby="login-username-error" spellcheck="false" autocapitalize="none">
+          <p id="login-username-error" class="field-error"></p>
+          <label for="login-password">密码</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="128" aria-describedby="login-password-error">
+          <p id="login-password-error" class="field-error"></p>
+          <button class="primary" type="submit">登录账号</button>
+          <p class="note">忘记密码？找回功能尚未开放，请联系项目维护人员。邮箱和短信登录将在后续接入。</p>
+        </form>
+        <form id="register-form" method="post" action="/" novalidate hidden>
+          <h3 class="sr-only">注册学生账号</h3>
+          <label for="register-username">用户名</label>
+          <input id="register-username" name="username" autocomplete="username" required maxlength="64" aria-describedby="username-help register-username-error" spellcheck="false" autocapitalize="none">
+          <p id="username-help" class="hint">3—32位：英文字母、数字、下划线、点或短横线，以字母或数字开头。大小写视为同一用户名。</p>
+          <p id="register-username-error" class="field-error"></p>
+          <label for="register-displayName">显示名称</label>
+          <input id="register-displayName" name="displayName" required maxlength="60" aria-describedby="display-help register-displayName-error">
+          <p id="display-help" class="hint">可以使用中文，之后在平台中展示。</p>
+          <p id="register-displayName-error" class="field-error"></p>
+          <label for="register-password">设置密码</label>
+          <input id="register-password" name="password" type="password" autocomplete="new-password" required maxlength="128" aria-describedby="password-help register-password-error">
+          <p id="password-help" class="hint">12—128个字符，避免常见密码、纯数字及与用户名或显示名称过于相似的内容。密码中的空格会保留。</p>
+          <p id="register-password-error" class="field-error"></p>
+          <label for="register-confirm">确认密码</label>
+          <input id="register-confirm" name="confirm" type="password" autocomplete="new-password" required maxlength="128" aria-describedby="register-confirm-error">
+          <p id="register-confirm-error" class="field-error"></p>
+          <button class="primary" type="submit">创建学生账号</button>
+          <p class="note">注册后请登录。教师身份由维护人员分配，不能在此自行选择。</p>
+        </form>
+      </div>
+      <section id="identity" aria-label="当前账号" hidden>
+        <h3 id="welcome"></h3>
+        <dl>
+          <div><dt>用户名</dt><dd id="identity-username"></dd></div>
+          <div><dt>当前身份</dt><dd id="identity-roles"></dd></div>
+          <div><dt>学生班级</dt><dd id="identity-class"></dd></div>
+          <div id="teaching-row" hidden><dt>授权教学班级</dt><dd id="identity-teaching"></dd></div>
+        </dl>
+        <p class="hint">身份以服务器当前分配为准。班级暂以编号展示，教师可进入授权班级查看名单。</p>
+        <div class="actions"><a id="teacher-link" class="secondary button-link" href="/teacher/" hidden>查看授权班级</a><button id="refresh" class="secondary" type="button">刷新身份</button><button id="logout" class="secondary" type="button">退出登录</button></div>
+      </section>
+      <button id="retry" class="secondary" type="button" hidden>重新确认状态</button>
+    </section>
+  </main>
+  <footer>探索有序，步步成章。</footer>
+</body>
+</html>
