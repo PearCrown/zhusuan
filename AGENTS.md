@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–9 passed locally: 186 backend and 41 DOM checks; real browser sample play, restored progress/result and scoped teacher score display. See docs/GAME_INTEGRATION.md for the chapter/save/question-bank contract. Narrative remains placeholder. Do not start contacts/OTP or upload until the next group is authorized. Preserve data and apply mandatory autonomous review.
+Groups 1–10 passed locally: 195 backend checks, last UI regression 41 from stage 9 (no UI changes in stage 10). Stage 10 adds VerifiedContact schema and disabled/development-memory message adapter only; no public contact or code flow yet. See docs/CONTACTS.md. Do not begin stage 11 or upload until authorized. Preserve data and apply mandatory autonomous review.
 
 ## Persistent architecture and business decisions
 

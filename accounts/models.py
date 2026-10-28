@@ -83,3 +83,32 @@ class ManualPasswordReset(models.Model):
     auth_stamp = models.CharField(max_length=64, default="")
     expires_at = models.DateTimeField()
     consumed_at = models.DateTimeField(null=True, blank=True)
+
+
+class VerifiedContact(models.Model):
+    """Verified identities only. Future challenge workflow must supply proof first."""
+    user = models.ForeignKey("User", on_delete=models.PROTECT)
+    kind = models.CharField(max_length=8, choices=[("email", "邮箱"), ("phone", "手机")])
+    value = models.CharField(max_length=254)
+    verified_at = models.DateTimeField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["kind", "value"], name="contact_identity_unique"),
+            models.UniqueConstraint(fields=["user", "kind"], name="contact_user_kind_unique"),
+            models.CheckConstraint(condition=(models.Q(kind="email", value__regex=r"^[^\s@]+@[^\s@]+$", value=models.functions.Lower("value")) | models.Q(kind="phone", value__regex=r"^\+[1-9][0-9]{7,14}$")), name="contact_canonical_shape"),
+        ]
+
+    def clean(self):
+        from .contacts import normalize_contact
+        from django.core.exceptions import ValidationError
+        self.value = normalize_contact(self.kind, self.value)
+        if not self.verified_at:
+            raise ValidationError("仅允许保存已完成验证的联系方式。")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"VerifiedContact({self.pk}, {self.kind})"

@@ -129,3 +129,10 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Explicit opt-in only; development messages never reach external providers.
+CONTACT_MESSAGE_BACKEND = os.environ.get("CONTACT_MESSAGE_BACKEND", "disabled").strip()
+if CONTACT_MESSAGE_BACKEND not in {"disabled", "memory"}:
+    raise ImproperlyConfigured("CONTACT_MESSAGE_BACKEND 必须为disabled或memory。")
+if CONTACT_MESSAGE_BACKEND == "memory" and not DEBUG:
+    raise ImproperlyConfigured("生产环境禁止使用内存消息发送器。")
