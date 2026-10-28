@@ -1,0 +1,12 @@
+{% load static %}
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>受限维护台 · 铸算</title><link rel="stylesheet" href="{% static 'css/base.css' %}"><script src="{% static 'js/maintenance.js' %}" defer></script></head>
+<body><header class="masthead"><a href="/">返回账号中心</a><a href="/maintenance/">维护首页</a></header><main class="teacher-main"><section class="card">
+<h1 class="workspace-title">账号与班级维护</h1><p>仅维护人员可操作。不能授予维护员、超级管理员或修改密码。账号维护会撤销目标账号所有旧会话；操作前请核对账号与版本号。</p><p class="hint">离开标签页后返回会重新校验权限，未提交的内容不保留。</p>
+{% if saved %}<p class="status">操作已保存，审计记录已写入。</p>{% endif %}
+<nav class="actions">{% for key,label in operations %}<a href="/maintenance/{{ key }}/">{{ label }}</a>{% endfor %}</nav>
+{% if form %}<h2>{{ action_label }}</h2><form class="maintenance-form" method="post">{% csrf_token %}{{ form.as_p }}<button class="primary" type="submit">确认并保存此操作</button></form>{% endif %}
+<h2>可维护账号（第{{ users.number }}页）</h2><p>版本号用于防止旧页面覆盖新变更。账号列表不包含维护员和特权账号。请从账号行进入操作以预填当前值；切换目标账号后须重新核对版本与选项。</p><div class="table-wrap"><table><thead><tr><th>账号</th><th>状态与关系</th><th>操作</th></tr></thead><tbody>{% for user in users %}<tr><td>{{ user.username }}<br>{{ user.display_name }}<br>版本：{{ user.session_revision }}</td><td>启用：{{ user.is_active|yesno:"是,否" }}<br>教师：{{ user.maintenance_teacher|yesno:"是,否" }}<br>学生班级：{{ user.enrollment.classroom.code|default:"未分配" }}<br>教师授权：{{ user.maintenance_grants }}</td><td><a href="/maintenance/account/?user={{ user.pk }}">修改账号</a><br><a href="/maintenance/enrollment/?user={{ user.pk }}">学生归属</a><br><a href="/maintenance/grant/?user={{ user.pk }}">教师授权</a></td></tr>{% endfor %}</tbody></table></div>
+{% if users.has_previous %}<a href="?page={{ users.previous_page_number }}">上一页账号</a>{% endif %} {% if users.has_next %}<a href="?page={{ users.next_page_number }}">下一页账号</a>{% endif %}
+<h2>班级（最多显示100项）</h2><ul>{% for classroom in classes %}<li>{{ classroom.code }} · {{ classroom.name }} · 启用：{{ classroom.is_active|yesno:"是,否" }} · 版本：{{ classroom.maintenance_version }} <a href="/maintenance/class/?classroom={{ classroom.pk }}">修改班级</a></li>{% empty %}<li>尚无班级。</li>{% endfor %}</ul>
+<h2>最近50条维护记录</h2><ul>{% for event in events %}<li>{{ event.created_at }} · {{ event.actor.username }} · {{ event.action_label }} · {{ event.target }}<br>原值：{{ event.before }} → 新值：{{ event.after }}</li>{% empty %}<li>尚无操作记录。</li>{% endfor %}</ul>
+</section></main></body></html>

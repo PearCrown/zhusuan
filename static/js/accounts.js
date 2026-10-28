@@ -29,6 +29,7 @@
   function clearIdentity() {
     byId("identity").hidden = true;
     byId("teacher-link").hidden = true;
+    byId("maintenance-link").hidden = true;
     ["welcome", "identity-username", "identity-roles", "identity-class", "identity-teaching"].forEach((id) => {
       byId(id).textContent = "";
     });
@@ -74,6 +75,7 @@
       byId("identity-teaching").textContent = user.teachingClassIds.join("、") || "暂未授权班级";
     }
     byId("identity").hidden = false;
+    byId("maintenance-link").hidden = !user.roles.includes("maintainer");
   }
 
   function unknownState(text) {

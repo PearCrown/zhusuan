@@ -11,6 +11,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField("用户名", max_length=32, unique=True)
     display_name = models.CharField("显示名称", max_length=60)
+    session_revision = models.PositiveBigIntegerField(default=0, editable=False)
     # Inherited email remains optional/unverified; never use it to log in/reset
     # until the verified-contact workflow has been implemented.
     objects = UserManager()
@@ -45,6 +46,22 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.display_name
+
+    def _get_session_auth_hash(self, secret=None):
+        from django.utils.crypto import salted_hmac
+        original = super()._get_session_auth_hash(secret)
+        if self.session_revision == 0:
+            return original
+        return salted_hmac("huaxia.session_revision", f"{original}:{self.session_revision}", secret=secret, algorithm="sha256").hexdigest()
+
+
+class MaintenanceEvent(models.Model):
+    actor = models.ForeignKey("User", on_delete=models.PROTECT)
+    action = models.CharField(max_length=32)
+    target = models.CharField(max_length=64)
+    before = models.JSONField(default=dict)
+    after = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class RateLimitBucket(models.Model):

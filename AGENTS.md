@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–6 passed: account pages/APIs and teacher/class scope checks with authorized class list, roster and guarded CSV. The user explicitly authorized final review, README preparation and publication to their existing PearCrown/zhusuan GitHub repository. Preserve its existing history and other work; never upload secrets, local data, virtual environments or database binaries. Do not start maintenance/password/OTP groups without further instruction or invent scores. PROGRESS.md tracks the stage. Preserve local work and apply mandatory autonomous review on subsequent changes.
+Groups 1–7 passed locally; GitHub contains the published groups 1–6. Group 7 adds restricted HTML maintenance, atomic audit and permanent invalidation of old session hashes using session_revision. No real maintenance account was provisioned. Do not start password/OTP groups or publish before handoff. Preserve local data and remote history; never upload secrets or runtimes. Apply mandatory autonomous review and keep PROGRESS.md current.
 
 ## Persistent architecture and business decisions
 
@@ -14,7 +14,7 @@ Groups 1–6 passed: account pages/APIs and teacher/class scope checks with auth
 - Students, teachers, and restricted maintainers are separate permissions. Teachers can still play; teacher status does not imply admin access. Maintainers do not automatically have score-query permissions.
 - Students can be unassigned or belong to one class; teachers may manage several explicitly authorized classes. Check roles, ownership, active status, and class scopes on the server for every relevant request, including CSV.
 - Identity comes from the session, never trusted client userId/role/classId. Revocation/disablement must affect the next relevant request.
-- Group 4 checks current active state and revokes a disabled session when presented. Group 7 must additionally implement global session revocation on maintenance disable/re-enable, including tokens never presented while disabled; do not claim that stronger behavior is already implemented.
+- Group 4 revokes a disabled session when presented. Group 7 maintenance now also increments session_revision in the framework auth hash to permanently invalidate all previous tokens, including never-presented tokens across disable/re-enable. Direct SQL/shell changes bypass this service and do not automatically get the same audit/revocation guarantee.
 - Password change/reset invalidates all old sessions including the current session. Reset credentials are short-lived and one-use, with atomic consumption.
 - Template pages and JSON endpoints share business logic. APIs return JSON errors instead of HTML login redirects. Keep CSRF active; default same-site architecture.
 - Username, email, and phone login must resolve to the same user; do not auto-merge or auto-create accounts on code login.

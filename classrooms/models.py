@@ -11,6 +11,7 @@ class Classroom(models.Model):
     code = models.CharField("班级编号", max_length=32, unique=True)
     name = models.CharField("班级名称", max_length=80)
     is_active = models.BooleanField(default=True)
+    maintenance_version = models.PositiveBigIntegerField(default=0, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

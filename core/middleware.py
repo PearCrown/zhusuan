@@ -20,7 +20,7 @@ class ApiSessionMiddleware(SessionMiddleware):
             return super().process_response(request, response)
         except (DatabaseError, SessionInterrupted) as error:
             match = getattr(request, "resolver_match", None)
-            if not request.path.startswith("/auth/") and not getattr(getattr(match, "func", None), "is_api_endpoint", False):
+            if not request.path.startswith(("/auth/", "/maintenance/")) and not getattr(getattr(match, "func", None), "is_api_endpoint", False):
                 raise
             if isinstance(error, SessionInterrupted):
                 result = failure("authentication_required", "登录已失效，请重新登录。", 401)
