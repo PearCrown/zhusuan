@@ -6,6 +6,7 @@ from accounts.password_pages import password_page
 urlpatterns = [
     path("auth/", include("accounts.urls")),
     path("teacher/", include("classrooms.urls")),
+    path("game/", include("gameplay.urls")),
     path("maintenance/", include("accounts.maintenance_urls")),
     path("password/change/", password_page, {"mode": "change"}),
     path("password/reset/", password_page, {"mode": "reset"}),

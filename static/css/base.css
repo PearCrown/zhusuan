@@ -49,6 +49,9 @@ footer { color: #626c61; font-size: 12px; text-align: center; padding: 0 20px 28
 .maintenance-form input[type="checkbox"] { width: 22px; min-height: 22px; height: 22px; vertical-align: middle; }
 .maintenance-form .errorlist { color: #952c26; }
 #password-form input { margin-bottom: 16px; }
+.sample-answer { border-top: 1px solid #d9ded2; margin-top: 20px; padding-top: 16px; }
+.sample-answer input { margin-bottom: 12px; }
+.score-panel { border-top: 1px solid #d9ded2; margin-top: 24px; padding-top: 24px; }
 #issued-reset-credential { display: block; overflow-wrap: anywhere; }
 h1.workspace-title { font-family: inherit; font-size: 28px; }
 .class-list { padding: 0; list-style: none; display: grid; gap: 10px; }

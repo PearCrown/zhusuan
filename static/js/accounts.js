@@ -31,6 +31,7 @@
     byId("teacher-link").hidden = true;
     byId("maintenance-link").hidden = true;
     byId("password-change-link").hidden = true;
+    byId("game-link").hidden = true;
     ["welcome", "identity-username", "identity-roles", "identity-class", "identity-teaching"].forEach((id) => {
       byId(id).textContent = "";
     });
@@ -77,6 +78,7 @@
     }
     byId("identity").hidden = false;
     byId("password-change-link").hidden = false;
+    byId("game-link").hidden = false;
     byId("maintenance-link").hidden = !user.roles.includes("maintainer");
   }
 

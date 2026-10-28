@@ -115,3 +115,45 @@ test('duplicate class clicks issue only one pending data request', async (t) => 
   release(ok(roster));
   await a.idle();
 });
+
+test('scores render safely and revoked score export removes old scores without downloading errors', async (t) => {
+  const a = await setup(t);
+  a.respond(() => ok(roster));
+  a.id('class-list').querySelector('button').click();
+  await a.idle();
+  a.respond(() => ok({ items: [{ username: 'learner', displayName: '<img src=x>', chapterId: 'sample-counting', questionBank: { version: '1' }, score: 100, maxScore: 100 }], total: 1, page: 1, hasNext: false }));
+  a.id('load-scores').click();
+  await a.idle();
+  assert.equal(a.calls.at(-1).url, '/game/api/teacher/classes/class-a/scores?page=1');
+  assert.match(a.id('scores-body').textContent, /100 \/ 100/);
+  assert.match(a.id('scores-body').textContent, /<img/);
+  assert.equal(a.id('scores-body').querySelector('img'), null);
+  let downloads = 0;
+  a.w.URL.createObjectURL = () => { downloads++; return 'blob:fake'; };
+  a.respond(() => fail('class_not_found'));
+  a.id('export-scores').click();
+  await a.idle();
+  assert.equal(a.calls.at(-1).url, '/game/api/teacher/classes/class-a/scores.csv');
+  assert.equal(downloads, 0);
+  assert.equal(a.id('scores-body').children.length, 0);
+  assert.equal(a.id('teacher-scores').hidden, true);
+  assert.equal(a.id('class-list').children.length, 0);
+});
+
+test('late score response cannot restore scores after the page hides', async (t) => {
+  const a = await setup(t);
+  a.respond(() => ok(roster));
+  a.id('class-list').querySelector('button').click();
+  await a.idle();
+  let release;
+  a.respond(() => new Promise(resolve => { release = resolve; }));
+  a.id('load-scores').click();
+  await until(() => Boolean(release));
+  Object.defineProperty(a.w.document, 'hidden', { configurable: true, value: true });
+  a.w.document.dispatchEvent(new a.w.Event('visibilitychange'));
+  release(ok({ items: [{ username: 'old-user', displayName: 'old-data', chapterId: 'sample-counting', questionBank: { version: '1' }, score: 100, maxScore: 100 }], total: 1, page: 1, hasNext: false }));
+  await a.idle();
+  assert.equal(a.id('scores-body').children.length, 0);
+  assert.equal(a.id('teacher-scores').hidden, true);
+  assert.equal(a.id('class-list').children.length, 0);
+});

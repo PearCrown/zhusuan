@@ -14,7 +14,7 @@
     <section class="card" aria-labelledby="teacher-title">
       <p class="eyebrow">教师工作区 · 基础权限验收</p>
       <h1 id="teacher-title" class="workspace-title">我的授权班级</h1>
-      <p class="note">这里只显示当前授权班级及在班的启用账号。游戏进度与成绩尚未接入；班级归属和教师授权由后续维护后台管理。</p>
+      <p class="note">查看授权班级、当前启用账号名单及接入样例成绩。成绩按提交时的班级归属保存；转班后旧成绩不会自动转入新班。班级与授权由维护台管理。</p>
       <p id="teacher-status" class="status" role="status" aria-live="polite" aria-atomic="true">正在检查班级访问权限…</p>
       <noscript><p class="error">请启用 JavaScript，才能查看授权班级。</p></noscript>
       <button id="reload-classes" class="secondary" type="button">刷新授权班级</button>
@@ -26,6 +26,8 @@
         <button id="export-roster" class="secondary" type="button">导出本班名单 CSV</button>
         <div class="table-wrap"><table><thead><tr><th scope="col">用户名</th><th scope="col">显示名称</th></tr></thead><tbody id="students-body"></tbody></table></div>
         <div class="actions"><button id="students-prev" class="secondary" type="button" hidden>上一页学生</button><button id="students-next" class="secondary" type="button" hidden>下一页学生</button></div>
+        <section class="score-panel"><h3>接入样例成绩</h3><div class="actions"><button id="load-scores" class="secondary" type="button">查看本班成绩</button><button id="export-scores" class="secondary" type="button">导出本班成绩 CSV</button></div>
+        <section id="teacher-scores" hidden><p id="scores-summary" class="hint"></p><div class="table-wrap"><table><thead><tr><th>账号</th><th>章节与题库版本</th><th>成绩</th></tr></thead><tbody id="scores-body"></tbody></table></div><div class="actions"><button id="scores-prev" class="secondary" type="button" hidden>上一页成绩</button><button id="scores-next" class="secondary" type="button" hidden>下一页成绩</button></div></section></section>
       </section>
     </section>
   </main>

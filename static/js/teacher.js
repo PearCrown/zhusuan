@@ -6,6 +6,7 @@
   let epoch = 0;
   let classPage = 1;
   let studentPage = 1;
+  let scorePage = 1;
   let selected = null;
 
   function status(text, error = false) {
@@ -19,6 +20,11 @@
     id("students-body").replaceChildren();
     id("students-prev").hidden = true;
     id("students-next").hidden = true;
+    id("teacher-scores").hidden = true;
+    id("scores-body").replaceChildren();
+    id("scores-summary").textContent = "";
+    id("scores-prev").hidden = true;
+    id("scores-next").hidden = true;
   }
   function clearAll() {
     clearRoster();
@@ -61,7 +67,7 @@
           authentication_required: "登录已失效，请返回账号中心重新登录。",
           teacher_access_required: "当前没有此操作所需的教师权限，请联系维护人员。",
           class_not_found: "此班级不存在或授权已变更，请刷新授权班级。",
-          export_too_large: "班级超过单次2000人导出上限，请联系维护人员。",
+          export_too_large: "导出超过单次2000条记录上限，请联系维护人员。",
         };
         status(messages[error.code] || "无法读取授权数据。请确认连接后，点击刷新授权班级重试。", true);
       }
@@ -119,6 +125,39 @@
   id("classes-next").addEventListener("click", () => { void run(() => loadClasses(classPage + 1)); });
   id("students-prev").addEventListener("click", () => { if (selected) void run(() => loadStudents(selected, studentPage - 1)); });
   id("students-next").addEventListener("click", () => { if (selected) void run(() => loadStudents(selected, studentPage + 1)); });
+  async function loadScores(page) {
+    if (!selected) return;
+    id("teacher-scores").hidden = true;
+    id("scores-body").replaceChildren();
+    const data = await fetchData(`/game/api/teacher/classes/${encodeURIComponent(selected)}/scores?page=${page}`);
+    scorePage = data.page;
+    id("scores-summary").textContent = `共${data.total}条已提交计分记录，当前第${data.page}页。`;
+    for (const result of data.items) {
+      const tr = document.createElement("tr");
+      for (const value of [`${result.username} · ${result.displayName}`, `${result.chapterId} · 题库${result.questionBank.version}`, `${result.score} / ${result.maxScore}`]) {
+        const td = document.createElement("td"); td.textContent = value; tr.append(td);
+      }
+      id("scores-body").append(tr);
+    }
+    id("scores-prev").hidden = scorePage <= 1;
+    id("scores-next").hidden = !data.hasNext;
+    id("teacher-scores").hidden = false;
+    status("已按当前授权读取历史提交成绩。");
+  }
+  id("load-scores").addEventListener("click", () => { void run(() => loadScores(1)); });
+  id("scores-prev").addEventListener("click", () => { void run(() => loadScores(scorePage - 1)); });
+  id("scores-next").addEventListener("click", () => { void run(() => loadScores(scorePage + 1)); });
+  id("export-scores").addEventListener("click", () => {
+    if (!selected) return;
+    const classId = selected;
+    void run(async () => {
+      const blob = await fetchData(`/game/api/teacher/classes/${encodeURIComponent(classId)}/scores.csv`, true);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a"); link.href = url; link.download = `class-${classId}-scores.csv`;
+      document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      status("成绩已生成并交给浏览器下载。");
+    });
+  });
   id("export-roster").addEventListener("click", () => {
     if (!selected) return;
     const classId = selected;

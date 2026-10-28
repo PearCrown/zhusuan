@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "core",
     "accounts",
     "classrooms",
+    "gameplay",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -8,6 +8,8 @@
 
 ## 通用返回
 
+第9组新增章节列表、统一存档、动作提交、教师成绩和成绩CSV，字段与版本约定见 [GAME_INTEGRATION.md](GAME_INTEGRATION.md)。当前全套后端186项、DOM41项通过；此前数字为阶段历史。
+
 成功：`{"ok": true, "data": {...}}`
 
 失败：`{"ok": false, "error": {"code": "固定错误代码", "message": "用户提示", "fields": {"字段": ["原因"]}}}`

@@ -4,7 +4,7 @@ This is the independent account module for 《铸算·华夏纪》. The user is 
 
 ## Current task boundary
 
-Groups 1–8 passed locally; GitHub contains groups 1–6. Group 8 provides password change and maintainer-assisted one-use recovery with reauthentication, hashed credentials bound to revision/auth state, audit and full old-session invalidation. No real password was changed or real maintainer provisioned. Do not start game/contacts/OTP work or publish before handoff. Preserve data and apply mandatory autonomous review.
+Groups 1–9 passed locally: 186 backend and 41 DOM checks; real browser sample play, restored progress/result and scoped teacher score display. See docs/GAME_INTEGRATION.md for the chapter/save/question-bank contract. Narrative remains placeholder. Do not start contacts/OTP or upload until the next group is authorized. Preserve data and apply mandatory autonomous review.
 
 ## Persistent architecture and business decisions
 
@@ -21,6 +21,7 @@ Groups 1–8 passed locally; GitHub contains groups 1–6. Group 8 provides pass
 - Group 10 only prepares contact/message extensions. Group 11 implements code workflows and is optional later work, not implied scope of Nov 10 acceptance.
 - Development senders cannot run in production or return codes from public APIs. Do not send real messages, buy services, or publicly deploy without user authorization.
 - Keep secrets/local database out of Git. Record important maintenance actions without secrets.
+- User's game direction: mainline story/tasks and scored practice may be parallel branches. The three-question sample only proves integration, not mandatory gameplay. Keep separate state, allow story-only chapters without scores, preserve immutable question-bank versions and an update/provider interface. Do not overhaul the plan or build full plot/question-bank administration now.
 
 ## Verification
 
