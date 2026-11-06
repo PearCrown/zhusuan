@@ -25,3 +25,7 @@
 ## A侧工程接轨上传（2026-11-06）
 
 用户已授权获取zhusuan并上传做好内容。本次仅上传docs/A_ENGINEERING_BASELINE.md和PROGRESS.md、docs/REVIEW.md、本记录，独立分支codex/a-engineering-baseline-20261106，不覆盖main，不包含原协作规范整套搬入、数据库、环境配置或本地路径/凭据。核对基线c170181及远程后创建提交；发布是否成功以远程分支/PR核验为准。本轮没有应用测试或新功能完成声明。
+
+## A-003 上传范围（2026-11-06）
+
+用户继续授权A侧开发并上传。基于4fec4a9建立独立worktree和codex/a-scene-host-20261106分支，保留上一任务工作目录修改。本轮发布scene-host.js、独立测试、package.json测试入口、接入说明/任务卡及README/阶段/复查/本记录。无运行依赖或锁文件变更，不包含node_modules、环境、数据库、备份或本地助手。npm ci与62项UI检查通过；后端/浏览器/负载未执行。按正常分支提交并核对远端，不覆盖main或强推。
