@@ -236,6 +236,7 @@ npm run test:ui
 
 ## 进一步阅读
 
+- [A侧场景宿主与Runner接入边界](docs/SCENE_HOST.md)（新增客户端模块，尚未装配正式游戏）
 - [本地网页人工验收记录](docs/MANUAL_ACCEPTANCE_2026-10-28.md)
 - [密码恢复入口与导航说明](docs/NAVIGATION.md)
 - [阶段记录](PROGRESS.md) · [自主复查](docs/REVIEW.md) · [发布审查](docs/PUBLISH_REVIEW.md)
