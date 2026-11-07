@@ -7,6 +7,7 @@
   // Volatile only. Never render an entry until an authenticated read returns its context.
   const suspensions = new Map();
   let progress, questions = [], model, view, host, token, runnerController, dialogueLock, pauseLock, nextExitAction = "return";
+  let taskSaveContext = null;
   const heldActions = new Set();
   let busy = false, pending = false, epoch = 0, taskNumber = 0, lastFrame = null, frame, focusAfter;
   const status = (message, error = false) => {id("status").textContent = message; id("status").classList.toggle("error", error);};
@@ -18,7 +19,7 @@
   function reset() {
     epoch++; focusAfter = null; client.invalidate(); closeDialogue();
     locks.release(pauseLock); pauseLock = null; id("pause").hidden = true; id("save-choice").hidden = true;
-    try {host?.dispose();} finally {host = null; token = null; runnerController = null;}
+    try {host?.dispose();} finally {host = null; token = null; taskSaveContext = null; runnerController = null;}
     view?.dispose(); view = null; model = null; progress = null; questions = []; lastFrame = null;
     for (const name of ["chapters", "locations", "scene", "runner"]) id(name).hidden = true;
     for (const name of ["quest-state", "runner-content", "runner-status", "dialogue-text", "level-state"]) id(name).replaceChildren();
@@ -52,7 +53,7 @@
       if (id("nearby").textContent !== text) id("nearby").textContent = text;
     }
   }
-  async function run(fn) {
+  async function run(fn, {mapRecovery = false} = {}) {
     if (busy) return;
     busy = true; clearInput();
     const lock = locks.acquire("network"); controls();
@@ -61,7 +62,10 @@
       if (!error.stale) {
         remember();
         reset();
-        status(error.code === "authentication_required" ? "登录已失效，请返回账号中心重新登录。" : "操作结果尚未确认。请重新读取进度，勿重复提交。", true);
+        if (error.code === "authentication_required") status("登录已失效，请返回账号中心重新登录。", true);
+        else if (mapRecovery) status("暂时无法读取地图。请打开菜单，重新读取进度。", true);
+        else status("操作结果尚未确认。请重新读取进度，勿重复提交。", true);
+        if (mapRecovery) focusAfter = id("open-menu");
       }
     } finally {
       busy = false; locks.release(lock); clearInput(); controls();
@@ -112,8 +116,17 @@
       context: {chapterId: data.chapterId, levelSessionId: `preview-${epoch}`, sceneId: data.sceneId, sessionEpoch: `page-${epoch}`},
       scene: data.scene, locks, clearInput,
       readProgress: async ({signal}) => {
-        const result = await client.load(); signal.throwIfAborted();
-        questions = result.questions; acceptProgress(result.progress); return result.progress;
+        // Keep an unchecked response out of the active client's cache.
+        const reader = new window.HuaxiaChapterClient(data.chapterId);
+        const result = await reader.load();
+        signal.throwIfAborted();
+        if (!taskSaveContext || result.saveContext !== taskSaveContext) {
+          throw Object.assign(Error("Save context changed during return"), {code: "save_context_changed"});
+        }
+        questions = result.questions;
+        acceptProgress(result.progress);
+        client.accept(result);
+        return result.progress;
       },
       restoreScene: ({snapshot, signal}) => {signal.throwIfAborted(); model.restore(snapshot); view.draw(model);},
       callbacks: {submitRequested: report => {void run(() => saveAnswer(report.value));}},
@@ -184,22 +197,33 @@
     }
     checkpoint ||= suspensions.get(client.saveContext);
     id("runner-content").replaceChildren(); id("runner-status").textContent = "答案只有确认保存后才写入服务器。";
-    id("retry-return").hidden = true; id("exit-runner").hidden = false;
+    id("retry-return").hidden = true; id("return-to-map").hidden = true; id("exit-runner").hidden = false;
+    taskSaveContext = client.saveContext;
     // This ID is a presentation-only legacy bridge, never sent as a server task instance.
     token = host.beginTask({instanceId: `legacy-preview-${++taskNumber}`, runner: legacyRunner(), host: id("runner-content"), snapshot: model.capture(), draft: checkpoint?.draft});
     if (checkpoint) suspensions.delete(checkpoint.saveContext);
     id("runner").hidden = false; focusAfter = id("runner-content").querySelector("input");
   }
   async function returnFromTask() {
+    const returningToken = token;
     runnerController = null;
     try {
-      await host.returnToScene(token); host.finishReturn(token); token = null; runnerController = null;
+      await host.returnToScene(returningToken);
+      if (token !== returningToken) return;
+      host.finishReturn(returningToken);
+      token = null; taskSaveContext = null;
       id("runner").hidden = true; id("viewport").focus(); status("已读取服务器进度，返回进入任务前的位置。");
     } catch (error) {
-      if (error.code === "RETURN_CONTEXT_EXPIRED") return;
-      if (["authentication_required", "save_context_changed"].includes(error.code)) throw error;
-      id("runner-status").textContent = "尚未恢复场景，请重试读取；也可重新读取进度返回地图。";
-      id("exit-runner").hidden = true; id("retry-return").hidden = false;
+      if (token !== returningToken || error.code === "RETURN_CONTEXT_EXPIRED") return;
+      if (error.code === "save_context_changed") {
+        reset();
+        status("会话或题目已变化。请从菜单重新读取进度，再选择关卡。", true);
+        focusAfter = id("open-menu");
+        return;
+      }
+      if (error.code === "authentication_required") throw error;
+      id("runner-status").textContent = "尚未恢复场景。请重试，或重新读取进度后返回地图。";
+      id("exit-runner").hidden = true; id("retry-return").hidden = false; id("return-to-map").hidden = false;
       focusAfter = id("retry-return");
     }
   }
@@ -278,6 +302,7 @@
   });});
   id("exit-runner").addEventListener("click", () => requestExit());
   id("retry-return").addEventListener("click", () => {void run(returnFromTask);});
+  id("return-to-map").addEventListener("click", () => {void run(load, {mapRecovery: true});});
   function releaseKeys() {keys.clear(); heldActions.clear(); clearInput();}
   window.addEventListener("keydown", event => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;

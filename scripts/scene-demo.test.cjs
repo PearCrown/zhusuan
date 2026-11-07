@@ -129,9 +129,84 @@ test('failed return keeps scene locked and explicit retry re-reads without repla
   a.id('exit-runner').click(); await until(() => !a.id('retry-return').hidden && !a.id('reload').disabled);
   const x = a.x(); a.key('keydown', 'ArrowRight'); a.frame(); assert.equal(a.x(), x);
   const writes = a.calls.filter(c => c.payload).length;
+  const camera = a.id('viewport').querySelector('.scene-world').style.transform;
+  a.progress().revision++;
+  a.progress().state.story.quest = 'submitted';
+  a.progress().result = {score: 62, maxScore: 100};
   a.override(null); a.id('retry-return').click(); await until(() => a.id('runner').hidden && !a.id('reload').disabled);
+  assert.equal(a.x(), x);
+  assert.equal(a.id('viewport').querySelector('.scene-world').style.transform, camera);
+  assert.equal(a.w.document.activeElement, a.id('viewport'));
+  assert.match(a.id('quest-state').textContent, /62 \/ 100/);
   assert.equal(a.calls.filter(c => c.payload).length, writes);
 });
+test('ordinary return rejects a rotated save context before rendering the new result in the old scene', async t => {
+  const a = await setup(t); await a.enter(); await a.task();
+  const hud = a.id('quest-state'), rendered = [];
+  const observer = new a.w.MutationObserver(records => {
+    for (const record of records) for (const node of record.addedNodes) rendered.push(node.textContent);
+  });
+  observer.observe(hud, {childList: true});
+  t.after(() => observer.disconnect());
+  const changed = clone(a.progress());
+  changed.revision++;
+  changed.state.story.quest = 'submitted';
+  changed.result = {score: 67, maxScore: 100};
+  const writes = a.calls.filter(c => c.payload).length;
+  a.override(url => url.endsWith('/progress') ? {ok: true, json: async () => ({ok: true, data: {
+    saveContext: 'other-return-context', progress: changed, questions: [{prompt: '新题一'}, {prompt: '新题二'}],
+  }})} : null);
+  a.id('exit-runner').click();
+  await until(() => a.id('runner').hidden && !a.id('reload').disabled);
+  assert.equal(a.id('scene').hidden, true);
+  assert.equal(a.id('viewport').childElementCount, 0);
+  assert.equal(a.id('runner-content').childElementCount, 0);
+  assert.equal(hud.textContent, '');
+  assert.ok(rendered.every(text => !text.includes('67')));
+  assert.match(a.id('status').textContent, /会话或题目已变化/);
+  assert.equal(a.w.document.activeElement, a.id('open-menu'));
+  assert.equal(a.calls.filter(c => c.payload).length, writes);
+  a.override(null);
+  a.id('open-menu').click(); a.id('reload').click();
+  await until(() => !a.id('chapters').hidden && !a.id('reload').disabled);
+  assert.equal(a.w.document.activeElement, a.id('choose-chapter'));
+  assert.equal(a.id('scene').hidden, true);
+  assert.equal(a.calls.filter(c => c.payload).length, writes);
+});
+
+test('failed return offers a keyboard focus path to the map and recovery if the read still fails', async t => {
+  for (const mapReadFails of [false, true]) {
+    const a = await setup(t); await a.enter(); await a.task();
+    const writes = a.calls.filter(c => c.payload).length;
+    const offline = url => url.endsWith('/progress') ? Promise.reject(Error('offline')) : null;
+    a.override(offline);
+    a.id('exit-runner').click();
+    await until(() => !a.id('retry-return').hidden && !a.id('reload').disabled);
+    const retry = a.id('retry-return'), map = a.id('return-to-map');
+    assert.ok(map && !map.hidden && !map.disabled);
+    assert.equal(a.w.document.activeElement, retry);
+    const key = new a.w.KeyboardEvent('keydown', {key: 'Tab', shiftKey: true, bubbles: true, cancelable: true});
+    retry.dispatchEvent(key);
+    assert.equal(key.defaultPrevented, true);
+    assert.equal(a.w.document.activeElement, map);
+    if (!mapReadFails) a.override(null);
+    // JSDOM does not synthesize a native button click from Enter.
+    map.click();
+    await until(() => a.id('scene').hidden && !a.id('reload').disabled);
+    assert.equal(a.id('runner-content').childElementCount, 0);
+    if (mapReadFails) {
+      assert.match(a.id('status').textContent, /暂时无法读取地图.*菜单/);
+      assert.equal(a.w.document.activeElement, a.id('open-menu'));
+      a.override(null);
+      a.id('open-menu').click(); a.id('reload').click();
+    }
+    await until(() => !a.id('chapters').hidden && !a.id('reload').disabled);
+    assert.equal(a.w.document.activeElement, a.id('choose-chapter'));
+    assert.equal(a.id('runner').hidden, true);
+    assert.equal(a.calls.filter(c => c.payload).length, writes);
+  }
+});
+
 test('lost mutation response clears old UI and never auto-replays; stale listing cannot reopen hidden data', async t => {
   const a = await setup(t); await a.enter(); await a.walk('守门人');
   a.override((url, options) => options.method === 'POST' ? Promise.reject(Error('lost')) : null);
