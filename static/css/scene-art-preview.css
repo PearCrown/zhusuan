@@ -12,6 +12,13 @@ button {font:inherit;color:inherit;cursor:pointer;} :focus-visible {outline:3px 
 .scene-player::before,.scene-npc .entity-shape::before {content:"";position:absolute;left:24%;top:4%;width:52%;height:20%;border:3px solid #eee1b9;border-radius:50%;background:#a5ab8c;}
 .scene-player::after {content:"";position:absolute;top:13%;right:21%;width:9px;height:9px;border-radius:50%;background:#38493b;}
 .scene-player[data-facing="left"]::after {right:auto;left:21%;}
+.scene-player.sprite-ready {background:none;border:0;box-shadow:none;}
+.scene-player.sprite-ready::before,.scene-player.sprite-ready::after {display:none;}
+.apprentice-sprite {
+  display:block;position:absolute;left:calc(50% - var(--foot-x));top:calc(100% - var(--foot-y));
+  transform-origin:var(--foot-x) var(--foot-y);pointer-events:none;
+}
+.scene-player[data-facing="left"] .apprentice-sprite {transform:scaleX(-1);}
 .actor-name {position:absolute;bottom:calc(100% + 16px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:20px;background:#243d32e6;padding:7px 13px;border:1px solid #ded1a0;}
 .scene-entity {z-index:3;padding:0;border:0;background:transparent;min-width:48px;text-align:center;cursor:default;}
 .entity-shape {display:block;position:relative;width:44px;height:38px;margin:auto;background:#a08b4e;border:3px solid #eadab1;border-radius:3px;box-shadow:0 0 0 2px #473d2a;}

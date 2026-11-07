@@ -21,7 +21,47 @@
   const image = document.createElement("img"); image.alt = ""; image.draggable = false;
   image.src = "assets/preview/gate-road-concept-v01.png";
   view.world.querySelector(".scene-backdrop").append(image);
-  const name = document.createElement("span"); name.className = "actor-name"; name.textContent = "学徒 · 占位"; view.player.append(name);
+  const playerLabel = document.createElement("span");
+  playerLabel.className = "actor-name";
+  playerLabel.textContent = "学徒 · 占位";
+  view.player.append(playerLabel);
+  const hudLabel = document.querySelector(".preview-hud p");
+
+  // Source bounds come from the C-003-V alpha measurement.
+  const apprentice = {
+    src: "assets/preview/apprentice-standing-right-v01.png",
+    width: 1024, height: 1536, visibleHeight: 1453,
+    footX: 512, footY: 1496,
+  };
+  const sprite = document.createElement("img");
+  sprite.className = "apprentice-sprite";
+  sprite.alt = "";
+  sprite.draggable = false;
+  sprite.hidden = true;
+  const spriteScale = data.art.playerHeight / apprentice.visibleHeight;
+  sprite.style.width = `${apprentice.width * spriteScale}px`;
+  sprite.style.height = `${apprentice.height * spriteScale}px`;
+  sprite.style.setProperty("--foot-x", `${apprentice.footX * spriteScale}px`);
+  sprite.style.setProperty("--foot-y", `${apprentice.footY * spriteScale}px`);
+
+  function keepPlaceholder() {
+    hudLabel.textContent = "美术试放 / 学徒素材未载入";
+    sprite.remove();
+  }
+
+  sprite.addEventListener("load", () => {
+    if (sprite.naturalWidth !== apprentice.width || sprite.naturalHeight !== apprentice.height) {
+      keepPlaceholder();
+      return;
+    }
+    sprite.hidden = false;
+    view.player.classList.add("sprite-ready");
+    playerLabel.textContent = "学徒";
+    hudLabel.textContent = "美术试放 / 学徒站姿候选";
+  }, {once: true});
+  sprite.addEventListener("error", keepPlaceholder, {once: true});
+  view.player.prepend(sprite);
+  sprite.src = apprentice.src;
   function clearInput() {keys.clear(); model.clearInput(); lastTime = null;}
   function fit() {
     const stage = id("art-stage");
