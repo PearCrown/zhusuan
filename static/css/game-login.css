@@ -1,0 +1,21 @@
+/* Login-only skin: existing account DOM IDs, validation, cookies and CSRF stay intact. */
+html:has(.game-login), .game-login {width:100%;height:100%;margin:0;overflow:hidden;}
+.game-login {height:100dvh;background:#203d38;color:#efe6cf;}
+.game-login::before {content:"";position:fixed;inset:0;z-index:-2;background-image:var(--login-background);background-position:var(--login-background-position,center);background-size:cover;}
+.game-login::after {content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(90deg,#09221b55 0%,#09221b22 42%,#09221b99 100%);}
+.game-login main {position:fixed;inset:0;max-width:none;margin:0;padding:clamp(20px,4vh,48px) clamp(24px,6vw,120px);height:100dvh;display:grid;grid-template-columns:1fr minmax(400px,520px);align-items:center;gap:8vw;overflow:hidden;}
+.game-login .intro {padding:0;} .game-login .intro h1 {font-size:clamp(40px,5.6vw,88px);color:#eee5cc;line-height:1.3;letter-spacing:.1em;}
+.game-login .brand {display:block;color:#f1e1af;font-size:24px;margin-bottom:48px;}
+.game-login .intro-copy {color:#ded5be;max-width:420px;} .game-login .scope-note {margin-top:28px;padding-top:20px;color:#d3c9ac;border-color:#c4b78a66;}
+.game-login .card {max-height:calc(100dvh - 48px);overflow:auto;overscroll-behavior:contain;background:#f5f0dfee;border:1px solid #c7bb8a;border-radius:4px;padding:24px 32px;color:#203e33;box-shadow:0 16px 90px #06181077;}
+.game-login h2 {font-family:"STSong","SimSun",serif;font-size:26px;font-weight:500;} .game-login .status {margin:10px 0;padding:8px 10px;line-height:1.5;}
+.game-login .eyebrow {margin-bottom:10px;} .game-login .switcher {margin-bottom:12px;gap:22px;} .game-login .switcher button {padding:6px 0;min-height:34px;}
+.game-login label {margin-bottom:4px;font-size:12px;} .game-login input {min-height:38px;padding:8px 10px;font-size:14px;}
+.game-login .field-error:empty {display:none;} .game-login .field-error {margin:4px 0 8px;} .game-login .hint {margin:4px 0 10px;font-size:11px;line-height:1.5;}
+.game-login #login-form label:not(:first-of-type),.game-login #register-form label:not(:first-of-type) {margin-top:10px;}
+.game-login .note {margin:10px 0 0;font-size:11px;line-height:1.5;} .game-login .primary {margin-top:14px;}
+.game-login dl {margin:12px 0;} .game-login dl div {padding:8px 0;} .game-login .actions {gap:8px;margin-top:14px;} .game-login .actions a,.game-login .actions button {font-size:13px;padding:8px 12px;min-height:38px;}
+@media(max-height:800px) and (min-width:900px) {.game-login .card {padding:20px 28px;} .game-login .card>.eyebrow {display:none;} .game-login #panel-title {font-size:24px;} .game-login .note {margin-top:6px;} .game-login .hint {margin-bottom:6px;} .game-login .brand {margin-bottom:28px;}}
+@media(max-width:900px) {.game-login main {grid-template-columns:1fr;justify-items:center;padding:22px;} .game-login .intro {position:absolute;left:24px;top:20px;} .game-login .intro>*:not(.brand) {display:none;} .game-login .brand {font-size:20px;margin:0;} .game-login .card {width:min(520px,100%);max-height:calc(100dvh - 100px);margin-top:44px;padding:20px 24px;}}
+.game-login {isolation:isolate;}
+.game-login .intro .eyebrow {color:#d6c69e;}

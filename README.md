@@ -236,6 +236,7 @@ npm run test:ui
 
 ## 进一步阅读
 
+- [全屏游戏与键盘输入纠偏记录](docs/FULLSCREEN_REVIEW.md)（本地待集成，含截图与剩余缺口）
 - [A侧场景宿主与Runner接入边界](docs/SCENE_HOST.md)（新增客户端模块，尚未装配正式游戏）
 - [本地网页人工验收记录](docs/MANUAL_ACCEPTANCE_2026-10-28.md)
 - [密码恢复入口与导航说明](docs/NAVIGATION.md)
