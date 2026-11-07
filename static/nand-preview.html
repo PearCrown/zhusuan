@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NAND 接线台 · 铸算·华夏纪</title>
+  <link rel="stylesheet" href="css/nand-preview.css">
+  <script defer src="js/scene-host.js"></script>
+  <script defer src="js/nand-preview-runner.js"></script>
+  <script defer src="js/nand-preview.js"></script>
+</head>
+<body>
+  <div class="nand-page">
+    <header class="nand-masthead">
+      <span>铸算<span aria-hidden="true"> / </span>华夏纪</span>
+      <span class="nand-preview-label">逻辑门 · 本地样例</span>
+    </header>
+    <main class="nand-main">
+      <section class="nand-intro" data-intro>
+        <div>
+          <p class="nand-eyebrow">逻辑门练习 / 01</p>
+          <h1>NAND 接线台</h1>
+          <p>将 A、B 接到两个门输入，再把门的输出接到 Y。切换输入，看看四种组合下 Y 的变化。</p>
+          <button type="button" class="nand-primary" data-start>开始接线</button>
+          <button type="button" data-reset hidden>从空白开始</button>
+          <p class="nand-help" role="status" data-intro-status>本地练习不计成绩。退出保留本页草稿，刷新会清空。</p>
+        </div>
+        <svg class="nand-intro-diagram" viewBox="0 0 400 260" aria-hidden="true">
+          <path d="M30 88H140M30 172H140M290 130H370"/>
+          <path d="M140 48H200a82 82 0 0 1 0 164H140Z"/>
+          <circle cx="290" cy="130" r="8"/>
+          <text x="40" y="70">A</text><text x="40" y="154">B</text><text x="339" y="109">Y</text>
+        </svg>
+      </section>
+      <div data-runner-host hidden></div>
+    </main>
+  </div>
+</body>
+</html>
