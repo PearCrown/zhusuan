@@ -9,6 +9,7 @@ const html = fs.readFileSync(path.join(root, '../templates/game.html'), 'utf8').
 const tick = () => new Promise(resolve => setImmediate(resolve));
 async function until(fn) {for (let i = 0; i < 40; i++) {if (fn()) return; await tick();} assert.ok(fn(), 'UI did not reach expected state');}
 const clone = value => JSON.parse(JSON.stringify(value));
+function visibility(a, hidden) {Object.defineProperty(a.w.document,'hidden',{configurable:true,value:hidden});a.w.document.dispatchEvent(new a.w.Event('visibilitychange'));}
 async function setup(t, ui = true) {
   const dom = new JSDOM(html, {url: 'http://localhost/static/scene-demo.html', runScripts: 'outside-only', pretendToBeVisual: true});
   const w = dom.window;
@@ -238,4 +239,95 @@ test('dialogue arrows select options and a held confirmation cannot close then t
   a.key('keydown','ArrowDown');a.key('keyup','ArrowDown');assert.equal(a.w.document.activeElement,a.id('close-dialogue'));
   const requests=a.calls.length;a.key('keydown','Enter');assert.equal(a.id('dialogue').hidden,true);
   a.key('keydown','Enter');await tick();assert.equal(a.calls.length,requests);a.key('keyup','Enter');
+});
+test('tab hiding retains unsaved draft privately; authenticated same-context resume restores draft, camera and HUD without writes', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  const input=a.id('runner-content').querySelector('input');input.value='5';input.dispatchEvent(new a.w.Event('input'));
+  const x=a.x(),camera=a.id('viewport').querySelector('.scene-world').style.transform,writes=a.calls.filter(c=>c.payload).length;
+  visibility(a,true);a.w.dispatchEvent(new a.w.Event('pagehide'));
+  assert.equal(a.id('scene').hidden,true);assert.equal(a.id('runner-content').childElementCount,0);
+  const unload=new a.w.Event('beforeunload',{cancelable:true});a.w.dispatchEvent(unload);assert.equal(unload.defaultPrevented,true);
+  visibility(a,false);await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').querySelector('input').value,'5');assert.equal(a.x(),x);
+  assert.equal(a.id('viewport').querySelector('.scene-world').style.transform,camera);
+  assert.match(a.id('runner-content').querySelector('.muted').textContent,/未保存输入/);
+  assert.equal(a.calls.filter(c=>c.payload).length,writes);assert.equal(a.w.localStorage.length,0);assert.equal(a.w.sessionStorage.length,0);
+});
+test('different session context never exposes or uploads old draft; matching context can later recover the private entry', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  const input=a.id('runner-content').querySelector('input');input.value='777';input.dispatchEvent(new a.w.Event('input'));
+  const writes=a.calls.filter(c=>c.payload).length;visibility(a,true);
+  a.override(url=>url.endsWith('/progress')?{ok:true,json:async()=>({ok:true,data:{saveContext:'other-session',progress:clone(a.progress()),questions:[{questionId:'one',prompt:'2 + 3 = ?'},{questionId:'two',prompt:'3 + 4 = ?'}]}})}:null);
+  visibility(a,false);await until(()=>!a.id('chapters').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('scene').hidden,true);assert.equal(a.id('runner-content').childElementCount,0);
+  assert.equal(a.calls.filter(c=>c.payload).length,writes);
+  visibility(a,true);a.override(null);visibility(a,false);await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').querySelector('input').value,'777');
+});
+test('concurrent cloud answer remains authoritative while recovered local input shows both values', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  const input=a.id('runner-content').querySelector('input');input.value='5';input.dispatchEvent(new a.w.Event('input'));
+  visibility(a,true);a.progress().state.practice.answers[0]=9;a.progress().revision++;
+  const writes=a.calls.filter(c=>c.payload).length;visibility(a,false);await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').querySelector('input').value,'5');
+  assert.match(a.id('runner-content').querySelector('.muted').textContent,/云端当前为：9/);
+  assert.equal(a.progress().state.practice.answers[0],9);assert.equal(a.calls.filter(c=>c.payload).length,writes);
+});
+test('a late saved answer is reconciled after hiding instead of being sent again or called unsaved', async t => {
+  const a=await setup(t);await a.enter();await a.task();let release;
+  a.override((url,options)=>options.method==='POST'?new Promise(resolve=>{release=resolve;}):null);
+  const input=a.id('runner-content').querySelector('input');input.value='5';input.dispatchEvent(new a.w.Event('input'));
+  input.form.dispatchEvent(new a.w.Event('submit',{cancelable:true}));await until(()=>Boolean(release));
+  visibility(a,true);a.progress().state.practice.answers[0]=5;a.progress().revision++;
+  release({ok:true,json:async()=>({ok:true,data:{saveContext:'fixture-context',progress:clone(a.progress())}})});
+  await tick();a.override(null);visibility(a,false);await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.calls.filter(c=>c.payload?.action==='answer').length,1);
+  assert.match(a.id('runner-content').querySelector('.muted').textContent,/已由服务器保存/);
+  a.id('exit-runner').click();await until(()=>a.id('runner').hidden);assert.equal(a.id('save-choice').hidden,true);
+});
+test('failed revalidation keeps private draft recoverable and no account data visible', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  const input=a.id('runner-content').querySelector('input');input.value='5';input.dispatchEvent(new a.w.Event('input'));visibility(a,true);
+  a.override(()=>({ok:false,json:async()=>({ok:false,error:{code:'authentication_required'}})}));visibility(a,false);
+  await until(()=>a.id('status').textContent.includes('登录已失效')&&!a.id('reload').disabled);
+  assert.equal(a.id('scene').hidden,true);assert.equal(a.id('runner-content').childElementCount,0);
+  a.override(null);a.id('reload').click();await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').querySelector('input').value,'5');
+});
+test('return authentication failure exits the empty runner and offers account navigation instead of trapping retries', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  a.override(url=>url.endsWith('/progress')?{ok:false,json:async()=>({ok:false,error:{code:'authentication_required'}})}:null);
+  a.id('exit-runner').click();await until(()=>a.id('status').textContent.includes('登录已失效')&&!a.id('reload').disabled);
+  assert.equal(a.id('runner').hidden,true);a.key('keydown','Escape');a.key('keyup','Escape');
+  assert.equal(a.id('pause').hidden,false);assert.equal(a.id('pause').querySelector('a').getAttribute('href'),'/');
+});
+test('changed server scene is not automatically moved; explicit task re-entry can recover preserved local input', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  const input=a.id('runner-content').querySelector('input');input.value='5';input.dispatchEvent(new a.w.Event('input'));visibility(a,true);
+  a.progress().state.story.scene='gate';a.progress().revision++;const writes=a.calls.filter(c=>c.payload).length;
+  visibility(a,false);await until(()=>!a.id('scene').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner').hidden,true);assert.equal(a.calls.filter(c=>c.payload).length,writes);
+  a.interact();await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').querySelector('input').value,'5');
+  assert.equal(a.calls.filter(c=>c.payload).length,writes+1);
+});
+test('context rotation between resume reads never applies a private draft and leaves it recoverable', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  const input=a.id('runner-content').querySelector('input');input.value='777';input.dispatchEvent(new a.w.Event('input'));visibility(a,true);
+  let reads=0;a.override(url=>url.endsWith('/progress')&&++reads===2?{ok:true,json:async()=>({ok:true,data:{saveContext:'rotated',progress:clone(a.progress()),questions:[{questionId:'one',prompt:'2 + 3 = ?'},{questionId:'two',prompt:'3 + 4 = ?'}]}})}:null);
+  visibility(a,false);await until(()=>!a.id('chapters').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').childElementCount,0);assert.match(a.id('status').textContent,/会话或题目已变化/);
+  a.override(null);a.id('reload').click();await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').querySelector('input').value,'777');
+});
+test('uncertain answer save keeps local input for explicit re-read without replaying the mutation', async t => {
+  const a=await setup(t);await a.enter();await a.task();
+  const input=a.id('runner-content').querySelector('input');input.value='5';input.dispatchEvent(new a.w.Event('input'));
+  a.override((url,options)=>options.method==='POST'?Promise.reject(Error('lost response')):null);
+  input.form.dispatchEvent(new a.w.Event('submit',{cancelable:true}));
+  await until(()=>a.id('status').textContent.includes('尚未确认')&&!a.id('reload').disabled);
+  assert.equal(a.id('scene').hidden,true);a.override(null);a.id('reload').click();
+  await until(()=>!a.id('runner').hidden&&!a.id('reload').disabled);
+  assert.equal(a.id('runner-content').querySelector('input').value,'5');
+  assert.equal(a.calls.filter(c=>c.payload?.action==='answer').length,1);assert.equal(a.progress().state.practice.answers[0],null);
 });

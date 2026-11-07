@@ -4,6 +4,8 @@
   const client = new window.HuaxiaChapterClient(data.chapterId);
   const locks = new window.HuaxiaInputLocks();
   const keys = new Set();
+  // Volatile only. Never render an entry until an authenticated read returns its context.
+  const suspensions = new Map();
   let progress, questions = [], model, view, host, token, runnerController, dialogueLock, pauseLock, nextExitAction = "return";
   const heldActions = new Set();
   let busy = false, pending = false, epoch = 0, taskNumber = 0, lastFrame = null, frame, focusAfter;
@@ -57,6 +59,7 @@
     try {await fn();}
     catch (error) {
       if (!error.stale) {
+        remember();
         reset();
         status(error.code === "authentication_required" ? "登录已失效，请返回账号中心重新登录。" : "操作结果尚未确认。请重新读取进度，勿重复提交。", true);
       }
@@ -66,11 +69,11 @@
       else if (!document.hidden && !id("scene").hidden && !token) {
         (id("dialogue").hidden ? id("viewport") : focusables(id("dialogue"))[0]).focus();
       }
-      if (pending && !document.hidden) {pending = false; void run(load);}
+      if (pending && !document.hidden) {pending = false; void run(() => load(true));}
     }
   }
   function assertCurrent(started) {if (started !== epoch) throw Object.assign(Error("STALE"), {stale: true});}
-  async function load() {
+  async function load(resume = false) {
     reset(); const started = epoch;
     status("正在读取章节与服务器进度…");
     const listing = await client.request("/game/api/chapters"); assertCurrent(started);
@@ -82,18 +85,26 @@
     id("chapter-name").textContent = chapter.title;
     id("location-name").textContent = data.locationTitle; id("level-name").textContent = data.levelTitle;
     id("chapters").hidden = false; focusAfter = id("choose-chapter"); status("进度已读取，请选择章节。");
+    const checkpoint = resume ? suspensions.get(client.saveContext) : null;
+    if (checkpoint) {
+      if (await enterScene(checkpoint)) suspensions.delete(checkpoint.saveContext);
+    }
   }
   async function action(name, fields = {}) {
     const started = epoch;
     const result = await client.dispatch(name, fields); assertCurrent(started);
     acceptProgress(result.progress);
   }
-  async function enterScene() {
+  async function enterScene(checkpoint = null) {
     // Re-read on entry to catch changes made in the original sample or another tab.
     const started = epoch, result = await client.load(); assertCurrent(started);
     questions = result.questions; acceptProgress(result.progress);
+    if (checkpoint && checkpoint.saveContext !== client.saveContext) {
+      status("会话或题目已变化，旧输入未应用。请重新选择关卡。", true); return;
+    }
     closeDialogue(); host?.dispose(); view?.dispose();
     model = new window.HuaxiaSceneModel(data, locks);
+    if (checkpoint) model.restore(checkpoint.snapshot);
     view = new window.HuaxiaSceneView(id("viewport"), data, entityId => {
       if (!busy && !locks.locked && model.targets().some(entity => entity.id === entityId)) void run(() => interact(entityId));
     });
@@ -110,6 +121,15 @@
     id("locations").hidden = true; id("scene").hidden = false;
     id("scene-name").textContent = data.levelTitle; view.draw(model); id("viewport").focus();
     status("沿道路走近守门人。场景位置为本页临时状态。");
+    if (checkpoint) {
+      id("quest-state").hidden = checkpoint.taskbarCollapsed;
+      id("toggle-taskbar").setAttribute("aria-expanded", String(!checkpoint.taskbarCollapsed));
+      if (checkpoint.wasTask && progress.state.story.quest === "accepted" && progress.state.story.scene === "workshop" && !progress.result) {
+        await openTask(checkpoint);
+        status("已重新读取服务器进度并恢复任务界面；请按各题提示确认保存状态。");
+      } else status(checkpoint.wasTask ? "已恢复场景；任务状态已变化，未自动应用旧任务输入或写入服务器。" : "已重新读取服务器进度，恢复场景位置。移动按键已清空。");
+    }
+    return !checkpoint?.wasTask || Boolean(token && runnerController);
   }
   function legacyRunner() {
     return {mount(element, options, callbacks) {
@@ -137,6 +157,16 @@
         dirtyEntries: () => inputs.flatMap((input, index) => input.value === String(saved[index] ?? "") ? [] : [{questionIndex: index, answer: input.value}]),
         markSaved: index => {saved[index] = progress.state.practice.answers[index]; hints[index].textContent = "已保存";},
       };
+      const draft = options.draft;
+      if (draft && Array.isArray(draft.answers) && Array.isArray(draft.baseAnswers) && draft.answers.length === inputs.length && draft.baseAnswers.length === inputs.length) {
+        inputs.forEach((input, index) => {
+          const local = draft.answers[index], base = String(draft.baseAnswers[index] ?? "");
+          if (typeof local !== "string" || local === base) return;
+          input.value = local;
+          hints[index].textContent = local === String(saved[index] ?? "") ? "已由服务器保存" :
+            saved[index] !== draft.baseAnswers[index] ? `本地输入尚未保存；云端当前为：${saved[index] ?? "未填写"}。确认后可保存本地值。` : "已恢复本页未保存输入";
+        });
+      }
       return runnerController;
     }};
   }
@@ -145,14 +175,19 @@
     runnerController.markSaved(questionIndex); id("runner-status").textContent = "本题已保存至服务器。";
     focusAfter = id(`scene-answer-${questionIndex}`);
   }
-  async function openTask() {
+  async function openTask(checkpoint = null) {
     if (progress.result) {status("样例已结算，请到守门人或出口查看。"); return;}
     if (progress.state.story.quest !== "accepted") {status("请先向守门人接取委托。"); return;}
-    if (progress.state.story.scene !== "workshop") await action("move", {scene: "workshop"});
+    if (progress.state.story.scene !== "workshop") {
+      if (checkpoint) return;
+      await action("move", {scene: "workshop"});
+    }
+    checkpoint ||= suspensions.get(client.saveContext);
     id("runner-content").replaceChildren(); id("runner-status").textContent = "答案只有确认保存后才写入服务器。";
     id("retry-return").hidden = true; id("exit-runner").hidden = false;
     // This ID is a presentation-only legacy bridge, never sent as a server task instance.
-    token = host.beginTask({instanceId: `legacy-preview-${++taskNumber}`, runner: legacyRunner(), host: id("runner-content"), snapshot: model.capture()});
+    token = host.beginTask({instanceId: `legacy-preview-${++taskNumber}`, runner: legacyRunner(), host: id("runner-content"), snapshot: model.capture(), draft: checkpoint?.draft});
+    if (checkpoint) suspensions.delete(checkpoint.saveContext);
     id("runner").hidden = false; focusAfter = id("runner-content").querySelector("input");
   }
   async function returnFromTask() {
@@ -162,6 +197,7 @@
       id("runner").hidden = true; id("viewport").focus(); status("已读取服务器进度，返回进入任务前的位置。");
     } catch (error) {
       if (error.code === "RETURN_CONTEXT_EXPIRED") return;
+      if (["authentication_required", "save_context_changed"].includes(error.code)) throw error;
       id("runner-status").textContent = "尚未恢复场景，请重试读取；也可重新读取进度返回地图。";
       id("exit-runner").hidden = true; id("retry-return").hidden = false;
       focusAfter = id("retry-return");
@@ -223,7 +259,7 @@
   });});
   id("discard-and-return").addEventListener("click", () => {closeSaveChoice(); void run(nextExitAction === "reload" ? load : returnFromTask);});
   id("stay-in-task").addEventListener("click", () => {closeSaveChoice(); id("runner-content").querySelector("input")?.focus();});
-  id("reload").addEventListener("click", () => {if (dirty()) requestExit("reload"); else void run(load);});
+  id("reload").addEventListener("click", () => {if (dirty()) requestExit("reload"); else void run(() => load(true));});
   id("choose-chapter").addEventListener("click", () => {id("chapters").hidden = true; id("locations").hidden = false; id("enter-level").focus();});
   id("back-chapters").addEventListener("click", () => {id("locations").hidden = true; id("chapters").hidden = false; id("choose-chapter").focus();});
   id("enter-level").addEventListener("click", () => {void run(enterScene);});
@@ -287,11 +323,22 @@
   });
   window.addEventListener("keyup", event => {keys.delete(event.key.toLowerCase()); heldActions.delete(event.key.toLowerCase()); if (model && !locks.locked) model.direction = Number(keys.has("arrowright") || keys.has("d")) - Number(keys.has("arrowleft") || keys.has("a")); else clearInput();});
   window.addEventListener("blur", releaseKeys);
-  function hide() {releaseKeys(); reset(); status("返回时将重新验证身份并读取进度。未保存输入已清空。");}
-  function restore() {if (!document.hidden) {if (busy) pending = true; else void run(load);}}
+  function remember() {
+    if (!model || !progress || !client.saveContext) return;
+    const checkpoint = {
+      saveContext: client.saveContext, snapshot: model.capture(), taskbarCollapsed: id("quest-state").hidden,
+      wasTask: Boolean(token && runnerController),
+      draft: runnerController ? {...runnerController.exportDraft(), baseAnswers: [...progress.state.practice.answers]} : null,
+    };
+    const previous = suspensions.get(checkpoint.saveContext);
+    if (!previous?.draft || checkpoint.draft) suspensions.set(checkpoint.saveContext, checkpoint);
+  }
+  function suspendedDirty() {return [...suspensions.values()].some(entry => entry.draft?.answers.some((answer, index) => answer !== String(entry.draft.baseAnswers[index] ?? "")));}
+  function hide() {releaseKeys(); remember(); reset(); status("返回时将重新读取进度；未保存输入暂存于本页内存，不会自动提交。");}
+  function restore() {if (!document.hidden) {if (busy) pending = true; else void run(() => load(true));}}
   document.addEventListener("visibilitychange", () => {if (document.hidden) hide(); else restore();});
   window.addEventListener("pagehide", hide); window.addEventListener("pageshow", restore);
-  window.addEventListener("beforeunload", event => {if (dirty()) {event.preventDefault(); event.returnValue = "";}});
+  window.addEventListener("beforeunload", event => {if (dirty() || suspendedDirty()) {event.preventDefault(); event.returnValue = "";}});
   function animate(time) {
     if (model && view) {model.step(lastFrame === null ? 0 : Math.max(0, (time - lastFrame) / 1000)); view.draw(model); controls();}
     lastFrame = time; frame = requestAnimationFrame(animate);
