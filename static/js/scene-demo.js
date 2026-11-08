@@ -8,6 +8,7 @@
   const suspensions = new Map();
   let progress, questions = [], model, view, host, token, runnerController, dialogueLock, pauseLock, nextExitAction = "return";
   let taskSaveContext = null;
+  let chapterEntry, levelEntry;
   const heldActions = new Set();
   let busy = false, pending = false, epoch = 0, taskNumber = 0, lastFrame = null, frame, focusAfter;
   const status = (message, error = false) => {id("status").textContent = message; id("status").classList.toggle("error", error);};
@@ -22,7 +23,8 @@
     try {host?.dispose();} finally {host = null; token = null; taskSaveContext = null; runnerController = null;}
     view?.dispose(); view = null; model = null; progress = null; questions = []; lastFrame = null;
     for (const name of ["chapters", "locations", "scene", "runner"]) id(name).hidden = true;
-    for (const name of ["quest-state", "runner-content", "runner-status", "dialogue-text", "level-state"]) id(name).replaceChildren();
+    chapterEntry = levelEntry = null;
+    for (const name of ["chapter-nodes", "level-nodes", "quest-state", "runner-content", "runner-status", "dialogue-text", "level-state"]) id(name).replaceChildren();
   }
   function acceptProgress(value) {
     if (!value || value.chapterId !== data.chapterId || !Number.isSafeInteger(value.revision) || value.revision < 0 ||
@@ -37,7 +39,7 @@
     id("submit").hidden = value.state.story.quest !== "accepted";
   }
   function controls() {
-    document.querySelectorAll("button, #runner-content input").forEach(el => {el.disabled = busy;});
+    document.querySelectorAll("button, #runner-content input").forEach(el => {el.disabled = busy || el.hasAttribute("data-unavailable");});
     const mode = context();
     id("viewport").inert = mode !== "scene";
     id("taskbar").inert = mode !== "scene";
@@ -77,18 +79,79 @@
     }
   }
   function assertCurrent(started) {if (started !== epoch) throw Object.assign(Error("STALE"), {stale: true});}
+  function mapNode({title, seal, hint, kind, key, onChoose}) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "map-node";
+    button.dataset[kind] = key;
+    for (const [tag, text] of [["span", seal], ["span", title], ["small", hint]]) {
+      const label = document.createElement(tag);
+      label.textContent = text;
+      button.append(label);
+    }
+    button.firstChild.className = "node-seal";
+    button.firstChild.setAttribute("aria-hidden", "true");
+    if (onChoose) button.addEventListener("click", onChoose);
+    else {
+      button.dataset.unavailable = "";
+      button.disabled = true;
+    }
+    return button;
+  }
+  function renderMaps(listing) {
+    const chapters = new Map();
+    for (const chapter of listing.chapters) {
+      if (typeof chapter?.chapterId === "string" && chapter.chapterId && typeof chapter.title === "string") {
+        chapters.set(chapter.chapterId, chapter.title);
+      }
+    }
+    // Only this chapter and scene are wired to the existing game adapter.
+    if (chapters.has(data.chapterId)) {
+      for (const level of data.mapLevels) {
+        const playable = level.levelId === data.levelId && level.sceneId === data.sceneId;
+        const node = mapNode({
+          title: level.levelTitle, seal: level.seal, kind: "levelId", key: level.levelId,
+          hint: playable ? "进入关卡" : "场景暂不可用",
+          onChoose: playable ? () => {
+            if (!id("locations").hidden && id("pause").hidden) void run(enterScene);
+          } : null,
+        });
+        id("level-nodes").append(node);
+        if (playable) levelEntry = node;
+      }
+    }
+    for (const chapterId of [...chapters.keys()].sort()) {
+      const playable = chapterId === data.chapterId && Boolean(levelEntry);
+      const node = mapNode({
+        title: chapters.get(chapterId), seal: playable ? "壹" : "章", kind: "chapterId", key: chapterId,
+        hint: playable ? "进入章内地点" : "暂无可用关卡",
+        onChoose: playable ? () => {
+          if (busy || id("chapters").hidden || !id("pause").hidden) return;
+          id("chapters").hidden = true;
+          id("locations").hidden = false;
+          levelEntry.focus();
+        } : null,
+      });
+      id("chapter-nodes").append(node);
+      if (playable) chapterEntry = node;
+    }
+    id("location-name").textContent = data.locationTitle;
+  }
   async function load(resume = false) {
     reset(); const started = epoch;
     status("正在读取章节与服务器进度…");
     const listing = await client.request("/game/api/chapters"); assertCurrent(started);
-    const chapter = listing.chapters.find(item => item.chapterId === data.chapterId);
-    if (!chapter) throw Error("CHAPTER_UNAVAILABLE");
+    renderMaps(listing);
+    if (!chapterEntry) {
+      id("chapters").hidden = false;
+      focusAfter = id("open-menu");
+      status("暂无可进入的章节。");
+      return;
+    }
     const result = await client.load(); assertCurrent(started);
     if (!Array.isArray(result.questions) || result.questions.some(q => typeof q.prompt !== "string")) throw Error("INVALID_QUESTIONS");
     questions = result.questions; acceptProgress(result.progress);
-    id("chapter-name").textContent = chapter.title;
-    id("location-name").textContent = data.locationTitle; id("level-name").textContent = data.levelTitle;
-    id("chapters").hidden = false; focusAfter = id("choose-chapter"); status("进度已读取，请选择章节。");
+    id("chapters").hidden = false; focusAfter = chapterEntry; status("进度已读取，请选择章节。");
     const checkpoint = resume ? suspensions.get(client.saveContext) : null;
     if (checkpoint) {
       if (await enterScene(checkpoint)) suspensions.delete(checkpoint.saveContext);
@@ -100,6 +163,7 @@
     acceptProgress(result.progress);
   }
   async function enterScene(checkpoint = null) {
+    if (!levelEntry) return;
     // Re-read on entry to catch changes made in the original sample or another tab.
     const started = epoch, result = await client.load(); assertCurrent(started);
     questions = result.questions; acceptProgress(result.progress);
@@ -244,7 +308,7 @@
     closeDialogue(); host?.dispose(); host = null; view?.dispose(); view = null; model = null;
     id("scene").hidden = true; id("locations").hidden = false;
     controls();
-    if (busy) focusAfter = id("enter-level"); else id("enter-level").focus();
+    if (busy) focusAfter = levelEntry; else levelEntry?.focus();
   }
   function dirty() {return Boolean(runnerController?.dirty());}
   function focusables(root) {return [...root.querySelectorAll("button,a[href],input,select,textarea,[tabindex='0']")].filter(el => !el.disabled && !el.closest("[hidden]") && el.tabIndex >= 0);}
@@ -258,7 +322,10 @@
   function closePause(focus = true) {
     id("pause").hidden = true; locks.release(pauseLock); pauseLock = null; clearInput();
     controls();
-    if (focus) (model ? id("viewport") : id("chapters").hidden ? id("enter-level") : id("choose-chapter")).focus();
+    if (focus) {
+      const target = model ? id("viewport") : !id("locations").hidden ? levelEntry : !id("chapters").hidden ? chapterEntry : null;
+      (target || id("open-menu")).focus();
+    }
   }
   function openPause() {
     if (busy || token || dialogueLock) return;
@@ -284,10 +351,13 @@
   id("discard-and-return").addEventListener("click", () => {closeSaveChoice(); void run(nextExitAction === "reload" ? load : returnFromTask);});
   id("stay-in-task").addEventListener("click", () => {closeSaveChoice(); id("runner-content").querySelector("input")?.focus();});
   id("reload").addEventListener("click", () => {if (dirty()) requestExit("reload"); else void run(() => load(true));});
-  id("choose-chapter").addEventListener("click", () => {id("chapters").hidden = true; id("locations").hidden = false; id("enter-level").focus();});
-  id("back-chapters").addEventListener("click", () => {id("locations").hidden = true; id("chapters").hidden = false; id("choose-chapter").focus();});
-  id("enter-level").addEventListener("click", () => {void run(enterScene);});
-  id("back-map").addEventListener("click", () => {closePause(false); backMap(); id("enter-level").focus();});
+  id("back-chapters").addEventListener("click", () => {
+    if (busy || id("locations").hidden) return;
+    id("locations").hidden = true;
+    id("chapters").hidden = false;
+    chapterEntry?.focus();
+  });
+  id("back-map").addEventListener("click", () => {closePause(false); backMap();});
   id("open-menu").addEventListener("click", openPause);
   id("resume").addEventListener("click", closePause);
   id("toggle-taskbar").addEventListener("click", () => {
@@ -333,7 +403,9 @@
       const scope = root || (id("locations").hidden ? id("chapters") : id("locations"));
       const items = focusables(scope), index = items.indexOf(document.activeElement);
       if (["arrowup", "arrowdown"].includes(key) && items.length) {event.preventDefault(); items[(index + (key === "arrowdown" ? 1 : -1) + items.length) % items.length].focus();}
-      if (["enter", " "].includes(key) && items.length) {event.preventDefault(); heldActions.add(key); if (!busy) (items[index] || items[0]).click();}
+      if (["enter", " "].includes(key) && items.length && document.activeElement !== id("open-menu")) {
+        event.preventDefault(); heldActions.add(key); if (!busy) (items[index] || items[0]).click();
+      }
       return;
     }
     if (mode !== "scene" || event.target.closest?.("button:not(.scene-entity),a")) return;

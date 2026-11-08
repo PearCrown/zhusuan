@@ -1,8 +1,12 @@
 "use strict";
 // Stable content/interaction data. Presentation values never enter server saves.
+const sampleGateLevel = Object.freeze({
+  levelId: "sample-gate", sceneId: "sample-gate-road", levelTitle: "城门旁的委托", seal: "门",
+});
 window.HuaxiaSceneDemo = Object.freeze({
-  chapterId: "sample-counting", levelId: "sample-gate", sceneId: "sample-gate-road",
-  title: "算坊初试", locationTitle: "城门与算坊", levelTitle: "城门旁的委托",
+  chapterId: "sample-counting", ...sampleGateLevel,
+  title: "算坊初试", locationTitle: "城门与算坊",
+  mapLevels: Object.freeze([sampleGateLevel]),
   scene: Object.freeze({walkRange: Object.freeze([0.06, 0.95]), spawn: Object.freeze({x: 0.12, facing: "right", cameraX: 0})}),
   speed: 0.18, viewportSpan: 0.58,
   entities: Object.freeze([

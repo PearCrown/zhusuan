@@ -10,7 +10,7 @@ const tick = () => new Promise(resolve => setImmediate(resolve));
 async function until(fn) {for (let i = 0; i < 40; i++) {if (fn()) return; await tick();} assert.ok(fn(), 'UI did not reach expected state');}
 const clone = value => JSON.parse(JSON.stringify(value));
 function visibility(a, hidden) {Object.defineProperty(a.w.document,'hidden',{configurable:true,value:hidden});a.w.document.dispatchEvent(new a.w.Event('visibilitychange'));}
-async function setup(t, ui = true) {
+async function setup(t, ui = true, configure = () => {}) {
   const dom = new JSDOM(html, {url: 'http://localhost/static/scene-demo.html', runScripts: 'outside-only', pretendToBeVisual: true});
   const w = dom.window;
   if (w.document.readyState !== 'complete') await new Promise(resolve => w.addEventListener('load', resolve, {once: true}));
@@ -44,13 +44,16 @@ async function setup(t, ui = true) {
     return {ok: true, json: async () => ({ok: true, data})};
   };
   for (const name of ['chapter-sdk', 'scene-host', 'scene-demo-data', 'scene-model', 'scene-view']) w.eval(source(name));
+  configure(w);
   const id = name => w.document.getElementById(name);
-  const a = {w, id, calls, progress: () => progress, override: fn => {override = fn;}, frame: () => {time += 100; callback?.(time);},
+  const chapter = () => w.document.querySelector('[data-chapter-id="sample-counting"]');
+  const level = () => w.document.querySelector('[data-level-id="sample-gate"]');
+  const a = {w, id, chapter, level, calls, progress: () => progress, override: fn => {override = fn;}, frame: () => {time += 100; callback?.(time);},
     x: () => Number.parseFloat(id('viewport').querySelector('.scene-player').style.left),
     key: (type, key) => id('viewport').dispatchEvent(new w.KeyboardEvent(type, {key, bubbles: true, cancelable:true})),
     interact() {this.key('keydown','e'); this.key('keyup','e');},
     async ready() {w.dispatchEvent(new w.Event('pageshow')); await until(() => !id('chapters').hidden);},
-    async enter() {await this.ready(); id('choose-chapter').click(); id('enter-level').click(); await until(() => !id('scene').hidden && !id('reload').disabled);},
+    async enter() {await this.ready(); chapter().click(); level().click(); await until(() => !id('scene').hidden && !id('reload').disabled);},
     async walk(label, direction = 'ArrowRight') {
       this.key('keydown', direction);
       for (let i = 0; i < 70 && !id('nearby').textContent.includes(label); i++) this.frame();
@@ -88,6 +91,87 @@ test('two map levels use a fresh server read on scene entry; distant interaction
   a.interact(); await tick(); assert.equal(a.calls.some(c => c.payload), false);
   assert.ok(a.id('viewport').querySelector('[data-entity-id="workshop"]'));
 });
+const chapterListing = chapters => ({ok: true, json: async () => ({ok: true, data: {chapters}})});
+function mapKey(a, key) {
+  const event = new a.w.KeyboardEvent('keydown', {key, bubbles: true, cancelable: true});
+  a.w.document.activeElement.dispatchEvent(event);
+  a.w.document.activeElement.dispatchEvent(new a.w.KeyboardEvent('keyup', {key, bubbles: true}));
+  return event.defaultPrevented;
+}
+
+test('map renders registered chapters and configured levels in stable order and skips unavailable nodes', async t => {
+  const a = await setup(t, true, w => {
+    const data = w.HuaxiaSceneDemo;
+    w.HuaxiaSceneDemo = {...data, mapLevels: [
+      ...data.mapLevels,
+      {levelId: 'fixture-second-level', sceneId: 'fixture-unwired', levelTitle: '测试关 · 未接入', seal: '测'},
+    ]};
+  });
+  const sample = {chapterId: 'sample-counting', title: '服务端算坊标题'};
+  const fixture = {chapterId: 'fixture-second-chapter', title: '测试章 · 未接入'};
+  let reversed = false;
+  a.override(url => url === '/game/api/chapters' ? chapterListing(reversed ? [fixture, sample] : [sample, fixture]) : null);
+  await a.ready();
+  const chapterIds = () => [...a.id('chapter-nodes').children].map(node => node.dataset.chapterId);
+  assert.deepEqual(chapterIds(), ['fixture-second-chapter', 'sample-counting']);
+  assert.match(a.chapter().textContent, /服务端算坊标题/);
+  assert.equal(a.w.document.activeElement, a.chapter());
+  const unavailableChapter = a.id('chapter-nodes').firstElementChild;
+  a.frame();
+  assert.equal(unavailableChapter.disabled, true);
+  unavailableChapter.click();
+  assert.equal(a.id('locations').hidden, true);
+  const reads = a.calls.length;
+  mapKey(a, 'Enter');
+  assert.equal(a.w.document.activeElement, a.level());
+  const levels = [...a.id('level-nodes').children];
+  assert.deepEqual(levels.map(node => node.dataset.levelId), ['sample-gate', 'fixture-second-level']);
+  assert.match(levels[1].textContent, /测试关.*场景暂不可用/);
+  assert.equal(levels[1].disabled, true);
+  levels[1].click();
+  assert.equal(a.id('scene').hidden, true);
+  assert.equal(a.calls.length, reads);
+  mapKey(a, 'ArrowDown');
+  assert.equal(a.w.document.activeElement, a.id('back-chapters'));
+  mapKey(a, 'ArrowUp');
+  assert.equal(a.w.document.activeElement, a.level());
+  mapKey(a, 'Escape');
+  assert.equal(a.w.document.activeElement, a.chapter());
+  a.chapter().click();
+  a.level().click();
+  await until(() => !a.id('scene').hidden && !a.id('reload').disabled);
+  assert.equal(a.w.document.activeElement, a.id('viewport'));
+  mapKey(a, 'Escape');
+  a.id('back-map').focus();
+  mapKey(a, 'Enter');
+  assert.equal(a.id('locations').hidden, false);
+  assert.equal(a.w.document.activeElement, a.level());
+  a.id('back-chapters').click();
+  assert.equal(a.w.document.activeElement, a.chapter());
+  reversed = true;
+  a.id('open-menu').focus();
+  assert.equal(mapKey(a, 'Enter'), false); // Native Enter can activate the menu, not a map node.
+  a.id('open-menu').click();
+  a.id('reload').click();
+  await until(() => !a.id('chapters').hidden && !a.id('reload').disabled);
+  assert.deepEqual(chapterIds(), ['fixture-second-chapter', 'sample-counting']);
+  assert.equal(a.calls.filter(call => call.payload).length, 0);
+});
+
+test('a scene in the local manifest cannot open when its chapter is missing from the registry response', async t => {
+  const a = await setup(t);
+  a.override(url => url === '/game/api/chapters' ? chapterListing([
+    {chapterId: 'fixture-second-chapter', title: '测试章 · 未接入'},
+  ]) : null);
+  await a.ready();
+  assert.equal(a.chapter(), null);
+  assert.equal(a.level(), null);
+  assert.equal(a.id('chapter-nodes').firstElementChild.disabled, true);
+  assert.equal(a.w.document.activeElement, a.id('open-menu'));
+  assert.match(a.id('status').textContent, /暂无可进入/);
+  assert.deepEqual(a.calls.map(call => call.url), ['/game/api/chapters']);
+});
+
 test('NPC, task adapter, answer saves, same-position return and exit consume server-confirmed state', async t => {
   const a = await setup(t); await a.enter(); await a.task(); const before = a.x();
   const inputs = a.id('runner-content').querySelectorAll('input');
@@ -169,7 +253,7 @@ test('ordinary return rejects a rotated save context before rendering the new re
   a.override(null);
   a.id('open-menu').click(); a.id('reload').click();
   await until(() => !a.id('chapters').hidden && !a.id('reload').disabled);
-  assert.equal(a.w.document.activeElement, a.id('choose-chapter'));
+  assert.equal(a.w.document.activeElement, a.chapter());
   assert.equal(a.id('scene').hidden, true);
   assert.equal(a.calls.filter(c => c.payload).length, writes);
 });
@@ -201,7 +285,7 @@ test('failed return offers a keyboard focus path to the map and recovery if the 
       a.id('open-menu').click(); a.id('reload').click();
     }
     await until(() => !a.id('chapters').hidden && !a.id('reload').disabled);
-    assert.equal(a.w.document.activeElement, a.id('choose-chapter'));
+    assert.equal(a.w.document.activeElement, a.chapter());
     assert.equal(a.id('runner').hidden, true);
     assert.equal(a.calls.filter(c => c.payload).length, writes);
   }
@@ -305,7 +389,7 @@ test('background replacement changes only resource CSS and preserves login DOM a
 });
 test('re-entering a scene does not stack key listeners or duplicate NPC requests', async t => {
   const a=await setup(t); await a.enter();
-  for(let i=0;i<3;i++) {a.key('keydown','Escape');a.key('keyup','Escape');a.id('back-map').click();a.id('enter-level').click();await until(()=>!a.id('scene').hidden&&!a.id('reload').disabled);}
+  for(let i=0;i<3;i++) {a.key('keydown','Escape');a.key('keyup','Escape');a.id('back-map').click();a.level().click();await until(()=>!a.id('scene').hidden&&!a.id('reload').disabled);}
   await a.walk('守门人');a.interact();await until(()=>!a.id('dialogue').hidden&&!a.id('reload').disabled);
   assert.equal(a.calls.filter(c=>c.payload?.action==='talk').length,1);
 });
