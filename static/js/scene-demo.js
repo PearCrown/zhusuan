@@ -8,7 +8,9 @@
   const suspensions = new Map();
   let progress, questions = [], model, view, host, token, runnerController, dialogueLock, pauseLock, nextExitAction = "return";
   let taskSaveContext = null;
-  let chapterEntry, levelEntry;
+  const regions = window.HuaxiaMapRegions, mapEvents = window.HuaxiaMapEvents;
+  const selectedPlaces = new Map();
+  let chapterEntry, regionEntry, levelEntry, gateNote;
   const heldActions = new Set();
   let busy = false, pending = false, epoch = 0, taskNumber = 0, lastFrame = null, frame, focusAfter;
   const status = (message, error = false) => {id("status").textContent = message; id("status").classList.toggle("error", error);};
@@ -23,8 +25,9 @@
     try {host?.dispose();} finally {host = null; token = null; taskSaveContext = null; runnerController = null;}
     view?.dispose(); view = null; model = null; progress = null; questions = []; lastFrame = null;
     for (const name of ["chapters", "locations", "scene", "runner"]) id(name).hidden = true;
-    id("world-event-index").open = false;
-    chapterEntry = levelEntry = null;
+    id("region-event-index").open = false;
+    chapterEntry = regionEntry = levelEntry = null;
+    gateNote = ""; selectedPlaces.clear();
     for (const name of ["chapter-nodes", "level-nodes", "quest-state", "runner-content", "runner-status", "dialogue-text", "level-state"]) id(name).replaceChildren();
   }
   function acceptProgress(value) {
@@ -34,7 +37,8 @@
     progress = value;
     const labels = {not_started: "与守门人交谈，接取委托", accepted: "前往算坊任务点，完成后回守门人处交付", submitted: "样例任务已交付"};
     id("quest-state").textContent = labels[value.state.story.quest] + (value.result ? ` · 服务器成绩 ${value.result.score} / ${value.result.maxScore}` : "");
-    showLevelNote(data.levelTitle, value.result ? "样例已结算，可进入查看场景。" : labels[value.state.story.quest]);
+    gateNote = value.result ? "样例已结算，可进入查看场景。" : labels[value.state.story.quest];
+    if (levelEntry) showLevelNote("亳 · " + data.levelTitle, gateNote);
     id("dialogue-text").textContent = value.result ? "守门人：委托已交付，感谢相助。" : "守门人：请到前方算坊完成练习，再回来交付。";
     id("accept").hidden = value.state.story.quest !== "not_started";
     id("submit").hidden = value.state.story.quest !== "accepted";
@@ -87,82 +91,109 @@
       button.setAttribute("aria-pressed", String(button === slotButton));
     }
   }
-  function mapNode({title, seal, hint, kind, key, contentSlot, onChoose}) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "map-node";
-    button.dataset[kind] = key;
-    const caption = document.createElement("span");
-    caption.className = "node-caption";
-    for (const [tag, text] of [["span", title], ["small", hint]]) {
-      const label = document.createElement(tag);
-      label.textContent = text;
-      caption.append(label);
-    }
-    const stamp = document.createElement("span");
-    stamp.className = "node-seal";
-    stamp.textContent = seal;
-    stamp.setAttribute("aria-hidden", "true");
-    button.append(stamp, caption);
-    if (contentSlot) button.setAttribute("aria-pressed", "false");
-    if (onChoose) button.addEventListener("click", onChoose);
-    else {
-      button.dataset.unavailable = "";
-      button.disabled = true;
-    }
-    return button;
+  const worldCrop = [0, 90, 1540, 900];
+  function setPoint(element, x, y, [left, top, width, height]) {
+    element.style.setProperty("--map-x", `${(x - left) / width * 100}%`);
+    element.style.setProperty("--map-y", `${(y - top) / height * 100}%`);
   }
   function renderMaps(listing) {
-    const chapters = new Map();
-    for (const chapter of listing.chapters) {
-      if (typeof chapter?.chapterId === "string" && chapter.chapterId && typeof chapter.title === "string") {
-        chapters.set(chapter.chapterId, chapter.title);
+    const sample = listing.chapters.find(chapter => chapter?.chapterId === data.chapterId && typeof chapter.title === "string");
+    for (const region of regions) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "atlas-region";
+      button.dataset.regionId = region.id;
+      button.textContent = region.title;
+      setPoint(button, ...region.center, worldCrop);
+      if (sample && region.id === "central-plains") {
+        button.dataset.chapterId = data.chapterId;
+        chapterEntry = button;
       }
-    }
-    // Only this chapter and scene are wired to the existing game adapter.
-    if (chapters.has(data.chapterId)) {
-      const levelNodes = id("level-nodes");
-      levelNodes.classList.toggle("has-route", data.mapLevels.length === 4);
-      id("map-count").textContent = String(data.mapLevels.length).padStart(2, "0");
-      for (const level of data.mapLevels) {
-        const playable = level.levelId === data.levelId && level.sceneId === data.sceneId;
-        const contentSlot = !playable && level.kind === "content-slot";
-        const node = mapNode({
-          title: level.levelTitle, seal: level.seal, kind: "levelId", key: level.levelId,
-          hint: playable ? "进入关卡" : contentSlot ? "查看关卡" : "场景暂不可用",
-          contentSlot,
-          onChoose: playable || contentSlot ? event => {
-            if (busy || id("locations").hidden || !id("pause").hidden) return;
-            if (playable) void run(enterScene);
-            else showLevelNote(level.levelTitle, "关卡内容由开发者 B 提供，接入后可在这里进入。", event.currentTarget);
-          } : null,
-        });
-        levelNodes.append(node);
-        if (playable) levelEntry = node;
-      }
-    }
-    for (const chapterId of [...chapters.keys()].sort()) {
-      const playable = chapterId === data.chapterId && Boolean(levelEntry);
-      const node = mapNode({
-        title: chapters.get(chapterId), seal: playable ? "亳" : "章", kind: "chapterId", key: chapterId,
-        hint: playable ? "进入章内地点" : "暂无可用关卡",
-        onChoose: playable ? () => {
-          if (busy || id("chapters").hidden || !id("pause").hidden) return;
-          id("world-event-index").open = false;
-          id("chapters").hidden = true;
-          id("locations").hidden = false;
-          status("请选择关卡。");
-          (id("level-nodes").querySelector('[aria-pressed="true"]') || levelEntry).focus();
-        } : null,
+      button.addEventListener("click", () => {
+        if (!busy && !id("chapters").hidden && id("pause").hidden) openRegion(region, button);
       });
-      id("chapter-nodes").append(node);
-      if (playable) {
-        node.dataset.worldEntry = "";
-        node.setAttribute("aria-label", `亳 · ${chapters.get(chapterId)} · 进入章内地点`);
-        chapterEntry = node;
-      }
+      id("chapter-nodes").append(button);
     }
-    id("location-name").textContent = data.locationTitle;
+  }
+  function landmarkIcon(type) {
+    const icon = document.createElement("span");
+    icon.className = "atlas-landmark";
+    icon.dataset.kind = type;
+    icon.setAttribute("aria-hidden", "true");
+    return icon;
+  }
+  function openRegion(region, source, focus = true) {
+    regionEntry = source;
+    levelEntry = null;
+    const [left, top, width, height] = region.crop;
+    const crop = id("region-crop");
+    crop.style.left = `${-left / width * 100}%`;
+    crop.style.top = `${(worldCrop[1] - top) / height * 100}%`;
+    crop.style.width = `${worldCrop[2] / width * 100}%`;
+    crop.style.height = `${worldCrop[3] / height * 100}%`;
+    id("location-name").textContent = region.title;
+    id("map-count").textContent = region.places.length;
+    id("region-event-index").open = false;
+    for (const [index, row] of [...id("region-event-index").querySelectorAll("li")].entries()) {
+      row.value = index + 1;
+      row.hidden = !region.events.includes(index + 1);
+    }
+    const events = id("region-event-points");
+    events.replaceChildren(...region.events.map(number => {
+      const dot = document.createElement("span");
+      dot.className = "atlas-event-dot";
+      dot.dataset.event = number;
+      dot.textContent = String(number).padStart(2, "0");
+      setPoint(dot, ...mapEvents[number - 1], region.crop);
+      return dot;
+    }));
+
+    const levelNodes = id("level-nodes");
+    levelNodes.replaceChildren();
+    const boundLevels = chapterEntry && region.id === "central-plains" ? data.mapLevels : [];
+    for (const [placeId, name, x, y, type] of region.places) {
+      const level = boundLevels.find(item => item.placeId === placeId);
+      const playable = level?.levelId === data.levelId && level.sceneId === data.sceneId;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "atlas-place";
+      button.dataset.placeId = placeId;
+      if (level) button.dataset.levelId = level.levelId;
+      button.setAttribute("aria-label", `${name} · ${playable ? "进入城门样例" : "查看地点"}`);
+      const caption = document.createElement("span");
+      caption.className = "atlas-place-name";
+      caption.textContent = name;
+      button.append(landmarkIcon(type), caption);
+      setPoint(button, x, y, region.crop);
+      if (playable) levelEntry = button;
+      else button.setAttribute("aria-pressed", "false");
+      function showPlace() {
+        const note = level?.kind === "content-slot"
+          ? "关卡内容待开发者 B 接入。"
+          : "可查看这个地点。关卡内容待接入。";
+        showLevelNote(name, note, button);
+        selectedPlaces.set(region.id, placeId);
+      }
+      button.addEventListener("click", () => {
+        if (busy || id("locations").hidden || !id("pause").hidden) return;
+        if (playable) {
+          selectedPlaces.delete(region.id);
+          void run(enterScene);
+        } else showPlace();
+      });
+      levelNodes.append(button);
+      if (selectedPlaces.get(region.id) === placeId) showPlace();
+    }
+    const selected = levelNodes.querySelector('[aria-pressed="true"]');
+    if (!selected) {
+      if (levelEntry) showLevelNote("亳 · " + data.levelTitle, gateNote);
+      else showLevelNote(region.title + "地志", "点选图上的城邑或地形，查看该处关卡。");
+    }
+    id("chapters").hidden = true;
+    id("locations").hidden = false;
+    id("region-map-scroll").scrollLeft = 0;
+    status("请选择地点。");
+    if (focus) (selected || levelEntry || levelNodes.firstElementChild).focus();
   }
   async function load(resume = false) {
     reset(); const started = epoch;
@@ -171,8 +202,8 @@
     renderMaps(listing);
     if (!chapterEntry) {
       id("chapters").hidden = false;
-      focusAfter = id("open-menu");
-      status("暂无可进入的章节。");
+      focusAfter = id("chapter-nodes").firstElementChild;
+      status("可展开地区详图。暂无已接入的关卡。");
       return;
     }
     const result = await client.load(); assertCurrent(started);
@@ -181,7 +212,14 @@
     id("chapters").hidden = false; focusAfter = chapterEntry; status("进度已读取，请选择章节。");
     const checkpoint = resume ? suspensions.get(client.saveContext) : null;
     if (checkpoint) {
+      openRegion(regions.find(region => region.id === chapterEntry.dataset.regionId), chapterEntry, false);
+      focusAfter = null;
       if (await enterScene(checkpoint)) suspensions.delete(checkpoint.saveContext);
+      else if (!model) {
+        id("locations").hidden = true;
+        id("chapters").hidden = false;
+        focusAfter = chapterEntry;
+      }
     }
   }
   async function action(name, fields = {}) {
@@ -350,7 +388,7 @@
     id("pause").hidden = true; locks.release(pauseLock); pauseLock = null; clearInput();
     controls();
     if (focus) {
-      const target = model ? id("viewport") : !id("locations").hidden ? levelEntry : !id("chapters").hidden ? chapterEntry : null;
+      const target = model ? id("viewport") : !id("locations").hidden ? (levelEntry || id("level-nodes").firstElementChild) : regionEntry || chapterEntry;
       (target || id("open-menu")).focus();
     }
   }
@@ -383,7 +421,8 @@
     id("locations").hidden = true;
     id("chapters").hidden = false;
     status("请选择章节。");
-    chapterEntry?.focus();
+    id("region-event-index").open = false;
+    regionEntry?.focus();
   });
   id("back-map").addEventListener("click", () => {closePause(false); backMap();});
   id("open-menu").addEventListener("click", openPause);
@@ -424,10 +463,9 @@
       else if (mode === "task") requestExit();
       else if (mode === "dialogue") id("close-dialogue").click();
       else if (mode === "menu") closePause();
-      else if (mode === "map" && !id("locations").hidden) id("back-chapters").click();
-      else if (mode === "map" && id("world-event-index").open) {
-        id("world-event-index").open = false; id("world-event-index").querySelector("summary").focus();
-      }
+      else if (mode === "map" && id("region-event-index").open) {
+        id("region-event-index").open = false; id("region-event-index").querySelector("summary").focus();
+      } else if (mode === "map" && !id("locations").hidden) id("back-chapters").click();
       else openPause(); return;
     }
     if (["dialogue", "menu", "confirm", "map"].includes(mode)) {
@@ -436,7 +474,7 @@
       const items = focusables(scope), index = items.indexOf(document.activeElement);
       const previous = key === "arrowup" || (mode === "map" && key === "arrowleft");
       const next = key === "arrowdown" || (mode === "map" && key === "arrowright");
-      if (event.target === id("world-map-scroll") && (previous || next)) return;
+      if (event.target === id("region-map-scroll") && (previous || next)) return;
       if ((previous || next) && items.length) {event.preventDefault(); items[(index + (next ? 1 : -1) + items.length) % items.length].focus();}
       if (["enter", " "].includes(key) && items.length && document.activeElement !== id("open-menu")) {
         event.preventDefault(); heldActions.add(key); if (!busy) (items[index] || items[0]).click();

@@ -43,7 +43,7 @@ async function setup(t, ui = true, configure = () => {}) {
     }
     return {ok: true, json: async () => ({ok: true, data})};
   };
-  for (const name of ['chapter-sdk', 'scene-host', 'scene-demo-data', 'scene-model', 'scene-view']) w.eval(source(name));
+  for (const name of ['chapter-sdk', 'scene-host', 'scene-demo-data', 'region-map-data', 'scene-model', 'scene-view']) w.eval(source(name));
   configure(w);
   const id = name => w.document.getElementById(name);
   const chapter = () => w.document.querySelector('[data-chapter-id="sample-counting"]');
@@ -99,78 +99,55 @@ function mapKey(a, key) {
   return event.defaultPrevented;
 }
 
-test('map renders registered chapters and configured levels in stable order and skips unavailable nodes', async t => {
-  const a = await setup(t, true, w => {
-    const data = w.HuaxiaSceneDemo;
-    w.HuaxiaSceneDemo = {...data, mapLevels: [
-      data.mapLevels[0],
-      {levelId: 'fixture-second-level', sceneId: 'fixture-unwired', levelTitle: '测试关 · 未接入', seal: '测'},
-    ]};
-  });
+test('world map exposes regions first and reveals only the selected region and its events', async t => {
+  const a = await setup(t);
   const sample = {chapterId: 'sample-counting', title: '服务端算坊标题'};
-  const fixture = {chapterId: 'fixture-second-chapter', title: '测试章 · 未接入'};
-  let reversed = false;
-  a.override(url => url === '/game/api/chapters' ? chapterListing(reversed ? [fixture, sample] : [sample, fixture]) : null);
+  const unplaced = {chapterId: 'fixture-second-chapter', title: '未定位章'};
+  a.override(url => url === '/game/api/chapters' ? chapterListing([unplaced, sample]) : null);
   await a.ready();
-  const chapterIds = () => [...a.id('chapter-nodes').children].map(node => node.dataset.chapterId);
-  assert.deepEqual(chapterIds(), ['fixture-second-chapter', 'sample-counting']);
-  assert.match(a.chapter().textContent, /服务端算坊标题/);
+  const regionIds = [...a.id('chapter-nodes').children].map(node => node.dataset.regionId);
+  assert.deepEqual(regionIds, ['guanzhong', 'jinnan', 'central-plains', 'eastlands']);
+  assert.equal(a.id('level-nodes').children.length, 0);
+  assert.equal(a.id('region-event-points').children.length, 0);
   assert.equal(a.w.document.activeElement, a.chapter());
-  const unavailableChapter = a.id('chapter-nodes').firstElementChild;
-  a.frame();
-  assert.equal(unavailableChapter.disabled, true);
-  unavailableChapter.click();
-  assert.equal(a.id('locations').hidden, true);
   const reads = a.calls.length;
-  mapKey(a, 'Enter');
-  assert.equal(a.w.document.activeElement, a.level());
-  const levels = [...a.id('level-nodes').children];
-  assert.deepEqual(levels.map(node => node.dataset.levelId), ['sample-gate', 'fixture-second-level']);
-  assert.match(levels[1].textContent, /测试关.*场景暂不可用/);
-  assert.equal(levels[1].disabled, true);
-  levels[1].click();
+  const guanzhong = a.id('chapter-nodes').firstElementChild;
+  guanzhong.click();
+  assert.equal(a.id('location-name').textContent, '关中');
+  assert.deepEqual([...a.id('level-nodes').children].map(node => node.dataset.placeId), ['longdong', 'qizhou', 'fenghao', 'huyi']);
+  assert.deepEqual([...a.id('region-event-points').children].map(node => node.dataset.event), ['4', '10', '14', '15', '16', '17']);
+  assert.equal(a.id('region-crop').style.width, (1540 / 430 * 100) + '%');
+  a.id('level-nodes').querySelector('[data-place-id="qizhou"]').click();
+  assert.equal(a.id('map-note-title').textContent, '岐周');
   assert.equal(a.id('scene').hidden, true);
   assert.equal(a.calls.length, reads);
-  mapKey(a, 'ArrowDown');
-  assert.equal(a.w.document.activeElement, a.id('back-chapters'));
-  mapKey(a, 'ArrowUp');
-  assert.equal(a.w.document.activeElement, a.level());
   mapKey(a, 'Escape');
-  assert.equal(a.w.document.activeElement, a.chapter());
-  a.chapter().click();
-  a.level().click();
-  await until(() => !a.id('scene').hidden && !a.id('reload').disabled);
-  assert.equal(a.w.document.activeElement, a.id('viewport'));
-  mapKey(a, 'Escape');
-  a.id('back-map').focus();
+  assert.equal(a.w.document.activeElement, guanzhong);
+  a.chapter().focus();
   mapKey(a, 'Enter');
-  assert.equal(a.id('locations').hidden, false);
+  assert.equal(a.id('location-name').textContent, '中原');
   assert.equal(a.w.document.activeElement, a.level());
-  a.id('back-chapters').click();
-  assert.equal(a.w.document.activeElement, a.chapter());
-  reversed = true;
-  a.id('open-menu').focus();
-  assert.equal(mapKey(a, 'Enter'), false); // Native Enter can activate the menu, not a map node.
-  a.id('open-menu').click();
-  a.id('reload').click();
-  await until(() => !a.id('chapters').hidden && !a.id('reload').disabled);
-  assert.deepEqual(chapterIds(), ['fixture-second-chapter', 'sample-counting']);
-  assert.equal(a.calls.filter(call => call.payload).length, 0);
+  assert.equal(a.id('level-nodes').querySelector('[data-place-id="qizhou"]'), null);
+  assert.equal(a.level().dataset.placeId, 'bo');
+  assert.equal(a.level().querySelector('.atlas-landmark').dataset.kind, 'city');
+  assert.equal(a.id('level-nodes').querySelectorAll('button').length, 7);
+  assert.equal(a.calls.length, reads);
 });
 
-test('scroll map slots can be selected with keyboard and mouse without opening a scene or calling the API', async t => {
+test('reserved B slots follow named map locations without opening a scene or calling the API', async t => {
   const a = await setup(t);
   await a.ready();
   a.chapter().click();
-  const slots = [...a.id('level-nodes').querySelectorAll('[aria-pressed]')];
-  assert.deepEqual(slots.map(node => node.dataset.levelId), ['hewan-village', 'linshui-workshop', 'dongyuan-earthworks']);
+  const levels = ['hewan-village', 'linshui-workshop', 'dongyuan-earthworks'];
+  const slots = levels.map(id => a.id('level-nodes').querySelector('[data-level-id="' + id + '"]'));
   const reads = a.calls.length;
   mapKey(a, 'ArrowRight');
-  assert.equal(a.w.document.activeElement, slots[0]);
+  assert.equal(a.w.document.activeElement.dataset.placeId, 'chengzhou');
+  slots[0].focus();
   mapKey(a, 'Enter');
-  assert.equal(a.id('map-note-title').textContent, '河湾聚落');
-  assert.match(a.id('level-state').textContent, /由开发者 B 提供/);
-  for (const [slot, title] of [[slots[1], '临水工坊'], [slots[2], '东原土台']]) {
+  assert.equal(a.id('map-note-title').textContent, '斟鄩');
+  assert.match(a.id('level-state').textContent, /开发者 B/);
+  for (const [slot, title] of [[slots[1], '阳城'], [slots[2], '蒙泽']]) {
     slot.click();
     assert.equal(a.id('map-note-title').textContent, title);
     assert.deepEqual(slots.filter(node => node.getAttribute('aria-pressed') === 'true'), [slot]);
@@ -180,44 +157,47 @@ test('scroll map slots can be selected with keyboard and mouse without opening a
   mapKey(a, 'Escape');
   assert.equal(a.w.document.activeElement, a.chapter());
   a.chapter().click();
-  assert.equal(a.w.document.activeElement, slots[2]);
+  assert.equal(a.w.document.activeElement.dataset.placeId, 'mengze');
   a.level().click();
   await until(() => !a.id('scene').hidden && !a.id('reload').disabled);
-  assert.equal(a.id('map-note-title').textContent, '城门旁的委托');
+  assert.equal(a.id('map-note-title').textContent, '亳 · 城门旁的委托');
   assert.equal(a.calls.length, reads + 1);
 });
 
-test('world event index has native keyboard activation and closes before the pause menu', async t => {
+test('regional event index has native keyboard activation and closes before returning to the world map', async t => {
   const a = await setup(t);
   await a.ready();
-  const details = a.id('world-event-index');
+  a.chapter().click();
+  const details = a.id('region-event-index');
   const summary = details.querySelector('summary');
-  assert.equal(details.querySelectorAll('li').length, 18);
-  assert.equal(a.chapter().hasAttribute('data-world-entry'), true);
+  assert.deepEqual([...details.querySelectorAll('li:not([hidden])')].map(li => li.value), [3, 6, 8, 13, 18]);
   summary.focus();
   assert.equal(mapKey(a, 'Enter'), false);
-  assert.equal(a.id('locations').hidden, true);
+  assert.equal(a.id('scene').hidden, true);
   details.open = true;
   assert.equal(mapKey(a, 'Escape'), true);
   assert.equal(details.open, false);
-  assert.equal(a.id('pause').hidden, true);
+  assert.equal(a.id('locations').hidden, false);
   assert.equal(a.w.document.activeElement, summary);
+  mapKey(a, 'Escape');
+  assert.equal(a.w.document.activeElement, a.chapter());
 });
 
-test('a scene in the local manifest cannot open when its chapter is missing from the registry response', async t => {
+test('regional geography remains browsable but a missing registry chapter cannot open its scene', async t => {
   const a = await setup(t);
   a.override(url => url === '/game/api/chapters' ? chapterListing([
-    {chapterId: 'fixture-second-chapter', title: '测试章 · 未接入'},
+    {chapterId: 'fixture-second-chapter', title: '未定位章'},
   ]) : null);
   await a.ready();
   assert.equal(a.chapter(), null);
+  a.id('chapter-nodes').querySelector('[data-region-id="central-plains"]').click();
   assert.equal(a.level(), null);
-  assert.equal(a.id('chapter-nodes').firstElementChild.disabled, true);
-  assert.equal(a.w.document.activeElement, a.id('open-menu'));
-  assert.match(a.id('status').textContent, /暂无可进入/);
+  const bo = a.id('level-nodes').querySelector('[data-place-id="bo"]');
+  bo.click();
+  assert.equal(a.id('map-note-title').textContent, '亳');
+  assert.equal(a.id('scene').hidden, true);
   assert.deepEqual(a.calls.map(call => call.url), ['/game/api/chapters']);
 });
-
 test('NPC, task adapter, answer saves, same-position return and exit consume server-confirmed state', async t => {
   const a = await setup(t); await a.enter(); await a.task(); const before = a.x();
   const inputs = a.id('runner-content').querySelectorAll('input');

@@ -1,21 +1,161 @@
-/* Login-only skin: existing account DOM IDs, validation, cookies and CSRF stay intact. */
-html:has(.game-login), .game-login {width:100%;height:100%;margin:0;overflow:hidden;}
-.game-login {height:100dvh;background:#203d38;color:#efe6cf;}
-.game-login::before {content:"";position:fixed;inset:0;z-index:-2;background-image:var(--login-background);background-position:var(--login-background-position,center);background-size:cover;}
-.game-login::after {content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(90deg,#09221b55 0%,#09221b22 42%,#09221b99 100%);}
-.game-login main {position:fixed;inset:0;max-width:none;margin:0;padding:clamp(20px,4vh,48px) clamp(24px,6vw,120px);height:100dvh;display:grid;grid-template-columns:1fr minmax(400px,520px);align-items:center;gap:8vw;overflow:hidden;}
-.game-login .intro {padding:0;} .game-login .intro h1 {font-size:clamp(40px,5.6vw,88px);color:#eee5cc;line-height:1.3;letter-spacing:.1em;}
-.game-login .brand {display:block;color:#f1e1af;font-size:24px;margin-bottom:48px;}
-.game-login .intro-copy {color:#ded5be;max-width:420px;} .game-login .scope-note {margin-top:28px;padding-top:20px;color:#d3c9ac;border-color:#c4b78a66;}
-.game-login .card {max-height:calc(100dvh - 48px);overflow:auto;overscroll-behavior:contain;background:#f5f0dfee;border:1px solid #c7bb8a;border-radius:4px;padding:24px 32px;color:#203e33;box-shadow:0 16px 90px #06181077;}
-.game-login h2 {font-family:"STSong","SimSun",serif;font-size:26px;font-weight:500;} .game-login .status {margin:10px 0;padding:8px 10px;line-height:1.5;}
-.game-login .eyebrow {margin-bottom:10px;} .game-login .switcher {margin-bottom:12px;gap:22px;} .game-login .switcher button {padding:6px 0;min-height:34px;}
-.game-login label {margin-bottom:4px;font-size:12px;} .game-login input {min-height:38px;padding:8px 10px;font-size:14px;}
-.game-login .field-error:empty {display:none;} .game-login .field-error {margin:4px 0 8px;} .game-login .hint {margin:4px 0 10px;font-size:11px;line-height:1.5;}
-.game-login #login-form label:not(:first-of-type),.game-login #register-form label:not(:first-of-type) {margin-top:10px;}
-.game-login .note {margin:10px 0 0;font-size:11px;line-height:1.5;} .game-login .primary {margin-top:14px;}
-.game-login dl {margin:12px 0;} .game-login dl div {padding:8px 0;} .game-login .actions {gap:8px;margin-top:14px;} .game-login .actions a,.game-login .actions button {font-size:13px;padding:8px 12px;min-height:38px;}
-@media(max-height:800px) and (min-width:900px) {.game-login .card {padding:20px 28px;} .game-login .card>.eyebrow {display:none;} .game-login #panel-title {font-size:24px;} .game-login .note {margin-top:6px;} .game-login .hint {margin-bottom:6px;} .game-login .brand {margin-bottom:28px;}}
-@media(max-width:900px) {.game-login main {grid-template-columns:1fr;justify-items:center;padding:22px;} .game-login .intro {position:absolute;left:24px;top:20px;} .game-login .intro>*:not(.brand) {display:none;} .game-login .brand {font-size:20px;margin:0;} .game-login .card {width:min(520px,100%);max-height:calc(100dvh - 100px);margin-top:44px;padding:20px 24px;}}
-.game-login {isolation:isolate;}
-.game-login .intro .eyebrow {color:#d6c69e;}
+/* The scroll and its motion are decorative. Account controls keep their existing behavior. */
+.game-login {
+  --silk-serif: "STSong", "Songti SC", "SimSun", serif;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(38px, 7vh, 80px) clamp(25px, 6vw, 100px);
+  background: radial-gradient(ellipse at 48% 28%, #3c4438, #292e25 60%, #1b1e19);
+  color: #37291e;
+}
+.game-login main {
+  position: relative;
+  isolation: isolate;
+  width: min(1320px, 100%);
+  max-width: none;
+  min-height: min(650px, calc(100dvh - 120px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  align-items: center;
+  gap: clamp(30px, 5vw, 82px);
+  margin: 0;
+  padding: clamp(32px, 6vh, 72px) clamp(30px, 5vw, 76px);
+  background: #efd6a5;
+  border-block: 1px solid #bd9664;
+  box-shadow: 0 24px 80px #0b100cbb;
+}
+.game-login main::before, .game-login main::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: clamp(18px, 2.35vw, 36px);
+  inset-block: -9px;
+  border: 1px solid #2d1d12;
+  border-radius: 4px;
+  background:
+    linear-gradient(0deg, #28190d 0 3%, #b18b48 3% 4%, transparent 4% 96%, #b18b48 96% 97%, #28190d 97%),
+    linear-gradient(90deg, #21130c, #4b3222 18%, #89613a 40%, #795130 51%, #412616 85%, #23170f);
+  box-shadow: 0 3px 8px #160c08aa, inset 0 0 0 2px #17140c66;
+  pointer-events: none;
+}
+.game-login main::before { left: 0; translate: -53% 0; }
+.game-login main::after { right: 0; translate: 53% 0; }
+.login-ink {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--login-background, linear-gradient(125deg, #ead9b3, #cfa46c)) var(--login-background-position, left center) / cover no-repeat;
+  box-shadow: inset 0 0 38px #7548224d;
+  animation: login-ink-reveal 1.15s ease-out both;
+}
+.login-ink::after {
+  content: "";
+  position: absolute;
+  inset: 12% 10% 28% -12%;
+  background: radial-gradient(ellipse at 34% 52%, #fff5d65e, transparent 56%);
+  animation: login-mist 3.1s ease-out both;
+}
+@keyframes login-ink-reveal {
+  from { opacity: .48; }
+  to { opacity: 1; }
+}
+@keyframes login-mist {
+  from { opacity: .92; translate: -4% 0; }
+  to { opacity: .46; translate: 4% 0; }
+}
+.game-login .intro { align-self: start; padding: clamp(12px, 4vh, 46px) 0 0; }
+.game-login .brand {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 clamp(21px, 4vh, 45px);
+  font-size: clamp(18px, 2.1vw, 26px);
+}
+.game-login .brand .login-seal {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  margin-inline-end: 8px;
+  border: 1px solid #963e30;
+  outline: 1px solid #a05a41;
+  outline-offset: 2px;
+  color: #fff0d0;
+  background: #842e24;
+  font: 700 20px/1 var(--silk-serif);
+}
+.game-login .intro h1 {
+  margin-bottom: 13px;
+  font: 700 clamp(40px, 5.4vw, 83px)/1.12 var(--silk-serif);
+  letter-spacing: .09em;
+  text-shadow: 0 1px #f7e8c6, 0 0 18px #f7e8c6;
+}
+.game-login .intro .eyebrow, .game-login .intro-copy { color: #5e452f; }
+.game-login .intro .eyebrow { margin-bottom: 11px; }
+.game-login .intro-copy {
+  max-width: 335px;
+  margin: 0;
+  font-size: 14px;
+  text-shadow: 0 0 5px #fff2cd, 0 1px #fff2cd;
+}
+.game-login .card {
+  min-width: 0;
+  width: 100%;
+  padding: clamp(22px, 3.1vw, 38px);
+  border: 1px solid #9b734a9c;
+  border-radius: 1px;
+  background: linear-gradient(145deg, #f8edd3f5, #efd7abed);
+  color: #3b2e22;
+  box-shadow: 0 12px 36px #57401d3a, inset 0 0 0 4px #fbefd27a;
+}
+.game-login .card h2 { font: 700 clamp(26px, 2.4vw, 37px)/1.16 var(--silk-serif); letter-spacing: .07em; }
+.game-login .status { margin: 12px 0; padding: 6px 9px; background: #e5d5b291; color: #514433; line-height: 1.5; }
+.game-login .status.error { background: #f1d6bd; color: #842e24; }
+.game-login .switcher { margin-bottom: 13px; border-color: #b79c77; }
+.game-login .switcher button { min-height: 40px; padding: 5px 0; color: #624d37; }
+.game-login .switcher button[aria-pressed="true"] { border-color: #852f25; color: #7d2e24; }
+.game-login label { margin-bottom: 4px; font-size: 13px; }
+.game-login input {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #aa8d66;
+  border-radius: 2px;
+  background: #fff7e5;
+  font-size: 15px;
+}
+.game-login input[aria-invalid="true"] { border-color: #a7392f; }
+.game-login :focus-visible { outline-color: #8f3d2d; outline-width: 2px; }
+.game-login .field-error:empty { display: none; }
+.game-login .field-error { margin: 4px 0 8px; }
+.game-login #login-form label:not(:first-of-type), .game-login #register-form label:not(:first-of-type) { margin-top: 10px; }
+.game-login .note, .game-login .hint { color: #594b39; font-size: 12px; line-height: 1.5; }
+.game-login .note a, .game-login .card a:not(.button-link) { color: #773428; }
+.game-login .primary {
+  margin-top: 15px;
+  border: 1px solid #6f2d24;
+  border-radius: 2px;
+  background: #843329;
+  color: #fff4de;
+  letter-spacing: .16em;
+}
+.game-login .primary:hover:enabled { background: #672720; }
+.game-login .secondary { border-color: #ac916c; color: #654431; }
+.game-login #game-link { background: #843329; border-color: #6f2d24; color: #fff4de; }
+.game-login .actions { gap: 8px; margin-top: 14px; }
+.game-login .actions a, .game-login .actions button { min-height: 40px; padding: 7px 12px; font-size: 13px; }
+@media (max-width: 820px) {
+  .game-login main { grid-template-columns: 1fr; min-height: 0; gap: 24px; padding: 25px clamp(14px, 5vw, 44px); }
+  .game-login .intro { padding-top: 0; }
+  .game-login .brand { margin-bottom: 18px; }
+  .game-login .intro h1 { font-size: clamp(31px, 7.8vw, 52px); }
+  .game-login .intro h1 br { display: none; }
+  .game-login .intro-copy { font-size: 13px; }
+  .game-login .card { justify-self: center; max-width: 460px; }
+  .login-ink { background-position: 22% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-ink, .login-ink::after { animation: none; }
+  .login-ink::after { opacity: .46; }
+}

@@ -10,18 +10,18 @@
   <script src="{% static 'js/game-assets.js' %}" defer></script>
   <script src="{% static 'js/accounts.js' %}" defer></script>
 </head>
-<body class="game-login">
+<body class="game-login" data-login-background="{% static 'assets/maps/login-river-ink.jpg' %}">
   <main>
+    <div class="login-ink" aria-hidden="true"></div>
     <section class="intro" aria-labelledby="intro-title">
-      <p class="brand">铸算<span>·</span>华夏纪</p>
-      <p class="eyebrow">从这里，开启探索</p>
-      <h1 id="intro-title">以算为钥，<br>走进华夏。</h1>
-      <p class="intro-copy">登录你的账号，为之后的章节探索做好准备。</p>
-      <div class="scope-note"><span class="seal" aria-hidden="true">算</span><p>当前可体验账号操作与章节接入样例。<br>样例支持任务、进度保存及教师查看成绩。</p></div>
+      <p class="brand"><span class="login-seal" aria-hidden="true">铸</span>铸算<span>·</span>华夏纪</p>
+      <p class="eyebrow">华夏纪行 · 卷首</p>
+      <h1 id="intro-title">循山河，<br>寻算道。</h1>
+      <p class="intro-copy">展卷入九州，循古城与河谷探寻算阵之道。</p>
     </section>
     <section class="card" aria-labelledby="panel-title">
-      <p class="eyebrow">探索通行证</p>
-      <h2 id="panel-title">开启你的旅程</h2>
+      <p class="eyebrow">行旅通牒</p>
+      <h2 id="panel-title">登录铸算</h2>
       <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true">正在确认登录状态…</p>
       <noscript><p class="error">请启用浏览器 JavaScript，才能使用此账号页面。</p></noscript>
       <div id="guest" hidden>

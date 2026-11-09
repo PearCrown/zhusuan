@@ -68,206 +68,147 @@
   overflow: hidden;
   border-block: 1px solid #d4ac72;
   color: var(--scroll-ink);
-  background: #e8c58b url("../assets/maps/river-valley-scroll.jpg") center / 100% 100% no-repeat;
+  background: #e8c58b;
   box-shadow: inset 0 0 35px #7c472466;
 }
-.scroll-inscription {
+.atlas-silk { background: #e8c58b url("../assets/maps/jiuzhou-silk.jpg") center / 100% 100% no-repeat; }
+.world-geography { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.atlas-north, .atlas-river-name {
   position: absolute;
-  top: 7%;
-  right: 5%;
-  color: #684935;
-  border-right: 1px solid #793e31a0;
-  padding-right: 6px;
+  font: 700 clamp(12px, 1.4vw, 19px)/1 var(--scroll-serif);
+  text-shadow: 0 0 5px #f4daab;
+}
+.atlas-north {
+  left: 8.3%;
+  top: 24%;
+  color: #63472f;
+}
+.atlas-north::after {
+  content: "";
+  display: block;
+  height: 23px;
+  width: 9px;
+  margin: 6px auto 0;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 40%, 58% 31%, 58% 100%, 42% 100%, 42% 31%, 0 40%);
+}
+.atlas-river-name {
+  left: 42%;
+  top: 61%;
+  color: #365f59;
+  letter-spacing: .16em;
   writing-mode: vertical-rl;
-  font: 700 clamp(12px, 1.2vw, 19px)/1.15 var(--scroll-serif);
-  letter-spacing: .26em;
 }
-.scroll-route {
+.region-map-scroll { overflow-x: auto; scrollbar-color: #826d4e #342a1e; scrollbar-width: thin; }
+.region-surface { min-width: 730px; }
+.region-crop, .map-nodes, .atlas-events { position: absolute; }
+.map-nodes, .atlas-events { inset: 0; pointer-events: none; }
+.atlas-region, .atlas-place {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  display: none;
-}
-.scroll-landscape:has(.has-route) .scroll-route { display: block; }
-.scroll-route path {
-  fill: none;
-  stroke: #773c2c;
-  stroke-width: 2;
-  stroke-dasharray: 2 7;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  opacity: .85;
-}
-.map-nodes {
-  position: absolute;
-  inset: 14% 6%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: safe center;
-  gap: 14px;
-  overflow: auto;
-  padding: 10px;
-}
-#level-nodes.has-route {
-  inset: 0 5%;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-content: stretch;
-  overflow: visible;
-  gap: 0;
-  padding: 0;
-}
-.has-route .map-node {
-  position: relative;
-  align-self: start;
-  justify-self: center;
-  top: var(--pin-top);
-  transform: translateY(-22px);
-  max-width: 100%;
-}
-.has-route .map-node:nth-child(1) { --pin-top: 51%; }
-.has-route .map-node:nth-child(2) { --pin-top: 63%; }
-.has-route .map-node:nth-child(3) { --pin-top: 43%; }
-.has-route .map-node:nth-child(4) { --pin-top: 53%; }
-.map-node {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 8px 5px 4px;
-  color: var(--scroll-ink);
+  left: var(--map-x);
+  top: var(--map-y);
+  color: #372619;
   border: 0;
-  background: transparent;
-  text-align: center;
-}
-.map-node:focus-visible { outline: none; }
-.map-node:focus-visible .node-seal { outline: 2px solid #492a16; outline-offset: 3px; }
-.map-node[data-unavailable] { cursor: default; opacity: .68; }
-.map-node:hover:enabled { background: transparent; }
-.node-seal {
-  display: grid;
-  place-items: center;
-  width: 27px;
-  height: 27px;
-  border: 1px solid #f2cc94;
-  border-radius: 50%;
-  background: var(--stamp-red);
-  color: #fff0d0;
-  box-shadow: 0 0 0 1px var(--stamp-red), 0 2px 5px #53301760;
-  font: 700 15px/1 var(--scroll-serif);
-  transition: box-shadow .18s, translate .18s, background .18s;
-}
-.map-node[aria-pressed] .node-seal, .map-node[data-unavailable] .node-seal {
-  background: #e7c38c;
-  color: #65392a;
-  border-color: #fff0c0;
-  box-shadow: 0 0 0 1px #724b36, 0 2px 5px #53301760;
-}
-.map-node:enabled:is(:hover, :focus-visible) .node-seal { translate: 0 -3px; }
-.map-node[aria-pressed="true"] .node-seal {
-  background: #6c3b2b;
-  color: #fff0d0;
-  box-shadow: 0 0 0 1px #6c3b2b, 0 0 0 4px #f1d7a3, 0 2px 5px #53301760;
-}
-.node-caption {
-  display: block;
-  max-width: 100%;
-  padding: 2px 8px;
-  background: radial-gradient(ellipse, #f8e6bbdc 28%, #f8e6bb00 77%);
-  color: #38271c;
-  text-shadow: 0 1px #f8e2b6, 0 0 3px #f8e2b6;
-  font: 700 clamp(14px, 1.3vw, 18px)/1.25 var(--scroll-serif);
-  overflow-wrap: anywhere;
-}
-.node-caption small {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.world-map-scroll { overflow-x: auto; }
-.world-landscape {
-  --bo-x: 64.4805%;
-  --bo-y: 84%;
-  min-width: 690px;
-  background-image: url("../assets/maps/jiuzhou-silk.jpg");
-}
-.world-geography { position: absolute; inset: 0; width: 100%; height: 100%; }
-.world-bo-label {
-  position: absolute;
-  left: calc(var(--bo-x) + 10px);
-  top: var(--bo-y);
-  translate: 0 -50%;
-  color: #533823;
-  font: 700 17px/1 var(--scroll-serif);
-  text-shadow: 0 0 4px #f4dfb4;
-}
-.world-landscape:has([data-world-entry]) .world-bo-label { display: none; }
-#chapter-nodes {
-  display: block;
-  inset: 0;
-  overflow: visible;
-  pointer-events: none;
-  padding: 12px;
-}
-#chapter-nodes .map-node:not([data-world-entry]) { margin-bottom: 8px; max-width: 170px; }
-#chapter-nodes .map-node:not([data-world-entry]) .node-seal { display: none; }
-.map-node[data-world-entry] {
-  position: absolute;
-  left: var(--bo-x);
-  top: var(--bo-y);
-  translate: -50% -50%;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  align-content: center;
   pointer-events: auto;
 }
-[data-world-entry] .node-caption {
-  position: absolute;
-  left: calc(100% - 4px);
-  top: 50%;
-  translate: 0 -50%;
-  max-width: none;
-  white-space: nowrap;
-}
-.world-pan-hint { display: none; }
-.scroll-legend {
-  position: absolute;
-  inset: auto auto 4% 4%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 17px;
-  padding: 5px 9px;
-  background: #f9e1b9ed;
-  font-size: 11px;
-  color: #422e20;
-  border: 1px solid #9c784d;
-  pointer-events: none;
-}
-.scroll-legend span::before {
-  content: "";
-  display: inline-block;
-  margin-right: 6px;
-  width: 8px;
-  height: 8px;
-  border: 1px solid var(--stamp-red);
+.atlas-region {
+  translate: -50% -50%;
+  min-width: 86px;
+  min-height: 48px;
+  width: 17%;
+  height: 23%;
+  padding: 0 4px;
+  font: 700 clamp(19px, 3vw, 40px)/1 var(--scroll-serif);
+  letter-spacing: .14em;
+  text-shadow: 0 1px #f6dfb4, 0 0 7px #f6dfb4;
   border-radius: 50%;
+  background: radial-gradient(ellipse, #f6e4b872, #c28b4733 55%, transparent 72%);
 }
-.scroll-legend span:first-child::before { background: var(--stamp-red); }
-.scroll-legend .legend-event::before {
-  width: 7px;
-  height: 7px;
-  border: 0;
-  border-radius: 0;
-  background: var(--stamp-red);
-  transform: rotate(45deg);
+.atlas-region:hover:enabled, .atlas-region:focus-visible {
+  color: #6c3227;
+  outline: none;
+  background: radial-gradient(ellipse, #f7e6bba1, #bd705744 56%, transparent 73%);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .24em;
+}
+.atlas-place {
+  display: grid;
+  justify-items: center;
+  align-items: end;
+  translate: -50% -90%;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 4px;
+  background: transparent;
+  mix-blend-mode: multiply;
+  white-space: nowrap;
+  font: 700 clamp(15px, 1.65vw, 24px)/1 var(--scroll-serif);
+  text-shadow: 0 1px #f8e2b6, 0 0 5px #f8e2b6;
+}
+.atlas-landmark {
+  display: block;
+  width: clamp(52px, 7.1vw, 106px);
+  aspect-ratio: 1.72;
+  background: url("../assets/maps/region-landmark-atlas.png") left 19.5% / 200% 343% no-repeat;
+  pointer-events: none;
+  transition: filter .16s ease;
+}
+.atlas-landmark[data-kind="village"] { background-position: right 19.5%; }
+.atlas-landmark[data-kind="terrace"] { background-position: left 87.5%; }
+.atlas-landmark[data-kind="ridge"] { background-position: right 87.5%; }
+.atlas-place:is([data-place-id="chengzhou"], [data-place-id="xiang"], [data-place-id="fenghao"]) .atlas-landmark { scale: -1 1; }
+.atlas-place:is([data-place-id="anyi"], [data-place-id="mingtiao"], [data-place-id="yangcheng"], [data-place-id="jingbo"]) .atlas-landmark { width: clamp(47px, 5.5vw, 82px); }
+.atlas-place-name {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  translate: -50% 1px;
+}
+.atlas-place[data-place-id="mingtiao"] .atlas-place-name { translate: -89% 4px; }
+.atlas-place:hover:enabled, .atlas-place:focus-visible, .atlas-place[aria-pressed="true"] {
+  z-index: 1;
+  background: transparent;
+  outline: none;
+  color: #782e23;
+}
+.atlas-place:is(:hover, :focus-visible, [aria-pressed="true"]) .atlas-place-name,
+.atlas-place[data-level-id="sample-gate"] .atlas-place-name {
+  text-decoration: underline;
+  text-underline-offset: .22em;
+  text-decoration-thickness: 1px;
+}
+.atlas-place:is(:hover, :focus-visible) .atlas-landmark {
+  filter: brightness(1.1) drop-shadow(0 0 4px #fff1bc);
+}
+.atlas-events { z-index: 1; }
+.atlas-event-dot {
+  position: absolute;
+  left: var(--map-x);
+  top: var(--map-y);
+  padding-left: 8px;
+  translate: 0 -62%;
+  color: #8b3b2d;
+  font: 700 11px/1 Georgia, serif;
+  text-shadow: 0 0 2px #ffe5ad, 0 1px #ffe5ad;
+}
+.atlas-event-dot::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 62%;
+  width: 5px;
+  height: 5px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: #8b3b2d;
+  border: 1px solid #f7e2b6;
+}
+.region-pan-hint { display: none; }
+#locations:not([hidden]) .region-surface { animation: atlas-open .24s ease-out both; }
+@keyframes atlas-open {
+  from { opacity: .5; scale: .97; }
+  to { opacity: 1; scale: 1; }
 }
 .map-note {
   margin-top: 16px;
@@ -349,20 +290,16 @@ body:has(.map-screen:not([hidden])) .status-toast:not(.error) {
 }
 @media (max-width: 760px), (max-height: 530px) {
   .map-stage { width: 100%; }
-  .scroll-landscape { aspect-ratio: auto; min-height: clamp(274px, 46vw, 360px); background-size: cover; }
-  #level-nodes.has-route { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 33px 0; gap: 8px; align-items: center; }
-  .has-route .map-node { align-self: center; top: auto; transform: none; }
-  .scroll-landscape:has(.has-route) .scroll-route { display: none; }
+  .scroll-landscape { aspect-ratio: auto; min-height: clamp(245px, 43vw, 340px); }
   .map-note { grid-template-columns: 1fr; gap: 3px; }
   .map-keys { display: none; }
   body:has(.map-screen:not([hidden])) .status-toast:not(.error) { clip-path: inset(50%); }
 }
-@media (max-width: 780px), (min-height: 531px) and (max-height: 565px) {
-  .world-landscape { background-size: 100% 100%; }
-  .world-pan-hint { display: inline; }
-  .world-map-scroll { scrollbar-color: #826d4e #342a1e; scrollbar-width: thin; }
+@media (max-width: 810px) {
+  .region-pan-hint { display: inline; }
+  .event-sheet { grid-template-columns: 1fr; width: min(235px, 72vw); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .node-seal { transition: none; }
-  .map-node:enabled:is(:hover, :focus-visible) .node-seal { translate: none; }
+  #locations:not([hidden]) .region-surface { animation: none; }
+  .atlas-landmark { transition: none; }
 }

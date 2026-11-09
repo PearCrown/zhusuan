@@ -1,17 +1,17 @@
 "use strict";
 // Stable content/interaction data. Presentation values never enter server saves.
 const sampleGateLevel = Object.freeze({
-  levelId: "sample-gate", sceneId: "sample-gate-road", levelTitle: "城门旁的委托", seal: "壹",
+  levelId: "sample-gate", sceneId: "sample-gate-road", levelTitle: "城门旁的委托", placeId: "bo",
 });
 // Map metadata only. B can reference these IDs when supplying chapter content.
 const contentSlots = [
-  {levelId: "hewan-village", levelTitle: "河湾聚落", seal: "贰"},
-  {levelId: "linshui-workshop", levelTitle: "临水工坊", seal: "叁"},
-  {levelId: "dongyuan-earthworks", levelTitle: "东原土台", seal: "肆"},
+  {levelId: "hewan-village", placeId: "zhenxun"},
+  {levelId: "linshui-workshop", placeId: "yangcheng"},
+  {levelId: "dongyuan-earthworks", placeId: "mengze"},
 ].map(level => Object.freeze({...level, kind: "content-slot"}));
 window.HuaxiaSceneDemo = Object.freeze({
   chapterId: "sample-counting", ...sampleGateLevel,
-  title: "算坊初试", locationTitle: "河谷行旅图",
+  title: "算坊初试",
   mapLevels: Object.freeze([sampleGateLevel, ...contentSlots]),
   scene: Object.freeze({walkRange: Object.freeze([0.06, 0.95]), spawn: Object.freeze({x: 0.12, facing: "right", cameraX: 0})}),
   speed: 0.18, viewportSpan: 0.58,

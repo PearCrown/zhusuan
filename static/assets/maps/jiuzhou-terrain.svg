@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 90 1540 900" preserveAspectRatio="none">
+  <style>
+    .river { fill: none; stroke: #527d7d; stroke-linecap: round; stroke-linejoin: round; }
+    #yellow-river, .tributary path { vector-effect: non-scaling-stroke; }
+    .main-river { stroke-width: 5.8; opacity: .57; }
+    .river-light { stroke: #e5dab4; stroke-width: 1; opacity: .64; }
+    .tributary { stroke-width: 2.6; opacity: .63; }
+  </style>
+  <!-- City anchors and the river skeleton are traced from the source figure. Leader lines offset only the labels. -->
+  <defs>
+    <path id="yellow-river" d="M34 669 C83 645 122 620 170 594 C209 566 246 530 286 494 C329 456 372 412 408 377 C450 332 490 282 524 240 C560 212 607 177 642 151 C673 183 701 220 730 253 C739 298 750 345 759 390 C743 466 725 541 709 617 C699 673 689 732 681 783 C707 798 735 821 763 833 C838 827 902 821 960 810 C1032 798 1100 778 1168 759 C1200 733 1242 696 1276 668 C1311 630 1343 590 1376 557 C1415 522 1454 490 1492 454"/>
+  </defs>
+  <use href="#yellow-river" class="river main-river"/>
+  <use href="#yellow-river" class="river river-light"/>
+  <g class="river tributary">
+    <path d="M798 353 Q807 432 817 504 Q813 551 802 600 Q795 646 778 695 Q770 754 723 813 L681 860"/>
+    <path d="M779 747 Q762 774 742 805"/>
+    <path d="M279 733 Q328 773 388 809 T486 862 L562 872"/>
+    <path d="M112 859 Q209 866 315 881 T503 896 Q573 880 669 859"/>
+    <path d="M855 912 Q878 856 924 828"/>
+  </g>
+</svg>

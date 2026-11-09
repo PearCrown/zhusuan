@@ -3,7 +3,7 @@
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>铸算·华夏纪</title>
 <link rel="stylesheet" href="{% static 'css/scene-demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/scroll-map.css' %}">
-<script src="{% static 'js/chapter-sdk.js' %}" defer></script><script src="{% static 'js/scene-host.js' %}" defer></script><script src="{% static 'js/scene-demo-data.js' %}" defer></script><script src="{% static 'js/scene-model.js' %}" defer></script><script src="{% static 'js/scene-view.js' %}" defer></script><script src="{% static 'js/scene-demo.js' %}" defer></script></head>
+<script src="{% static 'js/chapter-sdk.js' %}" defer></script><script src="{% static 'js/scene-host.js' %}" defer></script><script src="{% static 'js/scene-demo-data.js' %}" defer></script><script src="{% static 'js/region-map-data.js' %}" defer></script><script src="{% static 'js/scene-model.js' %}" defer></script><script src="{% static 'js/scene-view.js' %}" defer></script><script src="{% static 'js/scene-demo.js' %}" defer></script></head>
 <body><main class="game-shell" aria-label="铸算全屏游戏">
 <h1 id="page-title" class="sr-only">铸算·华夏纪</h1>
 <div class="game-brand" aria-hidden="true">铸算 <span>· 华夏纪</span><small class="scene-brand-note">占位画面 · 开发样例</small></div>
@@ -13,22 +13,44 @@
   <div class="map-stage">
     <header class="map-heading"><div><p class="map-kicker">铸算纪行 · 章节大地图</p><h2 id="chapter-map-title">九州总图</h2></div><p class="map-index">上古 <span>至</span> 春秋之初</p></header>
     <div class="scroll-frame">
-      <div id="world-map-scroll" class="world-map-scroll" role="region" aria-label="九州图面，窄屏可左右滚动" tabindex="0">
-        <div class="scroll-landscape world-landscape">
-          <img class="world-geography" src="{% static 'assets/maps/jiuzhou-geography.svg' %}" alt="黄河与汾水、泾水、渭水、伊洛水系。岐周与丰镐在西，陶寺在晋南，成周、斟鄩、阳城和亳在中原，殷偏北，蒙泽在亳以东。">
-          <img class="world-geography" src="{% static 'assets/maps/jiuzhou-events.svg' %}" alt="十八处红菱按原图标出事件落点，编号对应大事索引。">
-          <span class="scroll-inscription" aria-hidden="true">九州阵址</span>
-          <span class="world-bo-label" aria-hidden="true">亳</span>
+      <div id="world-map-scroll" class="world-map-scroll" role="region" aria-label="九州图面">
+        <div class="scroll-landscape world-landscape atlas-silk">
+          <img class="world-geography" src="{% static 'assets/maps/jiuzhou-terrain.svg' %}" alt="以黄河为主轴的九州图面。">
+          <span class="atlas-north" aria-hidden="true">北</span>
+          <span class="atlas-river-name" aria-hidden="true">黄河</span>
           <div id="chapter-nodes" class="map-nodes"></div>
-          <div class="scroll-legend" aria-hidden="true"><span>可进入样章</span><span>背景城邑</span><span class="legend-event">大事</span></div>
         </div>
       </div>
     </div>
     <footer class="map-footer world-footer">
-      <p>据《阴阳算道》背景图绘制<span class="world-pan-hint"> · 可左右滑动</span></p>
-      <details id="world-event-index" class="map-events">
+      <p>选择一个大地区，展开该地的章节详图。</p>
+
+      <p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认 <kbd>Esc</kbd> 菜单</p>
+    </footer>
+  </div>
+</section>
+<section id="locations" class="screen map-screen" hidden aria-labelledby="location-name">
+  <div class="map-stage">
+    <header class="map-heading"><div><p class="map-kicker">九州总图 · 地区详图</p><h2 id="location-name">中原</h2></div><p class="map-index">章内 <span>／</span> <b id="map-count"></b> 处地点</p></header>
+    <div class="scroll-frame">
+      <div id="region-map-scroll" class="region-map-scroll" role="region" aria-label="地区图面，窄屏可左右滚动" tabindex="0">
+        <div class="scroll-landscape region-surface">
+          <div id="region-crop" class="atlas-silk region-crop">
+            <img class="world-geography" src="{% static 'assets/maps/jiuzhou-terrain.svg' %}" alt="">
+          </div>
+          <div id="region-event-points" class="atlas-events" aria-hidden="true"></div>
+          <div id="level-nodes" class="map-nodes"></div>
+        </div>
+      </div>
+    </div>
+    <div class="map-note" aria-live="polite">
+      <p class="map-note-title" id="map-note-title"></p>
+      <p id="level-state"></p>
+    </div>
+    <footer class="map-footer"><button id="back-chapters" class="map-back" type="button">〈 返回九州总图</button><span class="region-pan-hint">可左右滑动</span>
+      <details id="region-event-index" class="map-events">
         <summary>大事索引</summary>
-        <ol class="event-sheet" aria-label="原图十八大事">
+        <ol class="event-sheet" aria-label="本地区大事">
           <li>乱次之戏 <small>陶寺</small></li><li>日拍之阵 <small>妫汭</small></li>
           <li>禹都阳城 <small>阳城</small></li><li>甘野之战 <small>鄠邑</small></li>
           <li>涑水误判 <small>安邑</small></li><li>撕绢酒池 <small>斟鄩</small></li>
@@ -40,26 +62,7 @@
           <li>犬戎破镐 <small>丰镐</small></li><li>平王东迁 <small>洛邑</small></li>
         </ol>
       </details>
-      <p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认 <kbd>Esc</kbd> 菜单</p>
-    </footer>
-  </div>
-</section>
-<section id="locations" class="screen map-screen" hidden aria-labelledby="location-name">
-  <div class="map-stage">
-    <header class="map-heading"><div><p class="map-kicker">铸算纪行 · 章内选关</p><h2 id="location-name">河谷行旅图</h2></div><p class="map-index">亳地样章 <span>／</span> <b id="map-count"></b> 处行迹</p></header>
-    <div class="scroll-frame">
-      <div class="scroll-landscape">
-        <span class="scroll-inscription" aria-hidden="true">循水而行</span>
-        <svg class="scroll-route" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true"><path d="M162.5 214.2 C245 214.2 298 264.6 387.5 264.6 S526 180.6 612.5 180.6 S746 222.6 837.5 222.6"/></svg>
-        <div id="level-nodes" class="map-nodes"></div>
-        <div class="scroll-legend" aria-hidden="true"><span>可进入</span><span>可查看 · 待接入</span></div>
-      </div>
-    </div>
-    <div class="map-note" aria-live="polite">
-      <p class="map-note-title" id="map-note-title">城门旁的委托</p>
-      <p id="level-state"></p>
-    </div>
-    <footer class="map-footer"><button id="back-chapters" class="map-back" type="button">〈 返回九州总图</button><p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认 <kbd>Esc</kbd> 返回</p></footer>
+      <p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认 <kbd>Esc</kbd> 返回</p></footer>
   </div>
 </section>
 <section id="scene" class="screen scene-screen" hidden aria-labelledby="scene-name">
