@@ -5,7 +5,7 @@
   --scroll-serif: "STSong", "Songti SC", "SimSun", serif;
   padding: clamp(70px, 9vh, 104px) clamp(24px, 5vw, 100px) 20px;
   overflow: auto;
-  background: radial-gradient(ellipse at 50% 35%, #3d493c 0, #242c25 58%, #151a17 100%);
+  background: radial-gradient(ellipse at 50% 32%, #3c4438 0, #292e25 58%, #1b1e19 100%);
 }
 .map-stage {
   width: min(100%, 1380px, calc((100dvh - 278px) * 2.4));
@@ -75,7 +75,7 @@
   position: absolute;
   top: 7%;
   right: 5%;
-  color: #523923;
+  color: #684935;
   border-right: 1px solid #793e31a0;
   padding-right: 6px;
   writing-mode: vertical-rl;
@@ -135,65 +135,109 @@
 .map-node {
   display: grid;
   justify-items: center;
-  gap: 6px;
-  padding: 0 3px;
+  gap: 2px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 5px 4px;
   color: var(--scroll-ink);
   border: 0;
   background: transparent;
-  min-width: 0;
   text-align: center;
 }
-.map-node:focus-visible {
-  outline: 2px dashed #492a16;
-  outline-offset: 3px;
-}
+.map-node:focus-visible { outline: none; }
+.map-node:focus-visible .node-seal { outline: 2px solid #492a16; outline-offset: 3px; }
 .map-node[data-unavailable] { cursor: default; opacity: .68; }
 .map-node:hover:enabled { background: transparent; }
 .node-seal {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 27px;
+  height: 27px;
   border: 1px solid #f2cc94;
   border-radius: 50%;
   background: var(--stamp-red);
   color: #fff0d0;
-  box-shadow: 0 0 0 2px var(--stamp-red), 0 5px 11px #53301770;
-  font: 700 23px/1 var(--scroll-serif);
+  box-shadow: 0 0 0 1px var(--stamp-red), 0 2px 5px #53301760;
+  font: 700 15px/1 var(--scroll-serif);
   transition: box-shadow .18s, translate .18s, background .18s;
 }
 .map-node[aria-pressed] .node-seal, .map-node[data-unavailable] .node-seal {
   background: #e7c38c;
   color: #65392a;
   border-color: #fff0c0;
-  box-shadow: 0 0 0 2px #724b36, 0 4px 8px #53301760;
+  box-shadow: 0 0 0 1px #724b36, 0 2px 5px #53301760;
 }
 .map-node:enabled:is(:hover, :focus-visible) .node-seal { translate: 0 -3px; }
 .map-node[aria-pressed="true"] .node-seal {
   background: #6c3b2b;
   color: #fff0d0;
-  box-shadow: 0 0 0 2px #6c3b2b, 0 0 0 6px #e4be85, 0 4px 8px #53301760;
+  box-shadow: 0 0 0 1px #6c3b2b, 0 0 0 4px #f1d7a3, 0 2px 5px #53301760;
 }
 .node-caption {
-  display: grid;
-  gap: 3px;
-  min-width: min(100%, 100px);
+  display: block;
   max-width: 100%;
-  padding: 5px 11px 6px;
-  border: 1px solid #886643;
-  background: linear-gradient(160deg, #ffedc8, #ecd09e);
-  box-shadow: 0 3px 7px #46321c55, inset 0 0 0 2px #f7e2b5;
-  font: 700 clamp(14px, 1.4vw, 20px)/1.2 var(--scroll-serif);
+  padding: 2px 8px;
+  background: radial-gradient(ellipse, #f8e6bbdc 28%, #f8e6bb00 77%);
+  color: #38271c;
+  text-shadow: 0 1px #f8e2b6, 0 0 3px #f8e2b6;
+  font: 700 clamp(14px, 1.3vw, 18px)/1.25 var(--scroll-serif);
   overflow-wrap: anywhere;
 }
 .node-caption small {
-  font: 500 11px/1.2 system-ui, sans-serif;
-  letter-spacing: .06em;
-  color: #654630;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-#chapter-nodes .map-node { gap: 11px; padding: 6px 12px; }
-#chapter-nodes .node-seal { width: 59px; height: 59px; font-size: 28px; }
-#chapter-nodes .node-caption { min-width: min(100%, 152px); padding: 9px 18px; }
+.world-map-scroll { overflow-x: auto; }
+.world-landscape {
+  --bo-x: 64.4805%;
+  --bo-y: 84%;
+  min-width: 690px;
+  background-image: url("../assets/maps/jiuzhou-silk.jpg");
+}
+.world-geography { position: absolute; inset: 0; width: 100%; height: 100%; }
+.world-bo-label {
+  position: absolute;
+  left: calc(var(--bo-x) + 10px);
+  top: var(--bo-y);
+  translate: 0 -50%;
+  color: #533823;
+  font: 700 17px/1 var(--scroll-serif);
+  text-shadow: 0 0 4px #f4dfb4;
+}
+.world-landscape:has([data-world-entry]) .world-bo-label { display: none; }
+#chapter-nodes {
+  display: block;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  padding: 12px;
+}
+#chapter-nodes .map-node:not([data-world-entry]) { margin-bottom: 8px; max-width: 170px; }
+#chapter-nodes .map-node:not([data-world-entry]) .node-seal { display: none; }
+.map-node[data-world-entry] {
+  position: absolute;
+  left: var(--bo-x);
+  top: var(--bo-y);
+  translate: -50% -50%;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  align-content: center;
+  pointer-events: auto;
+}
+[data-world-entry] .node-caption {
+  position: absolute;
+  left: calc(100% - 4px);
+  top: 50%;
+  translate: 0 -50%;
+  max-width: none;
+  white-space: nowrap;
+}
+.world-pan-hint { display: none; }
 .scroll-legend {
   position: absolute;
   inset: auto auto 4% 4%;
@@ -217,6 +261,14 @@
   border-radius: 50%;
 }
 .scroll-legend span:first-child::before { background: var(--stamp-red); }
+.scroll-legend .legend-event::before {
+  width: 7px;
+  height: 7px;
+  border: 0;
+  border-radius: 0;
+  background: var(--stamp-red);
+  transform: rotate(45deg);
+}
 .map-note {
   margin-top: 16px;
   display: grid;
@@ -241,6 +293,36 @@
   color: #ded1b6;
 }
 .map-footer p { margin: 0; }
+.map-events { position: relative; margin-left: auto; }
+.map-events summary {
+  cursor: pointer;
+  white-space: nowrap;
+  color: #f0dfbc;
+  padding: 4px 9px;
+  border: 1px solid #b69e7070;
+  background: #25271d;
+}
+.event-sheet {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 26px;
+  width: min(365px, 78vw);
+  max-height: min(53vh, 320px);
+  overflow: auto;
+  margin: 0;
+  padding: 13px 13px 13px 34px;
+  background: #f1d9aa;
+  color: #463023;
+  border: 1px solid #85613d;
+  box-shadow: 0 8px 28px #26170d66;
+  list-style-type: decimal-leading-zero;
+}
+.event-sheet li::marker { color: #8b3b2d; font-weight: bold; }
+.event-sheet small { padding-inline-start: 4px; color: #654834; }
 .map-footer kbd {
   display: inline-block;
   margin-left: 8px;
@@ -274,6 +356,11 @@ body:has(.map-screen:not([hidden])) .status-toast:not(.error) {
   .map-note { grid-template-columns: 1fr; gap: 3px; }
   .map-keys { display: none; }
   body:has(.map-screen:not([hidden])) .status-toast:not(.error) { clip-path: inset(50%); }
+}
+@media (max-width: 780px), (min-height: 531px) and (max-height: 565px) {
+  .world-landscape { background-size: 100% 100%; }
+  .world-pan-hint { display: inline; }
+  .world-map-scroll { scrollbar-color: #826d4e #342a1e; scrollbar-width: thin; }
 }
 @media (prefers-reduced-motion: reduce) {
   .node-seal { transition: none; }

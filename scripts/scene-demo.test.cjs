@@ -187,6 +187,23 @@ test('scroll map slots can be selected with keyboard and mouse without opening a
   assert.equal(a.calls.length, reads + 1);
 });
 
+test('world event index has native keyboard activation and closes before the pause menu', async t => {
+  const a = await setup(t);
+  await a.ready();
+  const details = a.id('world-event-index');
+  const summary = details.querySelector('summary');
+  assert.equal(details.querySelectorAll('li').length, 18);
+  assert.equal(a.chapter().hasAttribute('data-world-entry'), true);
+  summary.focus();
+  assert.equal(mapKey(a, 'Enter'), false);
+  assert.equal(a.id('locations').hidden, true);
+  details.open = true;
+  assert.equal(mapKey(a, 'Escape'), true);
+  assert.equal(details.open, false);
+  assert.equal(a.id('pause').hidden, true);
+  assert.equal(a.w.document.activeElement, summary);
+});
+
 test('a scene in the local manifest cannot open when its chapter is missing from the registry response', async t => {
   const a = await setup(t);
   a.override(url => url === '/game/api/chapters' ? chapterListing([

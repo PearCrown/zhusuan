@@ -23,6 +23,7 @@
     try {host?.dispose();} finally {host = null; token = null; taskSaveContext = null; runnerController = null;}
     view?.dispose(); view = null; model = null; progress = null; questions = []; lastFrame = null;
     for (const name of ["chapters", "locations", "scene", "runner"]) id(name).hidden = true;
+    id("world-event-index").open = false;
     chapterEntry = levelEntry = null;
     for (const name of ["chapter-nodes", "level-nodes", "quest-state", "runner-content", "runner-status", "dialogue-text", "level-state"]) id(name).replaceChildren();
   }
@@ -143,10 +144,11 @@
     for (const chapterId of [...chapters.keys()].sort()) {
       const playable = chapterId === data.chapterId && Boolean(levelEntry);
       const node = mapNode({
-        title: chapters.get(chapterId), seal: playable ? "壹" : "章", kind: "chapterId", key: chapterId,
+        title: chapters.get(chapterId), seal: playable ? "亳" : "章", kind: "chapterId", key: chapterId,
         hint: playable ? "进入章内地点" : "暂无可用关卡",
         onChoose: playable ? () => {
           if (busy || id("chapters").hidden || !id("pause").hidden) return;
+          id("world-event-index").open = false;
           id("chapters").hidden = true;
           id("locations").hidden = false;
           status("请选择关卡。");
@@ -154,7 +156,11 @@
         } : null,
       });
       id("chapter-nodes").append(node);
-      if (playable) chapterEntry = node;
+      if (playable) {
+        node.dataset.worldEntry = "";
+        node.setAttribute("aria-label", `亳 · ${chapters.get(chapterId)} · 进入章内地点`);
+        chapterEntry = node;
+      }
     }
     id("location-name").textContent = data.locationTitle;
   }
@@ -419,13 +425,18 @@
       else if (mode === "dialogue") id("close-dialogue").click();
       else if (mode === "menu") closePause();
       else if (mode === "map" && !id("locations").hidden) id("back-chapters").click();
+      else if (mode === "map" && id("world-event-index").open) {
+        id("world-event-index").open = false; id("world-event-index").querySelector("summary").focus();
+      }
       else openPause(); return;
     }
     if (["dialogue", "menu", "confirm", "map"].includes(mode)) {
+      if (mode === "map" && event.target.closest?.("summary")) return;
       const scope = root || (id("locations").hidden ? id("chapters") : id("locations"));
       const items = focusables(scope), index = items.indexOf(document.activeElement);
       const previous = key === "arrowup" || (mode === "map" && key === "arrowleft");
       const next = key === "arrowdown" || (mode === "map" && key === "arrowright");
+      if (event.target === id("world-map-scroll") && (previous || next)) return;
       if ((previous || next) && items.length) {event.preventDefault(); items[(index + (next ? 1 : -1) + items.length) % items.length].focus();}
       if (["enter", " "].includes(key) && items.length && document.activeElement !== id("open-menu")) {
         event.preventDefault(); heldActions.add(key); if (!busy) (items[index] || items[0]).click();

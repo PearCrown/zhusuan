@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 90 1540 900" preserveAspectRatio="none">
+  <style>
+    .river { fill: none; stroke: #527d7d; stroke-linecap: round; stroke-linejoin: round; }
+    .main-river { stroke-width: 11; opacity: .57; }
+    .river-light { stroke: #e5dab4; stroke-width: 2; opacity: .64; }
+    .tributary { stroke-width: 4; opacity: .63; }
+    .place, .water-name, .region, .compass { font-family: STSong, SimSun, serif; }
+    .place { fill: #493923; font-size: 20px; paint-order: stroke; stroke: #eed4a5; stroke-width: 5px; stroke-linejoin: round; }
+    .place circle { fill: #ead2a2; stroke: #624d37; stroke-width: 2.2px; }
+    .place text, .region text { transform-box: fill-box; transform-origin: left center; transform: scaleX(.82); }
+    .primary { fill: #533823; font-size: 25px; font-weight: 700; }
+    .primary circle { fill: #774737; stroke: #eed1a1; stroke-width: 2px; }
+    .leader { fill: none; stroke: #705336; stroke-width: 1.3px; opacity: .76; }
+    .water-name { fill: #315f5e; font-size: 21px; letter-spacing: .16em; }
+    .region { fill: #695537; opacity: .74; font-size: 31px; letter-spacing: .23em; }
+    .compass { fill: #674531; font-size: 25px; }
+  </style>
+  <!-- City anchors and the river skeleton are traced from the source figure. Leader lines offset only the labels. -->
+  <defs>
+    <path id="yellow-river" d="M34 669 C83 645 122 620 170 594 C209 566 246 530 286 494 C329 456 372 412 408 377 C450 332 490 282 524 240 C560 212 607 177 642 151 C673 183 701 220 730 253 C739 298 750 345 759 390 C743 466 725 541 709 617 C699 673 689 732 681 783 C707 798 735 821 763 833 C838 827 902 821 960 810 C1032 798 1100 778 1168 759 C1200 733 1242 696 1276 668 C1311 630 1343 590 1376 557 C1415 522 1454 490 1492 454"/>
+  </defs>
+  <use href="#yellow-river" class="river main-river"/>
+  <use href="#yellow-river" class="river river-light"/>
+  <g class="river tributary">
+    <path d="M798 353 Q807 432 817 504 Q813 551 802 600 Q795 646 778 695 Q770 754 723 813 L681 860"/>
+    <path d="M779 747 Q762 774 742 805"/>
+    <path d="M279 733 Q328 773 388 809 T486 862 L562 872"/>
+    <path d="M112 859 Q209 866 315 881 T503 896 Q573 880 669 859"/>
+    <path d="M855 912 Q878 856 924 828"/>
+  </g>
+  <g class="water-name">
+    <text x="633" y="588" transform="rotate(-77 633 588)">黄 河</text>
+    <text x="805" y="663">汾水</text>
+    <text x="472" y="837">泾水</text>
+    <text x="283" y="901">渭水</text>
+    <text x="854" y="950">伊洛</text>
+  </g>
+  <g class="region">
+    <text x="297" y="794">关中</text>
+    <text x="850" y="564">晋南</text>
+    <text x="1320" y="827">东方</text>
+  </g>
+  <g class="compass" transform="translate(134 309)">
+    <path d="M0 20 L-9 42 L0 38 L9 42 Z M-1 36 H1 V75 H-1 Z"/>
+    <text x="0" y="6" text-anchor="middle">北</text>
+  </g>
+  <g class="place">
+    <g transform="translate(886 442)"><circle r="5"/><text x="14" y="6">太原</text></g>
+    <g transform="translate(1082 544)"><circle r="5"/><text x="14" y="6">邢</text></g>
+    <g transform="translate(1454 581)"><circle r="5"/><text x="14" y="6">齐</text></g>
+    <g transform="translate(808 607)"><circle r="5"/><text x="14" y="6">彘</text></g>
+    <g transform="translate(1121 695)"><circle r="5"/><text x="14" y="6">相</text></g>
+    <g transform="translate(808 721)"><circle r="5"/><text x="15" y="6">晋</text></g>
+    <g transform="translate(1054 730)"><circle r="5"/><text x="15" y="6">朝歌</text></g>
+    <g transform="translate(1327 733)"><circle r="5"/><text x="14" y="6">奄</text></g>
+    <g transform="translate(1041 757)"><circle r="5"/><text x="15" y="12">牧野</text></g>
+    <g transform="translate(759 797)"><circle r="5"/><text x="16" y="-11">安邑</text></g>
+    <g transform="translate(742 805)"><path class="leader" d="M0 0 L10 37"/><circle r="5"/><text x="-6" y="59">鸣条</text></g>
+    <g transform="translate(682 819)"><path class="leader" d="M0 0 L-20 25 H-26"/><circle r="5"/><text x="-76" y="31">妫汭</text></g>
+    <g transform="translate(1200 885)"><circle r="5"/><text x="15" y="14">景亳</text></g>
+    <g transform="translate(984 910)"><circle r="5"/><text x="15" y="12">阳翟</text></g>
+  </g>
+  <g class="place primary">
+    <g transform="translate(778 695)"><path class="leader" d="M0 0 L-21 -30 H-33"/><circle r="8"/><text x="-90" y="-23">陶寺</text></g>
+    <g transform="translate(1073 667)"><circle r="8"/><text x="17" y="4">殷</text></g>
+    <g transform="translate(435 885)"><path class="leader" d="M0 0 L-21 -28 H-30"/><circle r="8"/><text x="-90" y="-21">岐周</text></g>
+    <g transform="translate(534 895)"><path class="leader" d="M0 0 L19 24"/><circle r="8"/><text x="25" y="35">丰镐</text></g>
+    <g transform="translate(877 861)"><path class="leader" d="M0 0 L-18 35 H-28"/><circle r="8"/><text x="-87" y="43">成周</text></g>
+    <g transform="translate(918 849)"><path class="leader" d="M0 0 L-21 -51 H-32"/><circle r="8"/><text x="-89" y="-45">斟鄩</text></g>
+    <g transform="translate(934 876)"><path class="leader" d="M0 0 L-12 47"/><circle r="8"/><text x="-47" y="69">阳城</text></g>
+    <g transform="translate(1188 857)"><circle r="8"/><text x="19" y="-7">蒙泽</text></g>
+    <circle cx="993" cy="846" r="8"/>
+  </g>
+</svg>
