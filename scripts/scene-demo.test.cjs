@@ -103,7 +103,7 @@ test('map renders registered chapters and configured levels in stable order and 
   const a = await setup(t, true, w => {
     const data = w.HuaxiaSceneDemo;
     w.HuaxiaSceneDemo = {...data, mapLevels: [
-      ...data.mapLevels,
+      data.mapLevels[0],
       {levelId: 'fixture-second-level', sceneId: 'fixture-unwired', levelTitle: '测试关 · 未接入', seal: '测'},
     ]};
   });
@@ -156,6 +156,35 @@ test('map renders registered chapters and configured levels in stable order and 
   await until(() => !a.id('chapters').hidden && !a.id('reload').disabled);
   assert.deepEqual(chapterIds(), ['fixture-second-chapter', 'sample-counting']);
   assert.equal(a.calls.filter(call => call.payload).length, 0);
+});
+
+test('scroll map slots can be selected with keyboard and mouse without opening a scene or calling the API', async t => {
+  const a = await setup(t);
+  await a.ready();
+  a.chapter().click();
+  const slots = [...a.id('level-nodes').querySelectorAll('[aria-pressed]')];
+  assert.deepEqual(slots.map(node => node.dataset.levelId), ['hewan-village', 'linshui-workshop', 'dongyuan-earthworks']);
+  const reads = a.calls.length;
+  mapKey(a, 'ArrowRight');
+  assert.equal(a.w.document.activeElement, slots[0]);
+  mapKey(a, 'Enter');
+  assert.equal(a.id('map-note-title').textContent, '河湾聚落');
+  assert.match(a.id('level-state').textContent, /由开发者 B 提供/);
+  for (const [slot, title] of [[slots[1], '临水工坊'], [slots[2], '东原土台']]) {
+    slot.click();
+    assert.equal(a.id('map-note-title').textContent, title);
+    assert.deepEqual(slots.filter(node => node.getAttribute('aria-pressed') === 'true'), [slot]);
+  }
+  assert.equal(a.id('scene').hidden, true);
+  assert.equal(a.calls.length, reads);
+  mapKey(a, 'Escape');
+  assert.equal(a.w.document.activeElement, a.chapter());
+  a.chapter().click();
+  assert.equal(a.w.document.activeElement, slots[2]);
+  a.level().click();
+  await until(() => !a.id('scene').hidden && !a.id('reload').disabled);
+  assert.equal(a.id('map-note-title').textContent, '城门旁的委托');
+  assert.equal(a.calls.length, reads + 1);
 });
 
 test('a scene in the local manifest cannot open when its chapter is missing from the registry response', async t => {

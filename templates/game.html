@@ -2,14 +2,43 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>铸算·华夏纪</title>
 <link rel="stylesheet" href="{% static 'css/scene-demo.css' %}">
+<link rel="stylesheet" href="{% static 'css/scroll-map.css' %}">
 <script src="{% static 'js/chapter-sdk.js' %}" defer></script><script src="{% static 'js/scene-host.js' %}" defer></script><script src="{% static 'js/scene-demo-data.js' %}" defer></script><script src="{% static 'js/scene-model.js' %}" defer></script><script src="{% static 'js/scene-view.js' %}" defer></script><script src="{% static 'js/scene-demo.js' %}" defer></script></head>
 <body><main class="game-shell" aria-label="铸算全屏游戏">
 <h1 id="page-title" class="sr-only">铸算·华夏纪</h1>
-<div class="game-brand" aria-hidden="true">铸算 <span>· 华夏纪</span><small>占位画面 · 开发样例</small></div>
+<div class="game-brand" aria-hidden="true">铸算 <span>· 华夏纪</span><small class="scene-brand-note">占位画面 · 开发样例</small></div>
 <p id="status" class="status-toast" role="status" aria-live="polite">正在读取服务器进度…</p>
 <button id="open-menu" class="menu-trigger" type="button" aria-label="打开暂停菜单">菜单 <kbd>Esc</kbd></button>
-<section id="chapters" class="screen map-screen" hidden aria-labelledby="chapter-map-title"><div class="map-heading"><p>剧情模式</p><h2 id="chapter-map-title">章节大地图</h2><p>选择章节，开启探索</p></div><div id="chapter-nodes" class="map-nodes"></div><p class="screen-help">↑ ↓ 选择 · Enter 确认 · Esc 菜单</p></section>
-<section id="locations" class="screen map-screen" hidden aria-labelledby="location-name"><div class="map-heading"><p>章内选关</p><h2 id="location-name">城门与算坊</h2><p id="level-state"></p></div><div id="level-nodes" class="map-nodes"></div><button id="back-chapters" class="map-back" type="button">返回章节地图</button><p class="screen-help">↑ ↓ 选择 · Enter 确认 · Esc 返回</p></section>
+<section id="chapters" class="screen map-screen" hidden aria-labelledby="chapter-map-title">
+  <div class="map-stage">
+    <header class="map-heading"><div><p class="map-kicker">铸算纪行 · 剧情</p><h2 id="chapter-map-title">山河总卷</h2></div><p class="map-index">卷目 <span>／</span> 章节</p></header>
+    <div class="scroll-frame">
+      <div class="scroll-landscape">
+        <span class="scroll-inscription" aria-hidden="true">华夏纪行</span>
+        <div id="chapter-nodes" class="map-nodes"></div>
+      </div>
+    </div>
+    <footer class="map-footer"><p>择一卷，循山河入境。</p><p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认 <kbd>Esc</kbd> 菜单</p></footer>
+  </div>
+</section>
+<section id="locations" class="screen map-screen" hidden aria-labelledby="location-name">
+  <div class="map-stage">
+    <header class="map-heading"><div><p class="map-kicker">铸算纪行 · 卷内选关</p><h2 id="location-name">河谷行旅图</h2></div><p class="map-index">行迹 <span>／</span> <b id="map-count"></b></p></header>
+    <div class="scroll-frame">
+      <div class="scroll-landscape">
+        <span class="scroll-inscription" aria-hidden="true">循水而行</span>
+        <svg class="scroll-route" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true"><path d="M162.5 214.2 C245 214.2 298 264.6 387.5 264.6 S526 180.6 612.5 180.6 S746 222.6 837.5 222.6"/></svg>
+        <div id="level-nodes" class="map-nodes"></div>
+        <div class="scroll-legend" aria-hidden="true"><span>可进入</span><span>可查看 · 待接入</span></div>
+      </div>
+    </div>
+    <div class="map-note" aria-live="polite">
+      <p class="map-note-title" id="map-note-title">城门旁的委托</p>
+      <p id="level-state"></p>
+    </div>
+    <footer class="map-footer"><button id="back-chapters" class="map-back" type="button">〈 返回章节地图</button><p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认 <kbd>Esc</kbd> 返回</p></footer>
+  </div>
+</section>
 <section id="scene" class="screen scene-screen" hidden aria-labelledby="scene-name">
 <h2 id="scene-name" class="level-hud">城门旁的委托</h2>
 <div id="viewport" class="scene-viewport" role="group" aria-label="横版场景，A或D及左右键移动，E交互，Q切换目标" tabindex="0"></div>

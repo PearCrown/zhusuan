@@ -13,13 +13,6 @@ p {line-height:1.6;margin:.5em 0;} h2,h3 {font-family:"STSong","SimSun",serif;ma
 .menu-trigger {position:absolute;z-index:8;right:28px;top:26px;background:#142b2ae0;}
 .status-toast {position:absolute;z-index:6;left:32px;top:88px;max-width:min(640px,65vw);padding:8px 12px;background:#142b2abd;font-size:13px;pointer-events:none;}
 .status-toast.error {color:#ffd2c4;background:#4e2525e8;}
-.map-screen {background:radial-gradient(ellipse at 50% 45%,#72847233,transparent 70%),linear-gradient(125deg,#203d38,#41574a 55%,#233b35);}
-.map-screen::before {content:"";position:absolute;inset:22% 8% 18%;border:1px solid #b4b99133;border-radius:50%;transform:rotate(-12deg);pointer-events:none;}
-.map-heading {position:absolute;top:19%;left:12%;} .map-heading h2 {font-size:clamp(32px,4vw,64px);font-weight:400;letter-spacing:.1em;}
-.map-heading p {color:#d0c5a5;} .map-nodes {position:absolute;inset:30% 15% 16%;display:flex;flex-wrap:wrap;align-content:safe center;align-items:center;justify-content:center;gap:clamp(12px,5vw,80px);overflow:auto;padding:12px;}
-.map-node {display:grid;justify-items:center;gap:14px;padding:20px;background:transparent;border:0;width:min(220px,100%);overflow-wrap:anywhere;letter-spacing:.08em;}
-.map-node[data-unavailable] {cursor:default;opacity:.72;} .map-node:hover:enabled {background:#d6bc7d12;} .node-seal {display:grid;place-items:center;width:100px;height:100px;border:1px solid var(--gold);border-radius:50%;background:#172f2bd9;font:48px "STSong",serif;box-shadow:0 0 0 8px #d6bc7d14;}
-.map-node small {opacity:.7;font-size:12px;} .map-back {position:absolute;bottom:68px;left:32px;}
 .screen-help {position:absolute;z-index:4;bottom:16px;left:50%;transform:translateX(-50%);margin:0;padding:7px 16px;background:#142b2ad9;border:1px solid #d6bc7d33;white-space:nowrap;font-size:12px;pointer-events:none;}
 .scene-screen {background:#c4c9b2;} .scene-viewport {position:absolute;inset:0;overflow:hidden;outline-offset:-5px;transition:bottom .16s;}
 .scene-screen.dialogue-open .scene-viewport {bottom:clamp(190px,28vh,280px);}
@@ -52,5 +45,5 @@ p {line-height:1.6;margin:.5em 0;} h2,h3 {font-family:"STSong","SimSun",serif;ma
 .modal-backdrop {position:absolute;z-index:20;inset:0;display:grid;place-items:center;background:#091a18b8;backdrop-filter:blur(5px);}
 .game-menu {display:grid;gap:12px;padding:28px 44px;width:min(460px,88vw);max-height:92dvh;overflow:auto;background:#17312ff5;border:1px solid var(--gold);box-shadow:0 20px 90px #0008;}
 .game-menu h2 {font-size:32px;margin:8px 0;} .game-menu p {font-size:12px;color:#dacfb3;} .game-menu a {display:block;text-align:center;padding:10px;border:1px solid #c5b58a7a;text-decoration:none;}
-@media(max-width:760px) {.game-brand {left:18px;top:18px;font-size:24px;} .menu-trigger {right:16px;top:18px;} .status-toast {left:18px;top:78px;max-width:75vw;font-size:11px;} .task-hud {right:16px;top:132px;width:220px;} .level-hud {right:16px;top:95px;} .map-heading {left:8%;top:24%;} .map-nodes {inset:36% 8% 15%;} .dialogue-overlay {padding:14px 20px 30px;grid-template-columns:1fr 190px;gap:12px;font-size:13px;} .task-screen {padding:28px 5vw 46px;} .question {grid-template-columns:1fr 100px auto;gap:8px;padding:12px 0;} .screen-help {font-size:10px;max-width:96%;white-space:normal;text-align:center;}}
+@media(max-width:760px) {.game-brand {left:18px;top:18px;font-size:24px;} .menu-trigger {right:16px;top:18px;} .status-toast {left:18px;top:78px;max-width:75vw;font-size:11px;} .task-hud {right:16px;top:132px;width:220px;} .level-hud {right:16px;top:95px;} .dialogue-overlay {padding:14px 20px 30px;grid-template-columns:1fr 190px;gap:12px;font-size:13px;} .task-screen {padding:28px 5vw 46px;} .question {grid-template-columns:1fr 100px auto;gap:8px;padding:12px 0;} .screen-help {font-size:10px;max-width:96%;white-space:normal;text-align:center;}}
 .dialogue-open > .screen-help,.dialogue-open > .target-hint {visibility:hidden;}

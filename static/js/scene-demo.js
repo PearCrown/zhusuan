@@ -33,7 +33,7 @@
     progress = value;
     const labels = {not_started: "与守门人交谈，接取委托", accepted: "前往算坊任务点，完成后回守门人处交付", submitted: "样例任务已交付"};
     id("quest-state").textContent = labels[value.state.story.quest] + (value.result ? ` · 服务器成绩 ${value.result.score} / ${value.result.maxScore}` : "");
-    id("level-state").textContent = value.result ? "样例已结算，可进入查看场景。" : labels[value.state.story.quest];
+    showLevelNote(data.levelTitle, value.result ? "样例已结算，可进入查看场景。" : labels[value.state.story.quest]);
     id("dialogue-text").textContent = value.result ? "守门人：委托已交付，感谢相助。" : "守门人：请到前方算坊完成练习，再回来交付。";
     id("accept").hidden = value.state.story.quest !== "not_started";
     id("submit").hidden = value.state.story.quest !== "accepted";
@@ -79,18 +79,31 @@
     }
   }
   function assertCurrent(started) {if (started !== epoch) throw Object.assign(Error("STALE"), {stale: true});}
-  function mapNode({title, seal, hint, kind, key, onChoose}) {
+  function showLevelNote(title, description, slotButton = null) {
+    id("map-note-title").textContent = title;
+    id("level-state").textContent = description;
+    for (const button of id("level-nodes").querySelectorAll("[aria-pressed]")) {
+      button.setAttribute("aria-pressed", String(button === slotButton));
+    }
+  }
+  function mapNode({title, seal, hint, kind, key, contentSlot, onChoose}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "map-node";
     button.dataset[kind] = key;
-    for (const [tag, text] of [["span", seal], ["span", title], ["small", hint]]) {
+    const caption = document.createElement("span");
+    caption.className = "node-caption";
+    for (const [tag, text] of [["span", title], ["small", hint]]) {
       const label = document.createElement(tag);
       label.textContent = text;
-      button.append(label);
+      caption.append(label);
     }
-    button.firstChild.className = "node-seal";
-    button.firstChild.setAttribute("aria-hidden", "true");
+    const stamp = document.createElement("span");
+    stamp.className = "node-seal";
+    stamp.textContent = seal;
+    stamp.setAttribute("aria-hidden", "true");
+    button.append(stamp, caption);
+    if (contentSlot) button.setAttribute("aria-pressed", "false");
     if (onChoose) button.addEventListener("click", onChoose);
     else {
       button.dataset.unavailable = "";
@@ -107,16 +120,23 @@
     }
     // Only this chapter and scene are wired to the existing game adapter.
     if (chapters.has(data.chapterId)) {
+      const levelNodes = id("level-nodes");
+      levelNodes.classList.toggle("has-route", data.mapLevels.length === 4);
+      id("map-count").textContent = String(data.mapLevels.length).padStart(2, "0");
       for (const level of data.mapLevels) {
         const playable = level.levelId === data.levelId && level.sceneId === data.sceneId;
+        const contentSlot = !playable && level.kind === "content-slot";
         const node = mapNode({
           title: level.levelTitle, seal: level.seal, kind: "levelId", key: level.levelId,
-          hint: playable ? "进入关卡" : "场景暂不可用",
-          onChoose: playable ? () => {
-            if (!id("locations").hidden && id("pause").hidden) void run(enterScene);
+          hint: playable ? "进入关卡" : contentSlot ? "查看关卡" : "场景暂不可用",
+          contentSlot,
+          onChoose: playable || contentSlot ? event => {
+            if (busy || id("locations").hidden || !id("pause").hidden) return;
+            if (playable) void run(enterScene);
+            else showLevelNote(level.levelTitle, "关卡内容由开发者 B 提供，接入后可在这里进入。", event.currentTarget);
           } : null,
         });
-        id("level-nodes").append(node);
+        levelNodes.append(node);
         if (playable) levelEntry = node;
       }
     }
@@ -129,7 +149,8 @@
           if (busy || id("chapters").hidden || !id("pause").hidden) return;
           id("chapters").hidden = true;
           id("locations").hidden = false;
-          levelEntry.focus();
+          status("请选择关卡。");
+          (id("level-nodes").querySelector('[aria-pressed="true"]') || levelEntry).focus();
         } : null,
       });
       id("chapter-nodes").append(node);
@@ -355,6 +376,7 @@
     if (busy || id("locations").hidden) return;
     id("locations").hidden = true;
     id("chapters").hidden = false;
+    status("请选择章节。");
     chapterEntry?.focus();
   });
   id("back-map").addEventListener("click", () => {closePause(false); backMap();});
@@ -402,7 +424,9 @@
     if (["dialogue", "menu", "confirm", "map"].includes(mode)) {
       const scope = root || (id("locations").hidden ? id("chapters") : id("locations"));
       const items = focusables(scope), index = items.indexOf(document.activeElement);
-      if (["arrowup", "arrowdown"].includes(key) && items.length) {event.preventDefault(); items[(index + (key === "arrowdown" ? 1 : -1) + items.length) % items.length].focus();}
+      const previous = key === "arrowup" || (mode === "map" && key === "arrowleft");
+      const next = key === "arrowdown" || (mode === "map" && key === "arrowright");
+      if ((previous || next) && items.length) {event.preventDefault(); items[(index + (next ? 1 : -1) + items.length) % items.length].focus();}
       if (["enter", " "].includes(key) && items.length && document.activeElement !== id("open-menu")) {
         event.preventDefault(); heldActions.add(key); if (!busy) (items[index] || items[0]).click();
       }
