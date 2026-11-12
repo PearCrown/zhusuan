@@ -1,0 +1,57 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>铸算·华夏纪 · 铸言</title>
+  <link rel="stylesheet" href="{% static 'css/code.css' %}?v=20261111bench">
+  <link rel="stylesheet" href="{% static 'css/teaching-workbench.css' %}?v=20261111bench">
+  <script src="{% static 'js/chapter-sdk.js' %}" defer></script>
+  <script src="{% static 'js/code.js' %}?v=20261111c018" defer></script>
+</head>
+<body class="code-body">
+<main class="code-page">
+  <header class="cd-head">
+    <nav class="cd-actions" aria-label="课程导航"><a class="cd-btn" href="/game/#stage-select">← 返回关卡</a></nav>
+    <div class="cd-identity">
+      <span class="cd-seal" aria-hidden="true">铸</span>
+      <div><h1 class="cd-title">铸言</h1><p class="cd-sub">第一章 · 与非门表达式</p></div>
+    </div>
+    <a class="cd-btn cd-account" href="/">账号中心</a>
+  </header>
+
+  <section class="cd-editor" aria-labelledby="code-editor-label">
+    <div class="cd-editor-head">
+      <label id="code-editor-label" class="cd-label" for="code-source">表达式编辑器</label>
+      <kbd>Ctrl / ⌘ + Enter</kbd>
+    </div>
+    <textarea id="code-source" class="cd-input" spellcheck="false" autocomplete="off" rows="6" readonly
+              placeholder="在这里输入表达式"></textarea>
+    <div class="cd-buttons">
+      <button id="run" class="cd-btn primary" type="button" disabled>运行验算</button>
+      <button id="submit" class="cd-btn" type="button" disabled>提交成绩</button>
+      <span id="status" class="cd-status" role="status" aria-live="polite">正在读取存档…</span>
+    </div>
+  </section>
+
+  <aside class="cd-result" aria-labelledby="code-goal">
+    <h2 id="code-goal" class="cd-block-title">写出与非门</h2>
+    <p class="cd-text">使用 <code>a</code>、<code>b</code>、<code>and</code>、<code>or</code>、<code>not</code> 和括号，让四组输出都符合期望。</p>
+    <h3 class="cd-block-title cd-result-title">真值表</h3>
+    <table class="cd-rows" id="rows">
+      <thead><tr><th>a</th><th>b</th><th>期望</th><th>实际</th><th>结果</th></tr></thead>
+      <tbody id="rows-body">
+        <tr><td>0</td><td>0</td><td>1</td><td>—</td><td>待验算</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>—</td><td>待验算</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>—</td><td>待验算</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>—</td><td>待验算</td></tr>
+      </tbody>
+    </table>
+    <p id="score" class="cd-score" role="status" aria-live="polite"></p>
+  </aside>
+
+  <p class="cd-note">提交后代码会保存在服务器存档里；重做会覆盖源码，成绩取历史最高。</p>
+</main>
+</body>
+</html>

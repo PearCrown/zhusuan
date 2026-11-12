@@ -1,0 +1,112 @@
+/* 任务栏组件 · static/css/quest.css
+ *
+ * 谁在用：
+ *   /game/                        完整版，右侧一列
+ *   /game/level/<id>、/game/circuit  完整版，挂在右侧「委托」栏顶部
+ *   /game/story/<chapter>/<npc>   精简版，挂在左上角，不遮台词
+ *
+ * 边界：这里只管卡片内部。挂载点放在哪、多宽、要不要固定定位，由各页面决定
+ * （game.html 的 .play-grid、story.css 的 #quest-slot）。
+ * 颜色全部走 --quest-* 变量并给默认值，换主题时覆盖变量即可，不必改这里。
+ */
+
+.quest-bar,
+.quest-bar * { box-sizing: border-box; }
+
+/* 挂载点未接任务 / 未登录时由组件设为 hidden；grid 父元素会覆盖 UA 的 display:none，
+   所以这里显式兜一次。 */
+#quest-bar[hidden],
+#quest-slot[hidden],
+.quest-bar[hidden],
+.quest-bar-body[hidden],
+.quest-bar-route[hidden],
+.quest-bar-toggle[hidden] { display: none !important; }
+
+.quest-bar {
+  --quest-accent: #a65437;
+  --quest-ink: #285548;
+  --quest-muted: #626c61;
+  --quest-line: #d9ded2;
+  --quest-surface: #fbf9f2;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--quest-line);
+  border-radius: 8px;
+  background: var(--quest-surface);
+  color: var(--quest-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.quest-bar-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+
+.quest-bar-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-family: "STSong", "SimSun", serif;
+  font-size: 15px;
+  font-weight: normal;
+  color: var(--quest-ink);
+}
+
+.quest-bar-route {
+  padding: 1px 6px;
+  border: 1px solid var(--quest-accent);
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--quest-accent);
+  white-space: nowrap;
+}
+
+.quest-bar-state {
+  padding: 2px 7px;
+  border: 1px solid var(--quest-line);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--quest-muted);
+  white-space: nowrap;
+}
+.quest-bar-state[data-tone="pass"] { border-color: #9bb3a4; background: #edf1e9; color: var(--quest-ink); }
+.quest-bar-state[data-tone="fail"] { border-color: #e2b4ad; background: #fff0ec; color: #952c26; }
+
+.quest-bar-toggle { min-height: 28px; padding: 2px 8px; font-size: 12px; cursor: pointer; }
+
+.quest-bar-body { display: flex; flex-direction: column; gap: 6px; }
+.quest-bar-objective { margin: 0; }
+.quest-bar-steps { margin: 0; padding-left: 18px; }
+.quest-bar-steps li[data-done="true"] { color: var(--quest-ink); }
+/* 本章存档不记录这一步时不打勾，也不假装完成——淡出并在 title 里说明原因。 */
+.quest-bar-steps li[data-done="unknown"] { opacity: .62; }
+
+/* 精简版：只有标题 + 状态，给剧情页用。 */
+.quest-bar[data-variant="compact"] { padding: 8px 12px; gap: 4px; }
+.quest-bar[data-variant="compact"] .quest-bar-title { font-size: 13.5px; }
+.quest-bar[data-variant="compact"] .quest-bar-state { font-size: 11.5px; }
+
+/* ---------- 全屏页（A 的 scene host）接线 ----------
+ * A 的 #quest-state 只写一行状态文字，其折叠逻辑（Tab 键、存档里的 taskbarCollapsed）
+ * 全在 scene-demo.js 里且有测试覆盖，所以这里不碰脚本，只用选择器：
+ *   1) 任务栏渲染出来后，把 A 那行重复的状态文字藏掉（没渲染出来时它仍是兜底）。
+ *      用 :has() 是为了"有卡片才藏"，避免任务栏加载失败时任务区整个空掉。
+ *   2) Tab 折叠：#quest-state 被置为 hidden 时，紧跟其后的挂载点一起收起。
+ */
+#taskbar:has(#quest-bar:not([hidden])) #quest-state { display: none; }
+#quest-state[hidden] + #quest-bar { display: none; }
+
+/* 对话覆盖层里的「展开剧情」入口。tabindex="-1" 是刻意的：
+ * A 的对话用 ↑↓ 在按钮间走动，测试锁死了「→ 结束对话」的顺序，
+ * 所以这个链接排在按钮之后但退出键盘漫游，暂只能鼠标点。
+ * 需要键盘可达时，得先改 scene-demo.test.cjs 里的那条顺序断言。 */
+.dialogue-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--quest-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.dialogue-link:hover { color: var(--quest-ink); }

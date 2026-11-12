@@ -1,0 +1,32 @@
+{
+  "_说明": [
+    "界面文案。换风格时最常见的就是改这些词：剧情游戏叫「委托/呈上」，RPG 可能叫「任务/交付」，工具风可能叫「关卡/提交」。",
+    "改这里不需要碰 HTML 或 JS。",
+    "缺字段会立刻报错（gameplay/skin.py 里有 REQUIRED_KEYS），避免页面上出现空白按钮。"
+  ],
+  "brandSeal": "铸",
+  "homeLink": "← 返回主页",
+  "paletteTitle": "铸造符",
+  "paletteHint": "点选一枚，置于台面",
+  "actionsTitle": "工造",
+  "actionClear": "清空台面",
+  "actionSim": "试演卦象",
+  "actionStop": "收势",
+  "actionSubmit": "呈上验符",
+  "actionSettle": "结算工数",
+  "progressTitle": "工数",
+  "legendTitle": "符义",
+  "legendOne": "阳 · 一",
+  "legendZero": "阴 · 零",
+  "legendHint": "点符端起线，再点另一端成线。点线可删，双击符可弃。",
+  "questTitle": "委托",
+  "truthTitle": "卦象真值",
+  "simTitle": "试演",
+  "simPrev": "◀ 上一组",
+  "simNext": "下一组 ▶",
+  "truthYaoHeader": "卦",
+  "resultTitle": "验符结果",
+  "continue": "继续 ▸",
+  "canvasLabel": "铸台：电路搭建区",
+  "readingSave": "正在读取存档…"
+}

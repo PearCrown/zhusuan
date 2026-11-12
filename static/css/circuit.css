@@ -1,0 +1,822 @@
+/* ============================================================================
+   铸算·华夏纪 · 关卡界面：结构与布局
+   ----------------------------------------------------------------------------
+   这个文件只管「东西摆在哪、长什么形状」，不管配色。
+   配色与字体来自 static/css/themes/<主题名>.css，由页面上的
+   <body data-theme="..."> 配套引入（见 gameplay/skin.py）。
+
+   所以：
+     换配色     → 换主题文件，或改 settings.GAME_THEME
+     换布局     → 改 settings.GAME_LAYOUT，或在本文件末尾加 [data-layout="新名字"]
+     换按钮文案 → 改 gameplay/data/ui_strings.json
+
+   下面 :root 里的值只是兜底：万一主题文件没加载，页面仍然可读。
+   ========================================================================= */
+:root {
+  /* 底色与墨色 */
+  --ink: #2b2620;
+  --ink-soft: #5c5245;
+  --paper: #f3ebda;
+  --paper-2: #e9dcc2;
+  --paper-3: #fbf6ea;
+
+  /* 主题色：青铜 / 玉 / 朱砂 / 金 */
+  --bronze: #8c5a2b;
+  --bronze-soft: #c19a5b;
+  --jade: #285548;
+  --cinnabar: #a65437;
+  --gold: #c9a227;
+
+  /* 结构与文字 */
+  --line: rgba(122, 96, 60, .32);
+  --line-strong: rgba(122, 96, 60, .55);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --gap: 12px;
+
+  --font-serif: "STSong", "SimSun", "Songti SC", serif;
+  --font-ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+
+  --shadow-panel: 0 2px 0 rgba(120, 90, 50, .18), 0 8px 18px -12px rgba(60, 45, 25, .45);
+}
+
+/* ---------------------------------------------------------------- 页面骨架 */
+.forge-page {
+  margin: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(201, 162, 39, .10), transparent 55%),
+    radial-gradient(circle at 88% 100%, rgba(140, 90, 43, .12), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(140, 90, 43, .05) 0 1px, transparent 1px 26px),
+    var(--paper);
+}
+
+/* ---------------------------------------------------------------- 顶部章节条 */
+.forge-topbar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 20px;
+  border-bottom: 2px solid var(--bronze);
+  background: linear-gradient(180deg, var(--paper-3), var(--paper-2));
+  box-shadow: 0 2px 10px -6px rgba(60, 45, 25, .5);
+}
+
+.forge-home {
+  flex: none;
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper-3);
+  color: var(--jade);
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color .15s, color .15s;
+}
+
+.forge-home:hover,
+.forge-home:focus-visible {
+  border-color: var(--cinnabar);
+  color: var(--cinnabar);
+  outline: none;
+}
+
+.forge-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.forge-seal {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--cinnabar);
+  border-radius: 4px;
+  color: var(--cinnabar);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1;
+  background: rgba(166, 84, 55, .07);
+}
+
+.forge-chapter {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.forge-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: .06em;
+}
+
+.forge-progress {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.progress-pill {
+  flex: none;
+  padding: 6px 14px;
+  border: 1px solid var(--bronze-soft);
+  border-radius: 999px;
+  background: rgba(201, 162, 39, .14);
+  color: var(--bronze);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: .08em;
+}
+
+.quest-select {
+  max-width: 240px;
+  padding: 7px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper-3);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 14px;
+}
+
+.puzzle-title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--bronze);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------------- 主体三栏 */
+.forge-main {
+  /* 覆盖 base.css 里针对 main 的通用布局 */
+  max-width: none;
+  margin: 0;
+  padding: var(--gap) 16px;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 310px;
+  gap: var(--gap);
+  align-items: stretch;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.forge-panel {
+  position: relative;
+  min-height: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .5), transparent 40%),
+    var(--paper-2);
+  box-shadow: var(--shadow-panel);
+  overflow: auto;
+}
+
+/* 青铜角饰：四角的细记号，营造器物感 */
+.forge-panel::before,
+.forge-panel::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--bronze-soft);
+  opacity: .75;
+  pointer-events: none;
+}
+
+.forge-panel::before {
+  top: 6px;
+  left: 6px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.forge-panel::after {
+  right: 6px;
+  bottom: 6px;
+  border-left: 0;
+  border-top: 0;
+}
+
+.panel-heading {
+  margin: 14px 0 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed var(--line);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--bronze);
+}
+
+.panel-heading:first-child {
+  margin-top: 0;
+}
+
+.panel-hint {
+  margin: 0 0 10px;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------------- 铸造符 */
+.palette-gates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.palette-gate {
+  padding: 9px 16px;
+  border: 2px solid var(--bronze);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, var(--paper-3), var(--paper));
+  color: var(--bronze);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: .1em;
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s;
+}
+
+.palette-gate:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px -6px rgba(60, 45, 25, .8);
+}
+
+.forge-actions {
+  display: grid;
+  gap: 7px;
+}
+
+.forge-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper-3);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+
+.forge-btn:hover {
+  border-color: var(--bronze);
+  color: var(--bronze);
+}
+
+.forge-btn.primary {
+  border-color: var(--jade);
+  background: var(--jade);
+  color: #f6f1e2;
+  font-weight: 600;
+  letter-spacing: .06em;
+}
+
+.forge-btn.primary:hover {
+  background: #1f4438;
+  color: #fffdf6;
+}
+
+.forge-btn.small {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.forge-status-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--jade);
+}
+
+.legend {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-1 {
+  background: var(--cinnabar);
+  box-shadow: 0 0 0 2px rgba(166, 84, 55, .22);
+}
+
+.dot-0 {
+  background: var(--jade);
+  box-shadow: 0 0 0 2px rgba(40, 85, 72, .22);
+}
+
+/* ---------------------------------------------------------------- 铸台 */
+.forge-table {
+  padding: 10px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(201, 162, 39, .16), transparent 62%),
+    repeating-linear-gradient(45deg, rgba(140, 90, 43, .05) 0 8px, transparent 8px 16px),
+    var(--paper-3);
+}
+
+#circuit-canvas {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 253, 247, .55);
+  touch-action: none;
+}
+
+/* ---- SVG 内部：连线 ---- */
+.wire {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  cursor: pointer;
+}
+
+.wire-off {
+  stroke: rgba(90, 110, 100, .75);
+}
+
+.wire-on {
+  stroke: var(--cinnabar);
+  stroke-width: 3;
+}
+
+.temp-wire {
+  stroke: var(--gold);
+  stroke-dasharray: 6 5;
+  pointer-events: none;
+}
+
+/* ---- SVG 内部：符（门） ---- */
+.gate-rect {
+  stroke-width: 2;
+}
+
+.input-gate {
+  fill: rgba(40, 85, 72, .14);
+  stroke: var(--jade);
+}
+
+.output-gate {
+  fill: rgba(201, 162, 39, .18);
+  stroke: var(--bronze);
+}
+
+.gate-label {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--ink);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  letter-spacing: .04em;
+}
+
+.gate-value {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.value-1 { fill: var(--cinnabar); }
+.value-0 { fill: var(--jade); }
+.value-\? { fill: var(--ink-soft); }
+
+/* ---- SVG 内部：端口 ---- */
+.port-circle {
+  fill: var(--paper-3);
+  stroke: var(--bronze);
+  stroke-width: 2;
+  cursor: crosshair;
+  transition: fill .12s;
+}
+
+.port-circle:hover {
+  fill: var(--gold);
+}
+
+.port-in { stroke: var(--jade); }
+.port-out { stroke: var(--bronze); }
+
+.port-active {
+  fill: var(--gold);
+  stroke: var(--cinnabar);
+}
+
+/* ---------------------------------------------------------------- 卜辞 */
+.quest-objective {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--cinnabar);
+  background: rgba(166, 84, 55, .07);
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.puzzle-desc {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  white-space: pre-line;
+}
+
+.truth-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-serif);
+  font-size: 13px;
+}
+
+.truth-table th {
+  padding: 5px 4px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--bronze);
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.truth-table td {
+  padding: 5px 4px;
+  border-bottom: 1px dashed var(--line);
+  text-align: center;
+}
+
+.truth-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, .38);
+}
+
+/* 卦爻：阳爻一整横，阴爻断开，这是"卦象真值"的视觉核心 */
+.yao {
+  font-size: 15px;
+  letter-spacing: .06em;
+}
+
+.yao-1 { color: var(--cinnabar); }
+.yao-0 { color: var(--jade); }
+
+.in-val { color: var(--jade); }
+.out-val { color: var(--bronze); font-weight: 700; }
+
+.truth-table.mini {
+  font-size: 11.5px;
+  margin-top: 8px;
+}
+
+.truth-table.mini th,
+.truth-table.mini td {
+  padding: 3px 2px;
+}
+
+.truth-table tr.pass td { color: var(--jade); }
+.truth-table tr.fail td { color: var(--cinnabar); }
+
+/* ---------------------------------------------------------------- 试演 */
+.sim-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.sim-inputs,
+.sim-outputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.sim-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.sim-label {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.led {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+  border: 1px solid transparent;
+}
+
+.led-0 {
+  background: rgba(40, 85, 72, .13);
+  border-color: rgba(40, 85, 72, .38);
+  color: var(--jade);
+}
+
+.led-1 {
+  background: rgba(166, 84, 55, .14);
+  border-color: rgba(166, 84, 55, .42);
+  color: var(--cinnabar);
+}
+
+.led-pass {
+  background: rgba(40, 85, 72, .18);
+  border-color: var(--jade);
+  color: var(--jade);
+}
+
+.led-fail {
+  background: rgba(166, 84, 55, .18);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar);
+}
+
+.actual-outs {
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+  color: var(--ink);
+}
+
+.sim-actions {
+  display: flex;
+  gap: 7px;
+}
+
+/* ---------------------------------------------------------------- 验符结果 */
+.result-block {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper-3);
+}
+
+.result-pass {
+  border-color: var(--jade);
+  background: rgba(40, 85, 72, .07);
+}
+
+.result-fail {
+  border-color: var(--cinnabar);
+  background: rgba(166, 84, 55, .07);
+}
+
+.result-text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.result-text small {
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+}
+
+.result-details {
+  overflow-x: auto;
+}
+
+/* ---------------------------------------------------------------- 底部人物 */
+.npc-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px 12px;
+  border-top: 2px solid var(--bronze);
+  background: linear-gradient(0deg, var(--paper-2), var(--paper-3));
+  box-shadow: 0 -2px 10px -6px rgba(60, 45, 25, .5);
+  min-height: 84px;
+}
+
+.npc-portrait {
+  flex: none;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--bronze);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .55), transparent 60%),
+    var(--paper);
+  font-family: var(--font-serif);
+  font-size: 27px;
+  font-weight: 700;
+  color: var(--bronze);
+  overflow: hidden;
+}
+
+/* 放入立绘后自动铺满；未放立绘时显示印章字 */
+.npc-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.npc-speech {
+  flex: 1;
+  min-width: 0;
+}
+
+.npc-who {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.npc-who strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: .1em;
+  color: var(--bronze);
+}
+
+.npc-title {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+.npc-line {
+  margin: 3px 0 0;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.75;
+  min-height: 1.75em;
+  color: var(--ink);
+}
+
+.npc-next {
+  flex: none;
+  align-self: flex-end;
+}
+
+/* ---------------------------------------------------------------- 窄屏 */
+@media (max-width: 1000px) {
+  .forge-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+
+  .forge-main {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: visible;
+  }
+
+  .forge-panel {
+    overflow: visible;
+  }
+
+  #circuit-canvas {
+    height: 380px;
+  }
+
+  .forge-progress {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+/* 卦爻：阳爻一整横，阴爻中斷，用纯 CSS 画，不依赖字体里的卦象字符 */
+.yao-bar {
+  display: inline-block;
+  width: 13px;
+  height: 4px;
+  border-radius: 1px;
+  background: currentColor;
+  vertical-align: middle;
+  margin: 0 1.5px;
+}
+
+.yao-bar.split {
+  background:
+    linear-gradient(90deg,
+      currentColor 0 4.5px,
+      transparent 4.5px 8.5px,
+      currentColor 8.5px 13px);
+}
+
+
+/* ============================================================================
+   布局二：stage · 剧情舞台
+   ----------------------------------------------------------------------------
+   把工具面板压成顶部一条 HUD，让铸台占满视野，观感更接近剧情向游戏。
+   切换：GAME_LAYOUT=stage。想做大地图/全屏 RPG，照这个样子再加一段
+   body[data-layout="map"] 即可，不需要动 HTML 和 JS。
+   ========================================================================= */
+body[data-layout="stage"] .forge-main {
+  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    "tools tools"
+    "table oracle";
+}
+
+body[data-layout="stage"] .forge-tools {
+  grid-area: tools;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  overflow: visible;
+}
+
+/* 舞台模式下工具条收成一条，标题只留最小的语义 */
+body[data-layout="stage"] .forge-tools .panel-heading,
+body[data-layout="stage"] .forge-tools .panel-hint,
+body[data-layout="stage"] .forge-tools .legend,
+body[data-layout="stage"] .forge-status-text {
+  display: none;
+}
+
+body[data-layout="stage"] .forge-actions {
+  display: flex;
+  gap: 8px;
+}
+
+body[data-layout="stage"] .forge-table {
+  grid-area: table;
+}
+
+body[data-layout="stage"] .forge-oracle {
+  grid-area: oracle;
+}
+
+body[data-layout="stage"] .npc-bar {
+  min-height: 104px;
+}
+
+@media (max-width: 1000px) {
+  body[data-layout="stage"] .forge-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tools"
+      "table"
+      "oracle";
+  }
+}
+
+/* 主线 / 支线标记：结构数据来自 level_meta.json，这里只管外观 */
+.route-tag {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--bronze-soft);
+  border-radius: 999px;
+  background: rgba(201, 162, 39, .16);
+  color: var(--bronze);
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: .08em;
+  vertical-align: middle;
+}
+
+/* 结算通过后的「返回亳」入口：按钮是链接，去掉下划线与默认色。 */
+.result-return { margin: 12px 0 0; }
+.result-return a { display: inline-block; text-decoration: none; }

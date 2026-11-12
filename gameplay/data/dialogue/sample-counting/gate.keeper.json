@@ -1,0 +1,97 @@
+{
+  "_说明": [
+    "样例章节（sample-counting）的对话树。改台词、改选项只改这个文件，不需要碰 Python 或 JS。",
+    "节点字段：lines（台词，字符串数组，必填）；next（说完后接着走哪个节点，可选）；choices（选项，可选）。",
+    "选项字段：id、text 必填；command 可选。带 command 的选项会走服务端动作，不带 command 的选项只是关闭对话。",
+    "entry：按任务状态选择入口节点。quest 取值 not_started / accepted / submitted；default 是兜底入口，必填。",
+    "next 链在服务端会被拍平成 pages 一次下发，前端只做本地翻页——翻页不该产生网络请求。",
+    "quest：任务栏的静态文案。步骤的勾选状态由前端按存档推导，不写在这里，避免两份状态。",
+    "quest.steps[].kind 取值：talk（谈妥差事）/ answers（清点算式）/ submit（呈上验符）。",
+    "episode：全屏剧情页的落款信息，用于跳过确认弹窗（章节名/关卡名/行动前 + 剧情摘要）。",
+    "background：剧情背景图，相对 static/ 的路径；留空则退化为渐变底。",
+    "then：剧情结束后的返回入口，算坊任务从营前场景进入。"
+  ],
+  "episode": {
+    "title": "铸算·夏 · 铸铜工坊",
+    "operation": "城门前的差事",
+    "phase": "行动前",
+    "summary": "你自千年之后而来，衣履古怪，言语却通。城门守卒拦下了你——他要你先替算坊清点三道数，才肯放你进城。"
+  },
+  "background": "img/story/bg-shan-shui-silk.jpg",
+  "then": {
+    "label": "返回营前",
+    "url": "/game/#camp"
+  },
+  "npc": {
+    "id": "gate.keeper",
+    "name": "守门人",
+    "title": "城门卫",
+    "seal": "卫",
+    "color": "#8c5a2b",
+    "portrait": "/static/img/portraits/gate-keeper-silk.png"
+  },
+  "quest": {
+    "title": "算坊初试 · 清点三道数",
+    "route": "main",
+    "objective": "与守门人谈妥差事，往算坊清点三道算式，回城门呈上。",
+    "steps": [
+      {
+        "kind": "talk",
+        "text": "与守门人谈妥差事"
+      },
+      {
+        "kind": "answers",
+        "text": "在算坊清点三道算式"
+      },
+      {
+        "kind": "submit",
+        "text": "回城门呈上验符"
+      }
+    ]
+  },
+  "entry": {
+    "default": "intro",
+    "accepted": "on-task",
+    "submitted": "thanks"
+  },
+  "nodes": {
+    "intro": {
+      "lines": [
+        "站住。城门重地，闲人不得擅入。",
+        "……你这身打扮，倒不像奸细。",
+        "既是来求差事的，先去算坊把三道数清点了。"
+      ],
+      "next": "offer"
+    },
+    "offer": {
+      "lines": [
+        "我这儿有一桩差事：三道算式，清点无误，我便放你进城。",
+        "你可愿意接下？"
+      ],
+      "choices": [
+        {
+          "id": "take",
+          "text": "接下这桩差事",
+          "command": {
+            "action": "accept"
+          }
+        },
+        {
+          "id": "decline",
+          "text": "容我再想想"
+        }
+      ]
+    },
+    "on-task": {
+      "lines": [
+        "差事已在你名下。算坊在城门西侧，三道题清完回来见我。",
+        "记住：只报数，不许蒙。"
+      ]
+    },
+    "thanks": {
+      "lines": [
+        "算得不错。城门为你开着，进城去吧。"
+      ]
+    }
+  }
+}

@@ -1,0 +1,140 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>铸算·华夏纪 · {{ ui.paletteTitle }}</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}?v=20261110i">
+  <link rel="stylesheet" href="{% static 'css/circuit.css' %}?v=20261110i">
+  <link rel="stylesheet" href="{% static 'css/quest.css' %}?v=20261110i">
+  {% if skin.theme_href %}<link rel="stylesheet" href="{% static skin.theme_href %}">{% endif %}
+  <link rel="stylesheet" href="{% static 'css/workshop-silk.css' %}?v=20261111bench">
+  <link rel="stylesheet" href="{% static 'css/teaching-workbench.css' %}?v=20261111bench">
+  <script src="{% static 'js/chapter-sdk.js' %}?v=20261110i" defer></script>
+  <script src="{% static 'js/quest.js' %}?v=20261111c018" defer></script>
+  <script src="{% static 'js/circuit.js' %}?v=20261111c018" defer></script>
+</head>
+<!--
+  这个模板只管「有哪些块、块里放什么」，不含任何配色，也不写死文案：
+    配色     static/css/themes/{{ skin.theme }}.css   —— 换主题就是换这个文件
+    布局     static/css/circuit.css 里的 [data-layout="…"] 段
+    文案     gameplay/data/ui_strings.json
+    关卡结构  gameplay/data/level_meta.json（主线/支线/前置/区域）
+  皮肤解析见 gameplay/skin.py，主题与布局在 settings.py（GAME_THEME / GAME_LAYOUT）。
+  {% for warning in skin.warnings %}配置提醒：{{ warning }}
+  {% endfor %}可用主题：{{ skin.available_themes|join:", " }}；可用布局：{{ skin.available_layouts|join:", " }}
+-->
+<body class="forge-page" data-theme="{{ skin.theme }}" data-layout="{{ skin.layout }}" data-initial-puzzle="{{ initial_puzzle|default:'' }}" data-return-url="{{ return_url }}">
+
+  <header class="forge-topbar">
+    <a href="{{ return_url }}" id="back-camp" class="forge-home">← {{ return_label }}</a>
+    <a href="/" id="back-home" class="forge-home" title="返回账号中心">{{ ui.homeLink }}</a>
+    <div class="forge-identity">
+      <span class="forge-seal" aria-hidden="true">{{ ui.brandSeal }}</span>
+      <div>
+        <h1 id="chapter-title" class="forge-chapter"></h1>
+        <p id="chapter-subtitle" class="forge-subtitle"></p>
+      </div>
+    </div>
+    <div class="forge-progress">
+      <div class="progress-pill"><span id="chapter-progress">0 / 0</span></div>
+      <select id="puzzle-select" class="quest-select" title="{{ ui.questTitle }}"></select>
+      <span id="puzzle-title" class="puzzle-title"></span>
+    </div>
+  </header>
+
+  <main class="forge-main">
+
+    <aside class="forge-panel forge-tools" aria-label="{{ ui.actionsTitle }}">
+      <div class="forge-components">
+        <h2 class="panel-heading">{{ ui.paletteTitle }}</h2>
+        <div id="palette-gates" class="palette-gates"></div>
+      </div>
+      <div class="forge-actions">
+        <button id="btn-sim" class="forge-btn" type="button">{{ ui.actionSim }}</button>
+        <button id="btn-stop" class="forge-btn" type="button">{{ ui.actionStop }}</button>
+        <button id="btn-clear" class="forge-btn" type="button">{{ ui.actionClear }}</button>
+        <button id="btn-submit" class="forge-btn primary" type="button">{{ ui.actionSubmit }}</button>
+        <button id="btn-settle" class="forge-btn primary" type="button" hidden>{{ ui.actionSettle }}</button>
+      </div>
+    </aside>
+
+    <section class="forge-panel forge-table" aria-labelledby="forge-canvas-title">
+      <header class="forge-canvas-head">
+        <h2 id="forge-canvas-title">电路台</h2>
+        <ul class="legend" aria-label="{{ ui.legendTitle }}">
+          <li><span class="dot dot-1" aria-hidden="true"></span>{{ ui.legendOne }}</li>
+          <li><span class="dot dot-0" aria-hidden="true"></span>{{ ui.legendZero }}</li>
+        </ul>
+      </header>
+      <svg id="circuit-canvas" viewBox="0 0 800 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="{{ ui.canvasLabel }}">
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path class="forge-grid-line" d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(120,100,70,.16)" stroke-width="1"/>
+          </pattern>
+          <marker id="wire-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+        <rect width="800" height="560" fill="url(#grid)"/>
+        <g id="wires-layer"></g>
+        <g id="ports-layer"></g>
+        <g id="gates-layer"></g>
+        <g id="temp-wire-layer"></g>
+      </svg>
+      <p class="forge-canvas-hint">{{ ui.legendHint }}</p>
+    </section>
+
+    <aside class="forge-panel forge-oracle">
+      <h2 class="panel-heading">{{ ui.questTitle }}<span id="quest-route" class="route-tag" hidden></span></h2>
+      <p id="quest-objective" class="quest-objective"></p>
+      <p id="puzzle-desc" class="puzzle-desc"></p>
+
+      <h2 class="panel-heading">{{ ui.truthTitle }}</h2>
+      <table id="truth-table" class="truth-table" data-yao-header="{{ ui.truthYaoHeader }}">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+
+      <h2 class="panel-heading">{{ ui.simTitle }}</h2>
+      <div id="sim-panel" class="sim-panel">
+        <div id="sim-inputs" class="sim-inputs"></div>
+        <div id="sim-outputs" class="sim-outputs"></div>
+        <div class="sim-actions">
+          <button id="sim-prev" class="forge-btn small" type="button">{{ ui.simPrev }}</button>
+          <span id="sim-case" class="sim-case" aria-live="polite"></span>
+          <button id="sim-next" class="forge-btn small" type="button">{{ ui.simNext }}</button>
+        </div>
+      </div>
+      <p id="chapter-status" class="forge-status-text" role="status" aria-live="polite">{{ ui.readingSave }}</p>
+      <!-- 委托说明在面板顶部。任务栏只显示任务步骤和结算进度。 -->
+      <div id="quest-slot" data-variant="full" hidden></div>
+
+      <div id="result-panel" class="panel-block result-block" hidden>
+        <h2 class="panel-heading">{{ ui.resultTitle }}</h2>
+        <p id="result-text" class="result-text"></p>
+        <div id="result-details" class="result-details"></div>
+        <p id="result-return" class="result-return" hidden>
+          <a id="return-to-camp" class="forge-btn primary" href="{{ return_url }}">{{ return_label }}</a>
+        </p>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="npc-bar">
+    <div id="npc-portrait" class="npc-portrait" aria-hidden="true"></div>
+    <div class="npc-speech">
+      <div class="npc-who">
+        <strong id="npc-name">…</strong>
+        <span id="npc-title" class="npc-title"></span>
+      </div>
+      <p id="npc-line" class="npc-line"></p>
+    </div>
+    <button id="npc-next" class="forge-btn small npc-next" type="button" hidden>{{ ui.continue }}</button>
+  </footer>
+
+  {{ quest|json_script:"quest-meta" }}
+  <noscript><p class="error">请启用 JavaScript。</p></noscript>
+</body>
+</html>

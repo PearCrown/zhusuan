@@ -1,0 +1,329 @@
+/* 全屏剧情页 · 参考明日方舟剧情演出
+   配色取项目既有色板：玄墨 #2D2C28 / 旧金 #B79B65 / 骨白 #DDD1B6 / 赭红 #a65437 */
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+body.story-body {
+  margin: 0;
+  background: #14130f;
+  color: #ddd1b6;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  overflow: hidden;
+}
+
+.story-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ---- 背景 ---- */
+.story-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, #3a3730 0%, #14130f 75%);
+  background-size: cover;
+  background-position: center;
+  transition: opacity .5s ease;
+}
+.story-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(12,11,9,.82) 0%, rgba(12,11,9,.18) 26%, rgba(12,11,9,.18) 62%, rgba(12,11,9,.92) 100%);
+  pointer-events: none;
+}
+
+/* ---- 立绘 ---- */
+.story-portrait {
+  position: absolute;
+  left: 50%;
+  bottom: 12vh;
+  transform: translateX(-50%);
+  height: 74vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+.story-portrait img { height: 100%; width: auto; display: block; filter: drop-shadow(0 18px 40px rgba(0,0,0,.55)); }
+/* 无立绘时的兜底：一枚放大的印章，不是空白。 */
+.story-portrait.seal-panel { left: 32%; height: 52vh; }
+.story-portrait .seal-glyph {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 3 / 4;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  font-family: "STSong", "SimSun", serif;
+  font-size: min(30vh, 260px);
+  line-height: 1;
+  color: #b79b65;
+  background: rgba(20, 19, 15, .35);
+  opacity: .9;
+}
+
+/* ---- 顶部工具条 ---- */
+.story-tools {
+  position: absolute;
+  top: 18px;
+  display: flex;
+  gap: 10px;
+  z-index: 6;
+}
+.story-tools.left { left: 22px; }
+.story-tools.right { right: 22px; }
+.tool {
+  font: inherit;
+  font-size: 13px;
+  color: #ddd1b6;
+  background: rgba(20, 19, 15, .55);
+  border: 1px solid rgba(183, 155, 101, .45);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.tool:hover { background: rgba(183, 155, 101, .22); border-color: #b79b65; }
+.tool[aria-pressed="true"] { color: #14130f; background: #b79b65; border-color: #b79b65; }
+
+/* ---- 底部对话 ---- */
+.story-dialogue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 22vh;
+  padding: 26px clamp(28px, 9vw, 140px) 40px;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(88px, 168px) 1fr;
+  align-items: start;
+  gap: 18px;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.story-dialogue.visible { opacity: 1; }
+.story-speaker-name {
+  font-family: "STSong", "SimSun", serif;
+  font-size: clamp(16px, 1.5vw, 21px);
+  letter-spacing: .12em;
+  color: #e8dcc2;
+  padding-top: 2px;
+  word-break: break-all;
+}
+.story-text {
+  margin: 0;
+  font-family: "STSong", "SimSun", serif;
+  font-size: clamp(16px, 1.55vw, 22px);
+  line-height: 2;
+  letter-spacing: .03em;
+  color: #f2ead6;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .85);
+  min-height: 2em;
+}
+.story-cursor {
+  position: absolute;
+  right: clamp(20px, 6vw, 90px);
+  bottom: 18px;
+  font-size: 14px;
+  color: #b79b65;
+  opacity: 0;
+}
+.story-cursor.ready { animation: cursor-bob 1.1s ease-in-out infinite; opacity: 1; }
+@keyframes cursor-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+/* ---- 选项 ---- */
+.story-choices {
+  position: absolute;
+  left: 50%;
+  bottom: 24vh;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(560px, 82vw);
+  z-index: 7;
+}
+.story-choice {
+  font: inherit;
+  font-family: "STSong", "SimSun", serif;
+  font-size: 16px;
+  letter-spacing: .06em;
+  color: #f2ead6;
+  background: rgba(20, 19, 15, .82);
+  border: 1px solid rgba(183, 155, 101, .55);
+  border-radius: 4px;
+  padding: 14px 22px;
+  cursor: pointer;
+  text-align: center;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+.story-choice:hover { background: rgba(183, 155, 101, .26); border-color: #b79b65; transform: translateY(-1px); }
+.story-choice:disabled { opacity: .55; cursor: wait; }
+
+/* ---- 返回 / 状态 ---- */
+.story-back {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  transform: translateY(46px);
+  font: inherit;
+  font-size: 12.5px;
+  color: rgba(221, 209, 182, .8);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  z-index: 6;
+}
+.story-back:hover { color: #b79b65; }
+.story-status {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 14px;
+  color: #ddd1b6;
+  background: rgba(20, 19, 15, .82);
+  border: 1px solid rgba(183, 155, 101, .4);
+  border-radius: 5px;
+  padding: 12px 20px;
+  z-index: 9;
+  max-width: 76vw;
+  text-align: center;
+  line-height: 1.7;
+}
+.story-status:empty { display: none; }
+.story-status.error { color: #f0c8be; border-color: #a65437; }
+
+/* ---- 记录 ---- */
+.story-log {
+  position: absolute;
+  inset: 6vh 12vw;
+  background: rgba(14, 13, 11, .96);
+  border: 1px solid rgba(183, 155, 101, .4);
+  border-radius: 8px;
+  padding: 22px 26px;
+  overflow-y: auto;
+  z-index: 12;
+  cursor: default;
+}
+.story-log-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.story-log-head h2 { margin: 0; font-size: 17px; font-family: "STSong", "SimSun", serif; color: #b79b65; letter-spacing: .14em; }
+.story-log-list { margin: 0; padding-left: 20px; font-family: "STSong", "SimSun", serif; font-size: 15px; line-height: 2.1; }
+.story-log-list li { margin-bottom: 8px; color: #ddd1b6; }
+.story-log-list li strong { color: #b79b65; margin-right: 10px; }
+.story-log-list li.narration { color: #9e9789; font-style: italic; }
+
+/* ---- 跳过确认 ---- */
+.story-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 6, .78);
+  display: grid;
+  place-items: center;
+  z-index: 14;
+  cursor: default;
+}
+.story-modal-card {
+  width: min(640px, 86vw);
+  background: linear-gradient(180deg, rgba(30, 28, 24, .98), rgba(18, 17, 14, .98));
+  border: 1px solid rgba(183, 155, 101, .5);
+  border-radius: 8px;
+  padding: 30px 34px 24px;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .7);
+}
+.story-modal-eyebrow { margin: 0 0 10px; font-size: 12px; letter-spacing: .2em; color: #8d8676; }
+.story-modal-title { margin: 0 0 16px; font-family: "STSong", "SimSun", serif; font-size: 22px; color: #f2ead6; letter-spacing: .06em; }
+.story-modal-phase { margin-left: 12px; font-size: 13px; color: #b79b65; letter-spacing: .1em; }
+.story-modal-summary { margin: 0 0 22px; font-size: 14.5px; line-height: 2; color: #b9b1a1; text-align: left; }
+.story-modal-ask { margin: 0 0 16px; font-size: 15px; color: #f2ead6; letter-spacing: .1em; }
+.story-modal-actions { display: flex; justify-content: center; gap: 48px; }
+.story-modal-btn {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  color: #ddd1b6;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(183, 155, 101, .5);
+  cursor: pointer;
+  transition: background .18s, border-color .18s, color .18s;
+}
+.story-modal-btn.yes:hover { background: #b79b65; border-color: #b79b65; color: #14130f; }
+.story-modal-btn.no:hover { background: rgba(166, 84, 55, .55); border-color: #a65437; }
+
+/* ---- 结束卡 ---- */
+.story-end {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 9, 8, .9);
+  display: grid;
+  place-items: center;
+  z-index: 15;
+  cursor: default;
+}
+.story-end-card { text-align: center; width: min(560px, 86vw); }
+.story-end-eyebrow { margin: 0 0 18px; font-size: 12px; letter-spacing: .22em; color: #8d8676; }
+.story-end-note { margin: 0 0 26px; font-family: "STSong", "SimSun", serif; font-size: 17px; line-height: 2; color: #ddd1b6; }
+.story-end-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.story-end-btn {
+  font: inherit;
+  font-size: 15px;
+  border-radius: 5px;
+  padding: 12px 26px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.story-end-btn.primary { color: #14130f; background: #b79b65; border: 1px solid #b79b65; }
+.story-end-btn.primary:hover { background: #cbb083; }
+.story-end-btn.secondary { color: #ddd1b6; background: rgba(255, 255, 255, .05); border: 1px solid rgba(183, 155, 101, .45); }
+.story-end-btn.secondary:hover { background: rgba(183, 155, 101, .2); }
+
+/* ---- 任务栏（精简版）----
+   卡片本身在 static/css/quest.css，这里只决定它挂在哪、多宽。
+   放左上角工具条下方，避开右侧工具与底部台词；接任务前组件自己保持 hidden。 */
+#quest-slot {
+  position: absolute;
+  left: 22px;
+  top: 66px;
+  max-width: 15rem;
+  z-index: 6;
+  transition: opacity .25s ease;
+}
+/* 深色舞台：只覆盖组件暴露的 --quest-* 变量，不复制一遍组件样式。 */
+#quest-slot .quest-bar {
+  --quest-surface: rgba(20, 19, 15, .72);
+  --quest-line: rgba(183, 155, 101, .42);
+  --quest-ink: #ddd1b6;
+  --quest-muted: #b8ae97;
+  --quest-accent: #b79b65;
+}
+
+/* ---- 隐藏 UI ---- */
+.story-stage.ui-hidden { cursor: pointer; }
+.story-stage.ui-hidden .story-tools,
+.story-stage.ui-hidden .story-dialogue,
+.story-stage.ui-hidden .story-back,
+.story-stage.ui-hidden #quest-slot,
+.story-stage.ui-hidden .story-cursor { opacity: 0; pointer-events: none; }
+.story-stage.ui-hidden .story-shade { opacity: .25; }
+
+@media (max-width: 760px) {
+  .story-dialogue { grid-template-columns: 1fr; gap: 6px; padding: 20px 24px 30px; }
+  .story-portrait { height: 52vh; }
+  .story-choices { bottom: 30vh; }
+}
+
+/* 离开剧情页（返回地图）时的淡出，实际跳转由 JS 完成。 */
+.story-stage.leaving { opacity: 0; transition: opacity .28s ease; }

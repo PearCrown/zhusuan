@@ -1,0 +1,82 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ stage.episode.title }} · {{ stage.episode.operation }}</title>
+<link rel="stylesheet" href="{% static 'css/story.css' %}">
+<link rel="stylesheet" href="{% static 'css/quest.css' %}">
+  <link rel="stylesheet" href="{% static 'css/workshop-silk.css' %}?v=20261110bui">
+<script src="{% static 'js/chapter-sdk.js' %}" defer></script>
+<script src="{% static 'js/quest.js' %}" defer></script>
+<script src="{% static 'js/story.js' %}" defer></script>
+</head>
+<body class="story-body" data-chapter="{{ chapter_id }}" data-npc="{{ npc_id }}"
+      data-next="{{ next_url }}" data-back="{{ back_url }}">
+{{ stage|json_script:"story-data" }}
+{{ quest|json_script:"quest-meta" }}
+
+<main id="story-stage" class="story-stage" role="region" aria-label="剧情演出">
+  <div id="story-bg" class="story-bg"></div>
+  <div class="story-shade"></div>
+
+  <div class="story-tools left">
+    <button id="story-log-btn" class="tool" type="button">对话记录</button>
+    <button id="story-hide" class="tool" type="button">隐藏</button>
+  </div>
+  <div class="story-tools right">
+    <button id="story-auto" class="tool" type="button" aria-pressed="false">自动 OFF</button>
+    <button id="story-skip" class="tool" type="button">跳过 ▸</button>
+  </div>
+
+  <div id="story-portrait" class="story-portrait" aria-hidden="true"></div>
+
+  <!-- 任务栏挂载点（精简版）：接任务后才出现，挂左上角，不遮台词。 -->
+  <aside id="quest-slot" data-variant="compact" data-npc="{{ npc_id }}" hidden></aside>
+
+  <div id="story-dialogue" class="story-dialogue">
+    <span id="story-speaker-name" class="story-speaker-name"></span>
+    <p id="story-text" class="story-text" role="status" aria-live="polite"></p>
+    <span id="story-cursor" class="story-cursor" aria-hidden="true">▾</span>
+  </div>
+
+  <div id="story-choices" class="story-choices"></div>
+  <p id="story-status" class="story-status" role="status" aria-live="polite"></p>
+  <button id="story-back" class="story-back" type="button">← 返回</button>
+
+  <div id="story-log" class="story-log" hidden>
+    <div class="story-log-head">
+      <h2>对话记录</h2>
+      <button id="story-log-close" class="tool" type="button">关闭</button>
+    </div>
+    <ol id="story-log-list" class="story-log-list"></ol>
+  </div>
+
+  <div id="story-skip-modal" class="story-modal" hidden>
+    <div class="story-modal-card">
+      <p class="story-modal-eyebrow">{{ stage.episode.title }}</p>
+      <h2 class="story-modal-title">{{ stage.episode.operation }}<span class="story-modal-phase">{{ stage.episode.phase }}</span></h2>
+      <p class="story-modal-summary">{{ stage.episode.summary }}</p>
+      <p class="story-modal-ask">是否跳过剧情？</p>
+      <div class="story-modal-actions">
+        <button id="story-skip-no" class="story-modal-btn no" type="button" aria-label="继续观看">✕</button>
+        <button id="story-skip-yes" class="story-modal-btn yes" type="button" aria-label="跳过剧情">✓</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="story-end" class="story-end" hidden>
+    <div class="story-end-card">
+      <p class="story-end-eyebrow">{{ stage.episode.title }} · {{ stage.episode.operation }} 终</p>
+      <p id="story-end-note" class="story-end-note"></p>
+      <div class="story-end-actions">
+        <button id="story-replay" class="story-end-btn secondary" type="button">重看剧情</button>
+        <a id="story-next" class="story-end-btn primary" href="{{ next_url }}">{{ stage.then.label }} ▸</a>
+      </div>
+    </div>
+  </div>
+</main>
+<noscript><p class="story-status">请启用JavaScript观看剧情。</p></noscript>
+</body>
+</html>

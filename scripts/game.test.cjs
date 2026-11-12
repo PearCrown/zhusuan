@@ -5,7 +5,7 @@ const path=require('node:path');
 const {JSDOM}=require('jsdom');
 const root=path.resolve(__dirname,'..');
 const sdk=fs.readFileSync(path.join(root,'static/js/chapter-sdk.js'),'utf8');
-const ui=fs.readFileSync(path.join(root,'static/js/game.js'),'utf8');
+const ui=fs.readFileSync(path.join(root,'static/js/scene-demo.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'templates/game.html'),'utf8').replace(/\{%.*?%\}/g,'');
 const ok=data=>({ok:true,json:async()=>({ok:true,data})});
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
@@ -18,8 +18,8 @@ async function setup(t,withUI=false){
   const calls=[];
   w.fetch=async(url,options)=>{calls.push({url,options,payload:options.body&&JSON.parse(options.body)});return respond(url,options);};
   w.eval(sdk);
-  const a={w,calls,id:name=>w.document.getElementById(name),respond:fn=>{respond=fn;}};
-  if(withUI)w.eval(ui);
+  const a={w,calls,id:name=>w.document.getElementById(({'game-status':'status','play':'scene','chapter-map':'chapters'})[name]||name),respond:fn=>{respond=fn;}};
+  if(withUI){for(const name of ['scene-host','scene-demo-data','scene-model','scene-view'])w.eval(fs.readFileSync(path.join(root,'static/js',name+'.js'),'utf8'));w.eval(ui);}
   return a;
 }
 test('SDK reports server progress and scores via callbacks without persistent storage',async t=>{

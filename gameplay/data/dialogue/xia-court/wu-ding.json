@@ -1,0 +1,140 @@
+{
+  "_说明": [
+    "夏社的第一位 NPC：武丁。多 NPC 章节里，这个文件只属于 wu-ding 一个人。",
+    "条件选句：单一入口 + when 链。hail 之后依次尝试 say-fresh / say-accepted / say-submitted，",
+    "三者互斥；条件不满足的节点服务端整段跳过，不会下发给客户端。",
+    "末尾的 tail 是链的共同时点，它的选项各自带 when——同一屏根据任务状态给出不同的按钮。",
+    "带 choices 的节点是链的终点：选项之后不再有台词，避免剧透。",
+    "talkFields 声明 talk 动作要带的额外字段，前端据此在启动对话时补上 npcId，不靠猜。"
+  ],
+  "episode": {
+    "title": "铸算·夏 · 夏社",
+    "operation": "王问",
+    "phase": "行动前",
+    "summary": "夏社的殿上，武丁只问了两句话。城门今日换了几回口令，答得上来的人，才许在夏社行走。"
+  },
+  "background": "img/story/bg-courtyard.jpg",
+  "then": {
+    "label": "去见妇好",
+    "url": "/game/story/xia-court/fu-hao"
+  },
+  "npc": {
+    "id": "wu-ding",
+    "name": "武丁",
+    "title": "商王",
+    "seal": "丁",
+    "color": "#8c5a2b",
+    "portrait": "/static/img/portraits/wu-ding-silk.png"
+  },
+  "talkFields": {
+    "npcId": "wu-ding"
+  },
+  "reward": "quest-wuding-word",
+  "quest": {
+    "title": "夏社问卜 · 记下城门口令",
+    "route": "main",
+    "objective": "在殿上应答武丁，记下城门口令，再向他复命。",
+    "steps": [
+      {
+        "kind": "talk",
+        "text": "应答武丁的两问"
+      },
+      {
+        "kind": "submit",
+        "text": "回殿复命"
+      }
+    ]
+  },
+  "entry": {
+    "default": "hail"
+  },
+  "nodes": {
+    "hail": {
+      "lines": [
+        "（武丁抬手，殿上安静下来。）",
+        "你自城外来。城门今日换了几回口令，你可知道？"
+      ],
+      "next": "say-fresh"
+    },
+    "say-fresh": {
+      "when": {
+        "quest": [
+          "not_started"
+        ]
+      },
+      "lines": [
+        "两问一答。答得上来，我便许你在夏社行走。"
+      ],
+      "next": "say-accepted"
+    },
+    "say-accepted": {
+      "when": {
+        "quest": [
+          "accepted"
+        ]
+      },
+      "lines": [
+        "差事既已在你名下，就别在殿上站着。"
+      ],
+      "next": "say-submitted"
+    },
+    "say-submitted": {
+      "when": {
+        "quest": [
+          "submitted"
+        ]
+      },
+      "lines": [
+        "口令记下了，话也答了。夏社的账上，往后有你一笔。"
+      ],
+      "next": "tail"
+    },
+    "tail": {
+      "lines": [
+        "（帘外传来更鼓。）"
+      ],
+      "choices": [
+        {
+          "id": "take",
+          "text": "接下这桩差事",
+          "when": {
+            "quest": [
+              "not_started"
+            ]
+          },
+          "command": {
+            "action": "accept",
+            "npcId": "wu-ding"
+          }
+        },
+        {
+          "id": "remember",
+          "text": "记下城门口令",
+          "when": {
+            "quest": [
+              "accepted"
+            ]
+          },
+          "command": {
+            "action": "remember",
+            "npcId": "wu-ding",
+            "flag": "gateWord"
+          }
+        },
+        {
+          "id": "report",
+          "text": "复命：已应答",
+          "when": {
+            "quest": [
+              "accepted"
+            ]
+          },
+          "command": {
+            "action": "report",
+            "npcId": "wu-ding"
+          }
+        }
+      ]
+    }
+  }
+}

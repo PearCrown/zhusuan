@@ -1,0 +1,119 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>铸算·华夏纪 · 战绩与成就</title>
+  <link rel="stylesheet" href="{% static 'css/record-hall.css' %}?v=20261112b">
+</head>
+<body class="record-page">
+  <header class="record-banner">
+    <div class="record-shell">
+      <div class="record-bar">
+        <p class="record-brand"><span aria-hidden="true">铸</span> 铸算 · 华夏纪</p>
+        <nav class="record-nav" aria-label="战绩导航">
+          <a href="/game/saves">云端存档</a>
+          <a href="/">账号中心</a>
+        </nav>
+      </div>
+      <div class="record-intro">
+        <div>
+          <p class="record-chapter">第一章 · 从逻辑门到存算器件{% if classroom %} <span>／ {{ classroom.name }}</span>{% endif %}</p>
+          <h1>战绩<span>与</span>成就</h1>
+        </div>
+        <a class="record-back" href="/game/#stage-select"><i aria-hidden="true"></i>返回关卡</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="record-shell record-main">
+    <section class="record-ledger" aria-labelledby="record-stats-title">
+      <header class="record-leaf-head">
+        <h2 id="record-stats-title">本章战绩</h2>
+      </header>
+      <dl class="record-stats" aria-label="战绩总览">
+        <div class="record-stat">
+          <dt>完成题目数</dt>
+          <dd>{{ stats.cleared }}<small> / {{ stats.total }}</small></dd>
+          <meter min="0" max="{{ stats.total }}" value="{{ stats.cleared }}" aria-label="完成题目进度">{{ stats.cleared }} / {{ stats.total }}</meter>
+        </div>
+        <div class="record-stat">
+          <dt>总分</dt>
+          <dd>{% if stats.bestScore %}{{ stats.bestScore }}<small> / {{ stats.maxScore }}</small>{% else %}—{% endif %}</dd>
+        </div>
+        <div class="record-stat">
+          <dt>班级排名</dt>
+          <dd>{% if stats.rank %}{{ stats.rank }}<small> / {{ stats.classSize }}</small>{% else %}—{% endif %}</dd>
+        </div>
+        <div class="record-stat">
+          <dt>结算尝试</dt>
+          <dd>{{ stats.attempts }}<small> 次</small></dd>
+        </div>
+      </dl>
+
+      <div class="record-tables">
+        <section class="record-table" aria-labelledby="record-passed-title">
+          <header class="record-section-head">
+            <h3 id="record-passed-title">通过的题目</h3>
+            {% if passed %}<span>得分</span>{% endif %}
+          </header>
+          {% if passed %}
+            <ul class="record-rows" role="list">
+              {% for row in passed %}
+                <li class="record-row">
+                  <span class="record-row-number" aria-hidden="true">{{ row.index|stringformat:"02d" }}</span>
+                  <span class="record-row-text">{{ row.title }}<small>{{ row.chapter }}</small></span>
+                  <span class="record-row-score">{{ row.points }}<small> / 100</small></span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="record-empty">还没有通过任何题目。通过电路或铸言题目后，成绩会在这里显示。</p>
+          {% endif %}
+        </section>
+
+        <section class="record-table" aria-labelledby="record-rank-title">
+          <header class="record-section-head">
+            <h3 id="record-rank-title">班级排行</h3>
+            {% if leaderboard %}<span>总分</span>{% endif %}
+          </header>
+          {% if leaderboard %}
+            <ol class="record-rows" role="list">
+              {% for row in leaderboard %}
+                <li class="record-row{% if row.isMe %} is-self{% endif %}">
+                  <span class="record-row-number" aria-label="第 {{ row.rank }} 名">{{ row.rank }}</span>
+                  <span class="record-row-text">{{ row.name }}{% if row.isMe %} <span class="record-self">我</span>{% endif %}</span>
+                  <span class="record-row-score">{{ row.score }}</span>
+                </li>
+              {% endfor %}
+            </ol>
+          {% elif classroom %}
+            <p class="record-empty">本章还没有人提交成绩。</p>
+          {% else %}
+            <p class="record-empty">你还不在任何教学班，暂时没有班级排行。</p>
+          {% endif %}
+        </section>
+      </div>
+    </section>
+
+    <section class="record-achievements" aria-labelledby="record-ach-title">
+      <header class="record-leaf-head">
+        <h2 id="record-ach-title">成就印记</h2>
+      </header>
+      <ul class="record-medals" role="list">
+        {% for item in achievements %}
+          <li class="record-medal{% if item.unlocked %} is-unlocked{% endif %}" data-medal="{{ item.id }}">
+            <span class="record-medal-frame" aria-hidden="true"><i class="record-medal-mark"></i></span>
+            <div class="record-medal-copy">
+              <h3>{{ item.title }}</h3>
+              <span class="record-medal-status">{% if item.unlocked %}已解锁{% else %}未解锁{% endif %}</span>
+              <p>{{ item.description }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

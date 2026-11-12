@@ -49,9 +49,15 @@ def apply_action(request, chapter, payload):
         raise ApiError("save_context_changed", "账号、会话或章节版本已变化，请重新载入。", 409)
     # Submission retries return the committed result, never score twice.
     if progress and progress.submitted_at:
-        if action == "submit":
-            return progress
-        raise ApiError("chapter_completed", "本样例已完成，只能查看结果。", 409)
+        resubmitting = (action == "submit" and chapter.replay and chapter.pending_resubmit
+                        and chapter.pending_resubmit(progress.state))
+        if resubmitting:
+            pass                      # 重做拿到新的通过：继续走结算，成绩只增不减
+        elif action == "submit":
+            return progress           # 幂等：没有新尝试时重复提交返回原成绩
+        elif not chapter.replay:
+            raise ApiError("chapter_completed", "本样例已完成，只能查看结果。", 409)
+        # 可重做的章节：solve / settle 继续放行，只改存档不改成绩
     if payload["revision"] != (progress.revision if progress else 0):
         raise ApiError("save_conflict", "存档已更新，请重新载入后再操作。", 409)
     state = chapter.transition(progress.state if progress else chapter.initial_state(chapter.question_bank_id, chapter.question_bank_version), action, payload)
@@ -64,8 +70,13 @@ def apply_action(request, chapter, payload):
         score = chapter.grade(state) if chapter.grade else None
         if score is not None and (type(score) is not int or not 0 <= score <= 100):
             raise ValueError("Chapter returned invalid score")
-        progress.score = score
-        progress.submitted_at = timezone.now()
-        progress.submission_class_id = StudentEnrollment.objects.filter(student=user, classroom__is_active=True).values_list("classroom_id", flat=True).first()
+        # 取历史最高：重做只在更高时改写成绩，低了保留原来的。
+        # 非计分章节（grade 为 None）没有分数可比，提交即算完成。
+        improves = score is None or progress.score is None or score > progress.score
+        if improves:
+            if score is not None:
+                progress.score = score
+            progress.submitted_at = timezone.now()
+            progress.submission_class_id = StudentEnrollment.objects.filter(student=user, classroom__is_active=True).values_list("classroom_id", flat=True).first()
     progress.save()
     return progress

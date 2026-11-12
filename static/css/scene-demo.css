@@ -1,0 +1,232 @@
+:root {color-scheme:light; font-family:"Microsoft YaHei",system-ui,sans-serif; color:#f1e8d5; background:#202e2c; --ink:#f1e8d5; --panel:#162c2bef; --gold:#d6bc7d;}
+* {box-sizing:border-box;} [hidden] {display:none!important;}
+html,body {width:100%;height:100%;margin:0;overflow:hidden;}
+button,input,a {font:inherit;} button,a {touch-action:manipulation;}
+button {border:1px solid #c5b58a7a;border-radius:3px;padding:10px 18px;background:#1d3933;color:var(--ink);cursor:pointer;}
+button:hover:enabled,a:hover {background:#36564b;} button:disabled {opacity:.5;cursor:wait;}
+a {color:var(--ink);} :focus-visible {outline:3px solid #f1cf7d;outline-offset:4px;} kbd {font:inherit;font-size:.8em;color:var(--gold);}
+p {line-height:1.6;margin:.5em 0;} h2,h3 {font-family:"STSong","SimSun",serif;margin:.3em 0;}
+.sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+.game-shell,.screen {position:absolute;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden;}
+.game-brand {position:absolute;z-index:5;top:24px;left:32px;pointer-events:none;font:30px "STSong",serif;letter-spacing:.12em;text-shadow:0 2px 8px #000;}
+.game-brand span {font-size:18px;} .game-brand small {display:block;font:11px system-ui;opacity:.7;margin-top:6px;}
+.menu-trigger {position:absolute;z-index:8;right:28px;top:26px;background:#142b2ae0;}
+.status-toast {position:absolute;z-index:6;left:32px;top:88px;max-width:min(640px,65vw);padding:8px 12px;background:#142b2abd;font-size:13px;pointer-events:none;}
+.status-toast.error {color:#ffd2c4;background:#4e2525e8;}
+.camp-screen {
+  --camp-light: #f5e5bf;
+  --camp-brass: #d3ad76;
+  --camp-glass: #24251eeb;
+  --camp-serif: "STSong", "Songti SC", "SimSun", serif;
+  background: #a28b66;
+}
+body:has(.camp-screen:not([hidden])) :is(.game-brand, .menu-trigger, .status-toast:not(.error)) { display: none; }
+.scene-viewport { position: absolute; inset: 0; overflow: hidden; outline-offset: -5px; }
+.scene-world { position: relative; height: 100%; will-change: transform; }
+.scene-backdrop { position: absolute; inset: 0; background-size: 100% 100%; background-repeat: no-repeat; }
+.scene-viewport::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, #251d2245, transparent 22% 78%, #2a201b62);
+}
+.camp-heading {
+  position: absolute;
+  top: clamp(22px, 5vh, 49px);
+  left: clamp(20px, 5vw, 75px);
+  z-index: 1;
+  padding-left: 17px;
+  border-left: 2px solid #a85c42;
+  color: #2b281d;
+  text-shadow: 0 1px 2px #f3ddad;
+  pointer-events: none;
+}
+.camp-heading p { margin: 0; font: 700 12px/1.25 var(--camp-serif); letter-spacing: .16em; }
+.camp-heading h2 { margin: 4px 0 0; font: 700 clamp(27px, 4vw, 58px)/1.13 var(--camp-serif); letter-spacing: .07em; }
+
+.camp-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 7px 17px;
+  border: 1px solid #d3ad7690;
+  border-radius: 999px;
+  background: #302e24f0;
+  color: var(--camp-light);
+  font: 700 14px/1.3 var(--camp-serif);
+  box-shadow: inset 0 0 0 2px #ead49b13, 0 4px 12px #25180f26;
+  transition: background .15s, border-color .15s;
+}
+.camp-action:hover:enabled { background: #50432e; border-color: #f2d293; }
+.camp-action span { color: #e8c592; }
+.camp-back { position: absolute; z-index: 2; top: clamp(19px, 4vh, 38px); right: clamp(16px, 4vw, 54px); }
+.camp-action-quiet { background: transparent; box-shadow: none; }
+.camp-action-brass { background: #dec08a; color: #2c2419; border-color: #ecd2a3; }
+.camp-action-brass:hover:enabled { background: #f0d5a2; color: #2c2419; }
+.camp-action-brass span { color: currentColor; }
+
+.scene-player, .scene-entity {
+  position: absolute;
+  top: var(--foot-line);
+  transform: translate(-50%, -100%);
+}
+.scene-player {
+  max-height: 36dvh;
+  max-width: 25dvh;
+  background: center bottom / contain no-repeat;
+  pointer-events: none;
+  transform: translate(-50%, -100%) scaleX(var(--facing, 1));
+}
+.scene-player[data-facing="left"] { --facing: -1; }
+.scene-player.walking { animation: camp-walk .35s ease-in-out infinite alternate; }
+@keyframes camp-walk { to { translate: 0 -3px; } }
+.scene-entity { min-width: 48px; padding: 0; border: 0; background: transparent; cursor: default; }
+.scene-entity:hover:enabled { background: transparent; }
+.entity-shape {
+  display: block;
+  width: min(var(--npc-width), 26dvh);
+  height: min(var(--npc-height), 38dvh);
+  background: center bottom / contain no-repeat;
+}
+.scene-player::before, .scene-entity::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: -4px;
+  width: 55%;
+  height: 10px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: #392a1e7a;
+  filter: blur(3px);
+}
+.entity-label {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 0;
+  padding: 4px 11px 4px 13px;
+  white-space: nowrap;
+  border-radius: 50% 999px 999px 50%;
+  border: 1px solid #b4945e;
+  background: #f2deb0ee;
+  color: #443021;
+  font: 700 14px/1.3 var(--camp-serif);
+}
+.entity-label::before {
+  content: "";
+  display: inline-block;
+  margin-right: 6px;
+  width: 4px;
+  height: 4px;
+  vertical-align: 3px;
+  rotate: 45deg;
+  background: #9b513a;
+}
+.scene-entity.in-range { cursor: pointer; }
+.scene-entity.in-range:hover .entity-shape { filter: drop-shadow(0 0 5px #eacb95); }
+.scene-entity.selected-target .entity-label { background: #3b3427; color: var(--camp-light); border-color: var(--camp-brass); }
+.scene-entity.selected-target .entity-label::before { background: var(--camp-brass); }
+
+.target-hint, .screen-help {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  translate: -50% 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.target-hint {
+  bottom: 7dvh;
+  margin: 0;
+  padding: 4px 14px;
+  border: 1px solid #d3ad767d;
+  border-radius: 999px;
+  color: var(--camp-light);
+  background: #302e25e8;
+  font-size: 13px;
+}
+.screen-help {
+  bottom: 14px;
+  margin: 0;
+  color: #fff1d5;
+  text-shadow: 0 1px 4px #2b2119;
+  font-size: 12px;
+}
+.screen-help kbd { margin-inline-start: 6px; color: inherit; }
+.camp-walk { display: none; }
+
+.camp-dialogue {
+  position: absolute;
+  z-index: 5;
+  inset: auto clamp(14px, 5vw, 76px) clamp(14px, 4vh, 38px);
+  display: grid;
+  grid-template-columns: clamp(48px, 7vw, 92px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  min-height: 152px;
+  padding: clamp(15px, 2.7vw, 32px);
+  border: 1px solid #d3ad76aa;
+  border-left: 3px solid #a85c42;
+  border-radius: 6px 24px 24px 6px;
+  background: var(--camp-glass);
+  color: var(--camp-light);
+  box-shadow: inset 0 0 0 4px #c4a77517, 0 12px 40px #2b201c66;
+  backdrop-filter: blur(7px);
+}
+.camp-dialogue-portrait {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50% 50% 44% 44%;
+  border: 1px solid #d3ad7680;
+  background: #776142;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+.camp-dialogue-copy .speaker {
+  margin: 0;
+  color: #edc88c;
+  font: 700 clamp(20px, 2.5vw, 29px)/1.2 var(--camp-serif);
+}
+#dialogue-text { margin: 8px 0 0; font: 500 clamp(15px, 2vw, 21px)/1.6 var(--camp-serif); }
+.dialogue-options { display: flex; gap: 8px; align-self: end; justify-content: flex-end; }
+.dialogue-open :is(.screen-help, .target-hint, .camp-back, .camp-walk) { visibility: hidden; }
+.dialogue-open .scene-viewport::after { background-color: #241b2029; }
+
+.modal-backdrop { position: absolute; z-index: 20; inset: 0; display: grid; place-items: center; background: #171910b8; backdrop-filter: blur(5px); }
+.game-menu {
+  display: grid; gap: 10px; padding: 26px 38px; width: min(420px, 88vw); max-height: 92dvh; overflow: auto;
+  background: #252820f5; border: 1px solid #b99b65; border-radius: 10px 30px;
+  box-shadow: inset 0 0 0 4px #d1a97326, 0 20px 65px #0008;
+}
+.game-menu h2 { font-size: 30px; margin: 3px 0 8px; }
+.game-menu p { margin: 0; font-size: 12px; color: #dacfb3; }
+.game-menu :is(button, a), .menu-trigger {
+  text-align: center; padding: 8px 15px; border: 1px solid #baa1737a; border-radius: 999px; text-decoration: none;
+  background: #343329; color: #f5e7c9;
+}
+.game-menu :is(button, a):hover, .menu-trigger:hover { background: #524735; border-color: #c3a268; }
+
+@media (max-width: 760px) {
+  .game-brand { left: 18px; top: 18px; font-size: 24px; }
+  .menu-trigger { right: 16px; top: 18px; }
+  .status-toast { left: 18px; top: 78px; max-width: 75vw; font-size: 11px; }
+  .camp-dialogue { grid-template-columns: 46px minmax(0, 1fr); }
+  .dialogue-options { grid-column: 1 / -1; }
+}
+@media (pointer: coarse), (max-width: 760px) {
+  .camp-walk {
+    position: absolute; z-index: 2; bottom: 14px; right: 15px; display: flex; gap: 8px;
+  }
+  .camp-walk .camp-action { width: 44px; height: 44px; padding: 0; touch-action: none; }
+  .camp-screen .screen-help { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-player.walking { animation: none; }
+  .camp-action { transition: none; }
+}

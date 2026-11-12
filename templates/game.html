@@ -1,15 +1,105 @@
 {% load static %}
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>章节接入样例 · 铸算</title><link rel="stylesheet" href="{% static 'css/base.css' %}"><script src="{% static 'js/chapter-sdk.js' %}" defer></script><script src="{% static 'js/game.js' %}" defer></script></head>
-<body><header class="masthead"><a href="/">返回账号中心</a></header><main class="teacher-main"><section class="card">
-<p class="eyebrow">平台接入验收 · 占位叙事</p><h1 class="workspace-title">算坊初试</h1>
-<p>本样例验证登录、存档和提交闭环。剧情与练习进度分别保存；三道题只是计分接入演示，不代表正式主线必须刷题。刷新后可从服务器恢复，每个账号本样例只结算一次。</p>
-<p id="game-status" class="status" role="status" aria-live="polite">正在读取章节…</p>
-<button id="reload-game" type="button" class="secondary">重新载入服务器存档</button>
-<section id="chapter-map" hidden><h2>章节选择图</h2><p id="chapter-title"></p><button id="enter-chapter" type="button" class="primary">进入样例章节</button></section>
-<section id="play" hidden><h2 id="scene-title"></h2><p id="quest-status"></p>
-<div class="actions"><button id="move-gate" type="button" class="secondary">前往城门</button><button id="move-workshop" type="button" class="secondary">前往算坊</button></div>
-<section id="npc" hidden><h3>守门人 · 占位NPC</h3><p id="dialogue">先与守门人对话。</p><div class="actions"><button id="talk" type="button" class="secondary">与NPC对话</button><button id="accept" type="button" class="secondary">接受演示任务</button><button id="submit-quest" type="button" class="primary">提交任务并保存成绩</button></div></section>
-<section id="practice" hidden><h3>练习分支 · 计分演示</h3><p>每题点击“保存答案”后才会写入服务器。可在提交前修改；完成后返回城门提交。正式题库与练习分支可独立扩展。</p><div id="questions"></div></section>
-<section id="result" hidden><h2>已保存的结算结果</h2><p id="score"></p><p>教师只能看到提交时归属其授权班级的成绩；未分班提交只保留个人结果，不会自动归给之后加入的班级。</p></section>
-</section><noscript><p>请启用JavaScript使用接入样例。</p></noscript>
-</section></main></body></html>
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>铸算·华夏纪</title>
+<link rel="stylesheet" href="{% static 'css/scene-demo.css' %}?v=20261111c020">
+<link rel="stylesheet" href="{% static 'css/scroll-map.css' %}?v=20261111tall-sidebar">
+<link rel="stylesheet" href="{% static 'css/stage-select.css' %}?v=20261111c021">
+  <link rel="stylesheet" href="{% static 'css/workshop-silk.css' %}?v=20261111c021">
+<script src="{% static 'js/chapter-sdk.js' %}?v=20261110i" defer></script><script src="{% static 'js/scene-host.js' %}?v=20261110i" defer></script><script src="{% static 'js/scene-demo-data.js' %}?v=20261112c020" defer></script><script src="{% static 'js/curriculum.js' %}?v=20261111c021" defer></script><script src="{% static 'js/region-map-data.js' %}?v=20261110i" defer></script><script src="{% static 'js/scene-model.js' %}?v=20261111c020" defer></script><script src="{% static 'js/scene-view.js' %}?v=20261111c020" defer></script><script src="{% static 'js/stage-select.js' %}?v=20261111c021" defer></script><script src="{% static 'js/scene-demo.js' %}?v=20261111c020" defer></script></head>
+<body><main class="game-shell" aria-label="铸算全屏游戏">
+<h1 id="page-title" class="sr-only">铸算·华夏纪</h1>
+<div class="game-brand" aria-hidden="true">铸算 <span>· 华夏纪</span></div>
+<p id="status" class="status-toast" role="status" aria-live="polite">正在读取服务器进度…</p>
+<button id="open-menu" class="menu-trigger" type="button" aria-label="打开暂停菜单">菜单 <kbd>Esc</kbd></button>
+<section id="chapters" class="screen map-screen" hidden aria-labelledby="chapter-map-title">
+  <div class="map-stage">
+      <div id="world-map-scroll" class="map-viewport" role="region" aria-label="九州图面" tabindex="0">
+        <div class="scroll-landscape world-landscape atlas-silk">
+          <img class="world-geography" src="{% static 'assets/maps/jiuzhou-terrain.svg' %}?v=20261111c019" alt="以黄河为主轴的九州图面。">
+          <span class="atlas-north" aria-hidden="true">北</span>
+          <span class="atlas-river-name" aria-hidden="true">黄河</span>
+          <div id="chapter-nodes" class="map-nodes"></div>
+        </div>
+      </div>
+    <aside class="map-sidebar" aria-label="地图侧栏">
+      <button class="map-sidebar-toggle" type="button" aria-expanded="true" aria-controls="world-sidebar-content">收起侧栏</button>
+      <div id="world-sidebar-content" class="map-sidebar-content">
+      <header class="map-heading"><p class="map-kicker">铸算 · 华夏纪</p><h2 id="chapter-map-title">九州总图</h2><p class="map-index">上古至春秋之初</p><p class="map-pan-hint">左右滑动查看图面</p></header>
+      <div id="chapter-guide" class="map-guide" aria-label="课程章节指引"></div>
+      <footer class="map-footer">
+        <p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认</p>
+      </footer>
+      </div>
+    </aside>
+  </div>
+</section>
+<section id="locations" class="screen map-screen" hidden aria-labelledby="location-name">
+  <div class="map-stage">
+      <div id="region-map-scroll" class="map-viewport" role="region" aria-label="地区图面" tabindex="0">
+        <div class="scroll-landscape region-surface">
+          <div id="region-crop" class="atlas-silk region-crop">
+            <img class="world-geography" src="{% static 'assets/maps/jiuzhou-terrain.svg' %}?v=20261111c019" alt="">
+          </div>
+          <div id="region-event-points" class="atlas-events" aria-hidden="true"></div>
+          <div id="level-nodes" class="map-nodes"></div>
+        </div>
+      </div>
+    <aside class="map-sidebar" aria-label="地图侧栏">
+    <button class="map-sidebar-toggle" type="button" aria-expanded="true" aria-controls="region-sidebar-content">收起侧栏</button>
+    <div id="region-sidebar-content" class="map-sidebar-content">
+    <button id="back-chapters" class="map-back" type="button">〈 返回九州总图</button>
+    <header class="map-heading"><p class="map-kicker" id="location-kicker">九州总图 · 地区详图</p><h2 id="location-name">中原</h2><p class="map-index"><b id="map-count"></b> 处地点</p><p class="map-pan-hint">左右滑动查看图面</p></header>
+      <details id="region-event-index" class="map-events">
+        <summary>大事索引</summary>
+        <ol class="event-sheet" aria-label="本地区大事">
+          <li>乱次之戏 <small>陶寺</small></li><li>日拍之阵 <small>妫汭</small></li>
+          <li>禹都阳城 <small>阳城</small></li><li>甘野之战 <small>鄠邑</small></li>
+          <li>涑水误判 <small>安邑</small></li><li>撕绢酒池 <small>斟鄩</small></li>
+          <li>鸣条之战 <small>鸣条</small></li><li>玉门初成 <small>蒙泽</small></li>
+          <li>殷墟双钟 <small>殷</small></li><li>妇好伐羌 <small>陇东</small></li>
+          <li>牧野倒戈 <small>牧野</small></li><li>鹿台之火 <small>朝歌</small></li>
+          <li>营建成周 <small>成周</small></li><li>国人暴动 <small>丰镐</small></li>
+          <li>岐山崩裂 <small>岐山</small></li><li>三川枯竭 <small>泾洛渭</small></li>
+          <li>犬戎破镐 <small>丰镐</small></li><li>平王东迁 <small>洛邑</small></li>
+        </ol>
+      </details>
+    <div id="section-guide" class="map-guide" aria-label="本章小节指引"></div>
+    <div class="map-note" aria-live="polite">
+      <p class="map-note-title" id="map-note-title"></p>
+      <p id="level-state"></p>
+    </div>
+    <footer class="map-footer">
+      <p class="map-keys"><kbd>方向键</kbd> 选择 <kbd>Enter</kbd> 确认 <kbd>Esc</kbd> 返回</p>
+    </footer>
+    </div>
+    </aside>
+  </div>
+</section>
+<section id="stages" class="screen stage-screen" hidden aria-label="亳的关卡选择">
+<div id="stage-app"></div>
+</section>
+<section id="scene" class="screen scene-screen camp-screen" hidden aria-labelledby="scene-name">
+  <div id="viewport" class="scene-viewport" role="group" aria-label="横版剧情，左右键移动，E 对话" tabindex="0"></div>
+  <header class="camp-heading"><p>中原 · 亳</p><h2 id="scene-name">亳城营前</h2></header>
+  <button id="camp-back" class="camp-action camp-back" type="button"><span aria-hidden="true">〈</span> 返回关卡</button>
+  <p id="nearby" class="target-hint" role="status" aria-live="polite" hidden></p>
+  <p class="screen-help"><kbd>← →</kbd> 行走 <kbd>E</kbd> 对话</p>
+  <div class="camp-walk" aria-label="行走控制">
+    <button class="camp-action" id="camp-left" type="button" aria-label="向左走">←</button>
+    <button class="camp-action" id="camp-right" type="button" aria-label="向右走">→</button>
+  </div>
+  <section id="dialogue" class="dialogue-overlay camp-dialogue" hidden role="dialog" aria-modal="true" aria-labelledby="dialogue-title">
+    <img id="dialogue-portrait" class="camp-dialogue-portrait" alt="" />
+    <div class="camp-dialogue-copy">
+      <h3 id="dialogue-title" class="speaker"></h3>
+      <p id="dialogue-text" aria-live="polite"></p>
+    </div>
+    <div class="dialogue-options">
+      <button id="close-dialogue" class="camp-action camp-action-quiet" type="button">结束对话</button>
+      <button id="advance-dialogue" class="camp-action camp-action-brass" type="button">继续 <span aria-hidden="true">›</span></button>
+    </div>
+  </section>
+</section>
+<section id="pause" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div class="game-menu"><p>铸算 · 华夏纪</p><h2 id="pause-title">暂停</h2><button id="resume" type="button">继续游戏</button><button id="reload" type="button">重新读取进度</button><a href="/game/profile">战绩 · 成就</a><a href="/">账号与登录</a><p>↑ ↓ 选择 · Enter 确认 · Esc 返回</p></div></section>
+<noscript><div class="game-menu">请启用JavaScript。登录后可读取服务器进度。</div></noscript>
+</main></body></html>

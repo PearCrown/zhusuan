@@ -110,6 +110,12 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
+
+# 界面皮肤：换风格不必改代码，这两个字符串决定「长什么样」。
+# 主题文件在 static/css/themes/<GAME_THEME>.css；布局段在 static/css/circuit.css。
+# 也可以用环境变量临时切换，方便对比：GAME_THEME=ink-tool GAME_LAYOUT=stage
+GAME_THEME = os.environ.get("GAME_THEME", "bronze-forge")
+GAME_LAYOUT = os.environ.get("GAME_LAYOUT", "forge")
 # Apply the fail-closed test runner even when the CLI is invoked outside manage.py.
 TEST_RUNNER = "core.test_runner.IsolatedTestRunner"
 CSRF_FAILURE_VIEW = "core.api.csrf_failure"

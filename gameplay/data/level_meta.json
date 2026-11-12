@@ -1,0 +1,41 @@
+{
+  "_说明": [
+    "关卡结构元数据：为「主线 / 支线 / 前置 / 大地图区域」预留的统一描述。",
+    "现在前端只用 route 显示「主/支」标记，但从这里往后加大地图、章节解锁、支线奖励都不必改代码结构。",
+    "route 取值：main（主线）| side（支线）。",
+    "requires：完成后才解锁本关的前置关卡 id 列表；留空表示一开始就开放。",
+    "region：将来大地图上归属的区域名。order：同区域内的排序。"
+  ],
+  "levels": {
+    "tc-nand": {
+      "route": "main",
+      "order": 1,
+      "region": "铸铜工坊",
+      "requires": []
+    },
+    "tc-and": {
+      "route": "main",
+      "order": 2,
+      "region": "铸铜工坊",
+      "requires": ["tc-nand"]
+    },
+    "tc-or": {
+      "route": "main",
+      "order": 3,
+      "region": "妇好营帐",
+      "requires": ["tc-and"]
+    },
+    "tc-xor": {
+      "route": "main",
+      "order": 4,
+      "region": "妇好营帐",
+      "requires": ["tc-or"]
+    },
+    "tc-half-adder": {
+      "route": "main",
+      "order": 5,
+      "region": "洛水之滨",
+      "requires": ["tc-xor"]
+    }
+  }
+}

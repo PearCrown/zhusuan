@@ -1,0 +1,152 @@
+/* Learning surfaces. The palette is shared with the atlas, while controls
+   and diagrams keep opaque backgrounds and their original hit targets. */
+:root {
+  --ws-ink: #382d24;
+  --ws-muted: #645747;
+  --ws-paper: #f5ead2;
+  --ws-pale: #fff9ea;
+  --ws-edge: #b39a72;
+  --ws-line: #b59b745e;
+  --ws-moss: #2c5146;
+  --ws-red: #873b2d;
+  --ws-lacquer: #292e26;
+  --ws-serif: "STSong", "Songti SC", "SimSun", serif;
+}
+:is(.story-body, .stage-screen, .forge-page, .code-page, .quest-bar) :focus-visible {
+  outline: 2px solid #a4553c;
+  outline-offset: 3px;
+}
+
+/* The narrative and portrait are the focal points. */
+.story-stage { height: 100dvh; }
+.story-bg { background: #d4b78b url("../assets/maps/login-river-ink.jpg") center / cover no-repeat; }
+.story-shade {
+  background: linear-gradient(180deg, #25241a69, transparent 26% 65%, #2b271e9c);
+}
+.story-portrait { bottom: 14dvh; height: min(74dvh, 800px); }
+.story-portrait img { filter: drop-shadow(0 9px 24px #24241954); }
+.story-dialogue {
+  inset: auto clamp(20px, 9vw, 144px) clamp(16px, 4dvh, 36px);
+  grid-template-columns: minmax(78px, 132px) minmax(0, 1fr);
+  gap: clamp(10px, 2vw, 24px);
+  min-height: clamp(106px, 18dvh, 145px);
+  padding: clamp(14px, 2.5dvh, 24px) clamp(17px, 3vw, 40px) 27px;
+  background: linear-gradient(105deg, #f3e3bf, #fff3d9 58%, #f4e3c0);
+  border: 1px solid #a8875d;
+  border-inline-start: 3px solid var(--ws-red);
+  box-shadow: 0 10px 30px #21190d51, inset 0 0 0 3px #fff5da73;
+}
+.story-speaker-name {
+  color: var(--ws-red);
+  font: 700 clamp(16px, 1.7vw, 22px)/1.5 var(--ws-serif);
+  letter-spacing: .07em;
+  overflow-wrap: anywhere;
+}
+.story-text {
+  color: var(--ws-ink);
+  font: clamp(16px, 1.5vw, 20px)/1.75 var(--ws-serif);
+  text-shadow: none;
+  max-height: 22dvh;
+  overflow: auto;
+}
+.story-cursor { color: var(--ws-red); right: 16px; bottom: 9px; }
+.story-cursor.ready { animation: none; }
+.story-choices {
+  left: auto;
+  right: clamp(20px, 9vw, 144px);
+  transform: none;
+  bottom: calc(clamp(16px, 4dvh, 36px) + clamp(106px, 18dvh, 145px) + 13px);
+  width: min(360px, 30vw);
+  max-height: 36dvh;
+  overflow: auto;
+  gap: 7px;
+  padding: 3px;
+}
+.story-choice {
+  text-align: left;
+  padding: 10px 17px;
+  color: var(--ws-ink);
+  border: 1px solid #ab8b61;
+  border-inline-start: 3px solid #9c7048;
+  border-radius: 2px;
+  background: #f7e8c9;
+  box-shadow: 0 3px 10px #2d231e3b;
+}
+.story-choice:hover, .story-choice:focus-visible {
+  color: var(--ws-red);
+  background: #fff3d7;
+  border-color: var(--ws-red);
+  transform: none;
+}
+.story-stage.ui-hidden .story-choices { opacity: 0; pointer-events: none; }
+.story-tools .tool, .story-back, .story-log .tool {
+  color: #fff0d0;
+  background: #302d23ec;
+  border: 1px solid #c9a77b95;
+  border-radius: 2px;
+  padding: 6px 10px;
+}
+.story-tools .tool:hover, .story-back:hover, .story-log .tool:hover {
+  color: #fff0d0;
+  background: #463a2b;
+  border-color: #e2be89;
+}
+.story-tools .tool[aria-pressed="true"] { background: #eed9ae; color: #3c2b20; }
+.story-log, .story-modal-card, .story-end-card {
+  color: var(--ws-ink);
+  border: 1px solid var(--ws-edge);
+  border-radius: 2px;
+  background: var(--ws-paper);
+  box-shadow: 0 13px 45px #241e175e;
+}
+.story-end-card { padding: 26px; }
+.story-log-head h2, .story-log-list li strong, .story-modal-phase,
+.story-end-eyebrow { color: var(--ws-red); }
+.story-log-list li, .story-modal-title, .story-modal-ask, .story-end-note { color: var(--ws-ink); }
+.story-log-list li.narration, .story-modal-summary, .story-modal-eyebrow { color: var(--ws-muted); }
+.story-modal-btn, .story-end-btn.secondary { color: var(--ws-ink); background: #fff4dd; border-color: var(--ws-edge); }
+.story-end-btn.primary, .story-modal-btn.yes:hover { background: var(--ws-red); color: #fff7e5; border-color: var(--ws-red); }
+
+/* One task-note treatment on the scene, story and workbench. */
+.quest-bar, .story-body #quest-slot .quest-bar {
+  --quest-accent: var(--ws-red);
+  --quest-ink: var(--ws-ink);
+  --quest-muted: var(--ws-muted);
+  --quest-line: #b59970;
+  --quest-surface: #f3e5c6;
+  border-inline-start: 2px solid #9e754b;
+  border-radius: 2px;
+}
+.quest-bar .quest-bar-toggle {
+  color: var(--ws-ink);
+  background: #fff6e3;
+  border: 1px solid var(--ws-edge);
+  border-radius: 2px;
+}
+.quest-bar .quest-bar-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 5px 8px; }
+.quest-bar .quest-bar-title { grid-column: 1 / -1; grid-row: 1; color: var(--ws-ink); }
+.quest-bar :is(.quest-bar-state, .quest-bar-route) { justify-self: start; }
+.quest-bar-steps li[data-done="unknown"] { opacity: 1; color: var(--ws-muted); }
+.game-shell #taskbar:has(#quest-bar .quest-bar) {
+  background: #2b3027ed;
+  border-left-color: #c7a673;
+}
+
+@media (max-width: 760px) {
+  .story-portrait { bottom: 22dvh; height: min(57dvh, 125vw); }
+  .story-dialogue { grid-template-columns: 1fr; gap: 3px; min-height: 22dvh; }
+  .story-choices {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: 32dvh;
+    width: min(480px, calc(100vw - 40px));
+  }
+  .story-tools { gap: 4px; }
+  .story-tools.left { left: 10px; }
+  .story-tools.right { right: 10px; }
+  .story-tools .tool { padding-inline: 7px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-body :is(.story-bg,.story-dialogue,.story-portrait,.story-choice,.tool) { transition: none; }
+}

@@ -1,0 +1,27 @@
+/* ============================================================================
+   主题：ink-tool · 冷色工具风（示例，用来证明换肤不需要改结构）
+   ----------------------------------------------------------------------------
+   与 bronze-forge 的差别不只是颜色：字体换成无衬线、圆角收紧、分隔线加重，
+   整套观感从"器物"变成"专业工具"。切换方式：GAME_THEME=ink-tool
+   ========================================================================= */
+:root {
+  --ink: #1f2733;
+  --ink-soft: #5a6672;
+  --paper: #f5f6f8;
+  --paper-2: #e8ebef;
+  --paper-3: #ffffff;
+
+  --bronze: #3f5d8c;
+  --bronze-soft: #8aa0c4;
+  --jade: #2e7d63;
+  --cinnabar: #c2453c;
+  --gold: #d8a53a;
+
+  --line: rgba(70, 90, 115, .22);
+  --line-strong: rgba(70, 90, 115, .42);
+  --radius: 4px;
+  --radius-sm: 3px;
+
+  --font-serif: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}

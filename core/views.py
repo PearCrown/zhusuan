@@ -3,12 +3,17 @@ from django.shortcuts import render
 from django.views.decorators.http import require_safe
 from django.views.decorators.cache import never_cache
 
+from accounts.authentication import _safe_next
+
 
 @require_safe
 @never_cache
 def home(request):
     from django.conf import settings
-    return render(request, "home.html", {"verification_available": settings.CONTACT_MESSAGE_BACKEND != "disabled"})
+    return render(request, "home.html", {
+        "verification_available": settings.CONTACT_MESSAGE_BACKEND != "disabled",
+        "login_next": _safe_next(request.GET.get("next", "")),
+    })
 
 
 @require_safe

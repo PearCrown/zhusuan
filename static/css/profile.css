@@ -1,0 +1,100 @@
+/* 战绩页：沿用关卡选择的墨底金字，卡片式排布，信息优先。 */
+:root {
+  --pf-bg: #0e0f12;
+  --pf-panel: #16181d;
+  --pf-line: #262932;
+  --pf-ink: #e8e5dc;
+  --pf-muted: #8d919b;
+  --pf-gold: #d8c27a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; color: var(--pf-ink);
+  background: radial-gradient(120% 90% at 12% 0%, #1c1e24 0%, #101114 55%, #0a0b0d 100%);
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+.profile { max-width: 1080px; margin: 0 auto; padding: clamp(20px, 4vh, 44px) clamp(18px, 5vw, 56px) 60px; }
+
+.pf-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.pf-kicker { margin: 0 0 6px; font-size: 12px; letter-spacing: .3em; color: var(--pf-gold); }
+.pf-title { margin: 0; font-size: clamp(26px, 3.2vw, 40px); letter-spacing: .12em; color: #f4f1e8; }
+.pf-title::after { content: ""; display: block; width: 64px; height: 2px; margin-top: 12px; background: linear-gradient(90deg, var(--pf-gold), transparent); }
+.pf-sub { margin: 10px 0 0; font-size: 13px; color: var(--pf-muted); letter-spacing: .05em; }
+.pf-dot { margin: 0 8px; }
+.pf-actions { display: flex; gap: 10px; }
+
+.pf-btn {
+  font: inherit; font-size: 13px; letter-spacing: .12em; padding: 9px 18px;
+  color: var(--pf-ink); text-decoration: none; border: 1px solid #353842; background: #171a20;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+}
+.pf-btn:hover { border-color: var(--pf-gold); }
+.pf-btn.ghost { color: var(--pf-muted); }
+
+.pf-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px; margin: 28px 0 24px; background: var(--pf-line);
+}
+.pf-stat { background: var(--pf-panel); padding: 16px 18px; display: grid; gap: 8px; }
+.pf-stat-label { font-size: 11.5px; letter-spacing: .2em; color: var(--pf-muted); }
+.pf-stat-value { font-size: 26px; color: #f2efe6; font-variant-numeric: tabular-nums; }
+.pf-stat-value small { font-size: 13px; color: var(--pf-muted); }
+
+.pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.pf-block {
+  background: var(--pf-panel); border: 1px solid var(--pf-line); padding: 18px 20px 20px;
+  border-left: 2px solid var(--pf-gold);
+}
+.pf-block.wide { grid-column: 1 / -1; }
+.pf-block-title { margin: 0 0 14px; font-size: 15px; letter-spacing: .1em; color: #f0ece1; }
+.pf-hint { font-size: 11px; letter-spacing: .18em; color: var(--pf-muted); margin-left: 8px; }
+.pf-empty { margin: 0; font-size: 13px; line-height: 1.7; color: var(--pf-muted); }
+
+.pf-passed { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.pf-passed-item {
+  display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid #1f222a; font-size: 13.5px;
+}
+.pf-passed-no { color: var(--pf-gold); font-variant-numeric: tabular-nums; }
+.pf-passed-score { color: var(--pf-muted); font-variant-numeric: tabular-nums; }
+
+.pf-rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.pf-rank-row {
+  display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid #1f222a; font-size: 13.5px;
+}
+.pf-rank-no { color: var(--pf-muted); font-variant-numeric: tabular-nums; }
+.pf-rank-row.is-me { color: #f6e9cd; }
+.pf-rank-row.is-me .pf-rank-no { color: var(--pf-gold); }
+.pf-me { color: var(--pf-gold); font-size: 12px; }
+.pf-rank-score { font-variant-numeric: tabular-nums; }
+
+.pf-ach { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.pf-ach-item {
+  display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start;
+  padding: 12px 14px; background: #121418; border: 1px solid #22252d;
+}
+.pf-ach-item.is-on { border-color: #4a4227; background: #1a1812; }
+.pf-ach-seal {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 4px;
+  border: 1px solid #33363f; color: #5a5e68; font-family: "STSong", "SimSun", serif; font-size: 18px;
+}
+.pf-ach-item.is-on .pf-ach-seal { border-color: var(--pf-gold); color: var(--pf-gold); }
+.pf-ach-body { display: grid; gap: 4px; }
+.pf-ach-title { font-size: 13.5px; color: #a9adb6; letter-spacing: .04em; }
+.pf-ach-item.is-on .pf-ach-title { color: #f2e6c8; }
+.pf-ach-desc { font-size: 12px; line-height: 1.6; color: #6f737d; }
+.pf-ach-item.is-on .pf-ach-desc { color: #9a9d96; }
+
+@media (max-width: 760px) {
+  .pf-grid { grid-template-columns: 1fr; }
+}
+
+/* 云端存档页 */
+.save-main { display: grid; gap: 4px; min-width: 0; }
+.save-detail { font-size: 12px; color: #7f838d; line-height: 1.5; }
+.save-state { display: grid; gap: 4px; justify-items: end; }
+.save-status { font-size: 11.5px; letter-spacing: .14em; color: var(--pf-muted); }
+.save-status.done { color: var(--pf-gold); }
+.save-row { grid-template-columns: 44px 1fr auto; align-items: start; }
+.save-note { margin-top: 16px; }

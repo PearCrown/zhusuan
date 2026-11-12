@@ -16,8 +16,11 @@ class NavigationTests(SimpleTestCase):
         response=self.client.get("/")
         self.assertContains(response,'验证码登录或找回')
         self.assertContains(response,'验证联系方式')
-        header=response.content.decode().split('</header>')[0]
-        self.assertNotIn('/verification/',header)
+        # 新版登录页（水墨卷轴）整页没有全局页头，验证入口只出现在账号区，
+        # 所以这里断言"根本没有页头"，而不是在切出来的页头里找链接。
+        html=response.content.decode()
+        self.assertNotIn('<header',html)
+        self.assertEqual(html.count('href="/verification/"'),2)
 
     def test_maintenance_form_has_return_but_no_dashboard_navigation(self):
         class Form(forms.Form):

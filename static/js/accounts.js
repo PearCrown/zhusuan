@@ -225,6 +225,12 @@
           } else {
             // Verify that the browser actually retained the HttpOnly session cookie.
             await reconcile("", false, "当前未登录：未能保留登录会话，或会话已失效。请检查本站 Cookie 是否被禁用，再重新登录。");
+            // 登录成功（身份卡片已显示）且存在合法 next 时，自动跳回原目标页面
+            const next = document.querySelector('meta[name="login-next"]')?.content || "";
+            if (!byId("identity").hidden && next.startsWith("/") && !next.startsWith("//")) {
+              window.location.assign(next);
+              return;
+            }
           }
         } catch (error) {
           if (error.code === "stale") return;

@@ -1,6 +1,7 @@
 import csv
 from io import StringIO
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
 from django.contrib.auth import get_user_model
@@ -256,7 +257,16 @@ class TeacherAccessTests(TestCase):
         self.assertEqual(first["total"], 52)
         self.assertEqual(len({row["userId"] for row in first["items"] + second["items"]}), 52)
 
-    def test_workspace_is_public_non_cached_shell_without_student_data(self):
+    def test_workspace_sends_anonymous_visitor_to_login_with_return_path(self):
+        """The teacher shell is protected; anonymous visitors keep their target."""
+        response = self.client.get("/teacher/")
+        self.assertEqual(response.status_code, 302)
+        location = urlparse(response["Location"])
+        self.assertTrue(location.path.startswith("/"), location.path)
+        self.assertEqual(parse_qs(location.query), {"next": ["/teacher/"]})
+
+    def test_workspace_is_non_cached_shell_without_student_data(self):
+        self.login()
         response = self.client.get("/teacher/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("no-store", response["Cache-Control"])

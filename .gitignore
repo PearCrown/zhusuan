@@ -19,3 +19,6 @@ backups/
 .pgpass
 
 *.dump.manifest.json
+
+# 本地手工备份（助手改动已有文件前生成）
+*.bak-*

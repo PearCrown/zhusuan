@@ -1,9 +1,36 @@
 from functools import wraps
+from urllib.parse import urlencode
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from core.api import ApiError, api_endpoint
+
+
+def _safe_next(raw):
+    """只允许站内相对路径作为跳转目标，防止开放重定向。"""
+    if not raw or not isinstance(raw, str):
+        return ""
+    if not raw.startswith("/") or raw.startswith("//"):
+        return ""
+    if not url_has_allowed_host_and_scheme(raw, allowed_hosts=None, require_https=False):
+        return ""
+    return raw
+
+
+def login_required_page(view):
+    """未登录访问受保护页面 → 302 跳回登录页，并带上 next 参数。"""
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        user = getattr(request, "user", None)
+        if not (user and user.is_authenticated and user.is_active):
+            target = _safe_next(request.get_full_path())
+            query = f"?{urlencode({'next': target})}" if target else ""
+            return HttpResponseRedirect(f"/{query}")
+        return view(request, *args, **kwargs)
+    return wrapped
 
 
 def authenticated_user(request):

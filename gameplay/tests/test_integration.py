@@ -201,6 +201,33 @@ class GameTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertIsNone(response.json()["data"]["progress"]["result"]["score"])
 
+    def test_replayable_chapter_keeps_the_highest_score(self):
+        """可重做章节：成绩取历史最高，重做只会抬分、不会降分。"""
+        marks = iter([40, 80, 60])
+        chapter = Chapter(
+            "replay-test", "重做测试", 1,
+            lambda *_: {"n": 0},
+            lambda state, action, payload: {**state, "n": state["n"] + 1},
+            lambda state: next(marks),
+            {"submit": set()},
+            replay=True,
+            pending_resubmit=lambda state: True,
+        )
+        with patch.dict(REGISTRY, {chapter.id: chapter}):
+            def submit():
+                data = self.client.get(f"/game/api/chapters/{chapter.id}/progress").json()["data"]
+                csrf = self.client.get("/auth/csrf").json()["data"]["csrfToken"]
+                return self.client.post(
+                    f"/game/api/chapters/{chapter.id}/action",
+                    {"action": "submit", "revision": data["progress"]["revision"], "saveContext": data["saveContext"]},
+                    content_type="application/json", HTTP_X_CSRFTOKEN=csrf)
+
+            for expected in (40, 80, 80):
+                response = submit()
+                self.assertEqual(response.status_code, 200, response.content)
+                self.assertEqual(response.json()["data"]["progress"]["result"]["score"], expected,
+                                 "40 → 80 → 60，成绩应当依次是 40、80、80（取最高）")
+
     def test_unassigned_score_stays_personal_and_transfer_keeps_original_class(self):
         self.prepare(); self.act("submit")
         StudentEnrollment.objects.filter(student=self.student).update(classroom=self.b)

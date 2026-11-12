@@ -1,6 +1,10 @@
 {
   "name": "huaxia-account-ui-checks",
   "private": true,
-  "scripts": { "test:ui": "node --test scripts/frontend.test.cjs scripts/teacher.test.cjs scripts/maintenance.test.cjs scripts/password.test.cjs scripts/game.test.cjs scripts/verification.test.cjs" },
-  "devDependencies": { "jsdom": "26.1.0" }
+  "scripts": {
+    "test:ui": "node --test scripts/frontend.test.cjs scripts/teacher.test.cjs scripts/maintenance.test.cjs scripts/password.test.cjs scripts/game.test.cjs scripts/verification.test.cjs scripts/scene-host.test.cjs scripts/scene-demo.test.cjs scripts/stage-select.test.cjs scripts/circuit.test.cjs scripts/story.test.cjs scripts/quest.test.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
 }

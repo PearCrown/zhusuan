@@ -1,0 +1,122 @@
+{
+  "_说明": [
+    "夏社的第二位 NPC：妇好。与武丁同一个章节，但任务与状态完全独立。",
+    "这里用 entry 按任务状态选入口（另一种写法，与 wu-ding 的 when 链并存），",
+    "再用 when.flags 表达'听武丁说过什么'——旗标是章节级事实，任务状态是各 NPC 私有。"
+  ],
+  "episode": {
+    "title": "铸算·夏 · 夏社",
+    "operation": "营前点粮",
+    "phase": "行动前",
+    "summary": "夏社营前，妇好按剑而立。军中缺粮三日，她要有人去把城南三座粮仓清点清楚。"
+  },
+  "background": "img/story/bg-shan-shui-silk.jpg",
+  "then": {
+    "label": "返回营前",
+    "url": "/game/#camp"
+  },
+  "npc": {
+    "id": "fu-hao",
+    "name": "妇好",
+    "title": "将军",
+    "seal": "好",
+    "color": "#7a3b2e",
+    "portrait": "/static/img/portraits/fu-hao-silk.png"
+  },
+  "talkFields": {
+    "npcId": "fu-hao"
+  },
+  "reward": "quest-fuhao-grain",
+  "quest": {
+    "title": "营前点粮 · 清点三座粮仓",
+    "route": "side",
+    "objective": "替妇好清点城南三座粮仓，回来向她复命。",
+    "steps": [
+      {
+        "kind": "talk",
+        "text": "听妇好交代粮仓的事"
+      },
+      {
+        "kind": "submit",
+        "text": "回营复命"
+      }
+    ]
+  },
+  "entry": {
+    "default": "greet",
+    "accepted": "greet-accepted",
+    "submitted": "greet-done"
+  },
+  "nodes": {
+    "greet": {
+      "lines": [
+        "（妇好按住剑柄，没有回头。）",
+        "军中缺粮三日了。你要么帮我，要么让开。"
+      ],
+      "next": "with-word"
+    },
+    "with-word": {
+      "when": {
+        "flags": {
+          "gateWord": true
+        }
+      },
+      "lines": [
+        "口令你也知道，那便不是外人。",
+        "听好了——城南三座仓，一斗一斗数清。"
+      ],
+      "next": "after-wuding"
+    },
+    "after-wuding": {
+      "when": {
+        "cleared": [
+          "wu-ding"
+        ]
+      },
+      "lines": [
+        "王上那边的事既已了结，你就更该闲下来了。"
+      ],
+      "next": "ask"
+    },
+    "ask": {
+      "lines": [
+        "这桩差事，接是不接？"
+      ],
+      "choices": [
+        {
+          "id": "take",
+          "text": "接下这桩差事",
+          "command": {
+            "action": "accept",
+            "npcId": "fu-hao"
+          }
+        },
+        {
+          "id": "decline",
+          "text": "改日再来"
+        }
+      ]
+    },
+    "greet-accepted": {
+      "lines": [
+        "粮还没点完。数清楚了再来。"
+      ],
+      "choices": [
+        {
+          "id": "report",
+          "text": "复命：已清点",
+          "command": {
+            "action": "report",
+            "npcId": "fu-hao"
+          }
+        }
+      ]
+    },
+    "greet-done": {
+      "lines": [
+        "三座仓的账我收到了。",
+        "军中的锅，今天能开得起来。"
+      ]
+    }
+  }
+}

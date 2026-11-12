@@ -1,0 +1,39 @@
+/* ============================================================================
+   主题：bronze-forge · 青铜工坊（默认）
+   ----------------------------------------------------------------------------
+   主题文件只负责「配色与质感」，不写任何布局规则。
+   想再加一套风格：复制本文件改值，存成 static/css/themes/<名字>.css，
+   然后在 settings.py 里把 GAME_THEME 改成那个名字（或用环境变量 GAME_THEME）。
+
+   变量含义速查（国风主题这么叫，中性主题按"角色"对着填即可）：
+     --paper / --paper-2 / --paper-3   三级底色：页面 / 面板 / 卡片
+     --ink / --ink-soft                主文字 / 次要文字
+     --bronze / --bronze-soft          主色（这里是青铜）：强调、符号、边框
+     --jade                            正 / 阴爻 / 通过
+     --cinnabar                        反 / 阳爻 / 失败
+     --gold                            高亮、临时连线
+     --line / --line-strong            分隔线（弱 / 强）
+     --radius / --radius-sm            圆角
+     --font-serif / --font-ui          标题字体 / 正文字体
+   ========================================================================= */
+:root {
+  --ink: #2b2620;
+  --ink-soft: #5c5245;
+  --paper: #f3ebda;
+  --paper-2: #e9dcc2;
+  --paper-3: #fbf6ea;
+
+  --bronze: #8c5a2b;
+  --bronze-soft: #c19a5b;
+  --jade: #285548;
+  --cinnabar: #a65437;
+  --gold: #c9a227;
+
+  --line: rgba(122, 96, 60, .32);
+  --line-strong: rgba(122, 96, 60, .55);
+  --radius: 10px;
+  --radius-sm: 6px;
+
+  --font-serif: "STSong", "SimSun", "Songti SC", serif;
+  --font-ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}

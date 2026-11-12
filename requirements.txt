@@ -6,3 +6,5 @@ python-dotenv==1.2.4
 sqlparse==0.6.0
 typing_extensions==4.16.0
 tzdata==2026.5
+gunicorn==27.0.0
+whitenoise==6.12.0

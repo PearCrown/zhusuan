@@ -1,0 +1,186 @@
+.game-login {
+  --silk-serif: "STSong", "Songti SC", "SimSun", serif;
+  --ink: #30291f;
+  --red: #81392e;
+  --brass: #ac8151;
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  background: #cfaf80;
+  color: var(--ink);
+}
+.game-login main {
+  width: min(100%, 1480px);
+  max-width: none;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 412px);
+  align-items: center;
+  gap: clamp(40px, 8vw, 125px);
+  margin: 0 auto;
+  padding: clamp(34px, 6dvh, 76px) clamp(34px, 7vw, 112px);
+}
+.login-ink {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #2e2c2040, transparent 30% 55%, #3b2d1e34),
+    var(--login-background, linear-gradient(125deg, #ead9b3, #cfa46c)) var(--login-background-position, left center) / cover no-repeat;
+  pointer-events: none;
+}
+.login-ink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 33% 29%, #fff3cb66, transparent 43%);
+  animation: login-mist 1.6s ease-out both;
+}
+@keyframes login-mist { from { opacity: .15; } to { opacity: 1; } }
+.game-login .intro {
+  align-self: start;
+  padding: clamp(30px, 13dvh, 140px) 0 0 clamp(12px, 8vw, 130px);
+}
+.game-login .intro h1 {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+  color: #34291e;
+  font: 700 clamp(58px, 9vw, 134px)/.96 var(--silk-serif);
+  letter-spacing: .09em;
+  text-shadow: 0 1px 1px #f6e1b8, 0 0 18px #f5dca766;
+}
+.game-login .intro h1 span {
+  display: block;
+  margin-top: 12px;
+  font-size: .34em;
+  letter-spacing: .28em;
+  color: #58382b;
+}
+.game-login .intro h1::after {
+  content: "";
+  display: block;
+  width: 74%;
+  height: 6px;
+  margin-top: clamp(16px, 4vh, 30px);
+  background: linear-gradient(90deg, #8a4232 22px, transparent 22px 28px, #9f724a90 28px, transparent);
+  clip-path: polygon(0 25%, 30% 16%, 80% 40%, 100% 64%, 72% 76%, 28% 64%, 0 100%);
+}
+.game-login .card {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  padding: clamp(25px, 3.4vw, 44px);
+  border: 1px solid #9f794d;
+  border-radius: 9px 32px 9px 32px;
+  background:
+    repeating-linear-gradient(0deg, #654b2a05 0 1px, transparent 1px 4px),
+    linear-gradient(135deg, #fbefd4, #efdbb5);
+  box-shadow: inset 0 0 0 4px #fff6df9c, inset 0 0 0 5px #b7966580, 0 20px 65px #35241960;
+  color: var(--ink);
+}
+.game-login .card::before, .game-login .card::after {
+  content: "";
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  pointer-events: none;
+}
+.game-login .card::before {
+  top: 12px;
+  right: 13px;
+  border-top: 1px solid var(--brass);
+  border-right: 1px solid var(--brass);
+  border-top-right-radius: 15px;
+}
+.game-login .card::after {
+  bottom: 12px;
+  left: 13px;
+  border-bottom: 1px solid var(--brass);
+  border-left: 1px solid var(--brass);
+  border-bottom-left-radius: 15px;
+}
+.game-login .card h2 {
+  font: 700 clamp(27px, 2.8vw, 40px)/1.16 var(--silk-serif);
+  letter-spacing: .05em;
+}
+.game-login .status {
+  margin: 10px 0 18px;
+  padding: 1px 0 1px 9px;
+  border-radius: 0;
+  border-left: 2px solid #ab8751;
+  background: transparent;
+  color: #5e4e39;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.game-login .status.error { border-color: #a24b37; color: #852f25; }
+.game-login .switcher {
+  gap: 3px;
+  margin: 0 0 17px;
+  padding: 3px;
+  border: 1px solid #b3905f9c;
+  border-radius: 999px;
+  background: #ddc3977a;
+}
+.game-login .switcher button {
+  flex: 1;
+  min-height: 36px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #634b34;
+  font-size: 13px;
+}
+.game-login .switcher button[aria-pressed="true"] {
+  background: #fff1d5;
+  border-color: #c5a579;
+  box-shadow: 0 2px 5px #60441e20;
+  color: #7f352b;
+}
+.game-login label { margin-bottom: 5px; font-size: 13px; font-weight: 600; }
+.game-login input {
+  min-height: 43px;
+  padding: 9px 12px;
+  border: 1px solid #af946b;
+  border-radius: 6px 13px 6px 13px;
+  background: #fff8e8;
+  box-shadow: inset 0 1px 3px #654c1f13;
+  font-size: 15px;
+}
+.game-login input:focus { border-color: #955541; }
+.game-login input[aria-invalid="true"] { border-color: #a7392f; }
+.game-login :focus-visible { outline-color: #8f3d2d; outline-width: 2px; }
+.game-login .field-error:empty { display: none; }
+.game-login .field-error { margin: 4px 0 8px; }
+.game-login #login-form label:not(:first-of-type), .game-login #register-form label:not(:first-of-type) { margin-top: 11px; }
+.game-login .note, .game-login .hint { color: #5f4d39; font-size: 12px; line-height: 1.55; }
+.game-login .note { margin: 11px 0 0; }
+.game-login .note a, .game-login .card a:not(.button-link) { color: #783428; text-underline-offset: 3px; }
+.game-login .primary, .game-login #game-link {
+  border: 1px solid #6d2f24;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #974b39, #763329);
+  color: #fff4de;
+  box-shadow: inset 0 0 0 2px #eab9844d, 0 4px 9px #57332229;
+}
+.game-login .primary { margin-top: 16px; letter-spacing: .14em; }
+.game-login .primary:hover:enabled, .game-login #game-link:hover { background: #682b23; }
+.game-login .secondary { border-color: #ac916c; border-radius: 999px; color: #654431; }
+.game-login .secondary:hover { background-color: #e7cf9e; }
+.game-login .actions { gap: 8px; margin-top: 14px; }
+.game-login .actions a, .game-login .actions button { min-height: 39px; padding: 7px 12px; font-size: 13px; }
+.game-login #identity dl { margin: 14px 0; }
+.game-login #identity dl div { padding: 7px 0; border-color: #b79b6b6b; }
+@media (max-width: 830px) {
+  .game-login main { grid-template-columns: 1fr; gap: 24px; min-height: 100dvh; padding: 33px 16px 24px; align-content: center; }
+  .game-login .intro { justify-self: center; width: min(100%, 430px); padding: 0 12px; }
+  .game-login .intro h1 { font-size: clamp(42px, 9vw, 67px); }
+  .game-login .intro h1 span { display: inline; margin-inline-start: 10px; font-size: .47em; letter-spacing: .08em; white-space: nowrap; }
+  .game-login .intro h1::after { margin-top: 10px; }
+  .game-login .card { justify-self: center; max-width: 430px; }
+  .login-ink { background-position: 31% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-ink::after { animation: none; }
+}

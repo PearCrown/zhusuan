@@ -34,3 +34,18 @@ if not ca_path.is_absolute() or not ca_path.is_file():
     raise ImproperlyConfigured("DB_SSLROOTCERT必须为存在的绝对CA证书文件路径。")
 DATABASES = {"default": {**DATABASES["default"], "OPTIONS": {**DATABASES["default"]["OPTIONS"], "sslmode": "verify-full", "sslrootcert": str(ca_path)},
     "CONN_MAX_AGE": positive_integer("DB_CONN_MAX_AGE", 60, 600), "CONN_HEALTH_CHECKS": True}}
+
+# ---- 静态文件：由 WhiteNoise 直接从应用进程提供 ----
+# 生产没有 runserver 的静态服务，也没有前置 nginx 时，靠它把 /static/ 发出去。
+# 放在 SecurityMiddleware 之后：安全头先生效，再处理静态请求。
+MIDDLEWARE = list(MIDDLEWARE)
+MIDDLEWARE.insert(
+    MIDDLEWARE.index("django.middleware.security.SecurityMiddleware") + 1,
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+)
+# 用压缩但**不带 manifest** 的存储：带 manifest 的版本在任何一处 {% static %}
+# 找不到对应文件时会直接 500，部署阶段文件缺失很难排查。
+STORAGES = {
+    **globals().get("STORAGES", {"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}}),
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}

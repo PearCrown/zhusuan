@@ -1,0 +1,216 @@
+/* Shared teaching palette, with the artwork confined to the header. */
+:root {
+  --bench-bg: #151817;
+  --bench-panel: #202522;
+  --bench-canvas: #171c1a;
+  --bench-ink: #f0e8d8;
+  --bench-muted: #b7b8a8;
+  --bench-line: #3d473f;
+  --bench-bronze: #dfbd83;
+  --bench-jade: #a2d6bd;
+  --bench-red: #f2a68b;
+  --bench-serif: "STSong", "Songti SC", "SimSun", serif;
+  --bench-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
+  --bench-header: linear-gradient(90deg, #1e2320 45%, #1b201ce8 75%, #1b201cdc),
+                  url("../img/story/bg-shan-shui-silk.jpg") right 39% / cover;
+}
+:is(.forge-page, .code-body) :focus-visible {
+  outline: 2px solid var(--bench-bronze);
+  outline-offset: 3px;
+}
+:is(.forge-canvas-head,.cd-editor-head) kbd {
+  color: var(--bench-muted);
+  font: 12px var(--bench-mono);
+}
+.forge-page[data-layout="forge"] {
+  height: 100dvh;
+}
+.forge-page[data-layout="forge"] .forge-main {
+  grid-template-columns: minmax(0, 1fr) clamp(265px, 23vw, 338px);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas: "table oracle" "tools oracle";
+  gap: 10px;
+  padding: 12px clamp(12px, 1.7vw, 26px);
+}
+.forge-table {
+  grid-area: table;
+  min-width: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  place-items: stretch;
+  gap: 8px;
+}
+.forge-canvas-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.forge-canvas-head h2 {
+  margin: 0;
+  font: 600 18px/1.35 var(--bench-serif);
+  letter-spacing: .07em;
+}
+.forge-canvas-head .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 0;
+}
+.forge-canvas-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+#circuit-canvas { min-height: 0; }
+.forge-tools {
+  grid-area: tools;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+.forge-components, .forge-tools .forge-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.forge-tools .forge-btn.primary { width: auto; margin: 0; }
+.forge-components .panel-heading { margin: 0 3px 0 0; border: 0; padding: 0; }
+.forge-components .palette-gates { margin: 0; }
+.forge-oracle { grid-area: oracle; }
+.forge-oracle .sim-actions { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.sim-case { white-space: nowrap; font: 12px var(--bench-mono); }
+.sim-case-button {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 34px;
+  min-height: 33px;
+  padding: 4px 7px;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: inherit;
+}
+.sim-case-button .yao { display: flex; }
+.forge-oracle .truth-table :is(th,td) { padding-block: 3px; }
+.sim-case-button[aria-current="true"] { border-color: var(--bronze); }
+.forge-oracle #quest-slot { margin-top: 14px; }
+
+.forge-page[data-theme="bronze-forge"] {
+  color-scheme: dark;
+  --ink: var(--bench-ink);
+  --ink-soft: var(--bench-muted);
+  --paper: var(--bench-bg);
+  --paper-2: var(--bench-panel);
+  --paper-3: #282f29;
+  --bronze: var(--bench-bronze);
+  --bronze-soft: #a08359;
+  --jade: var(--bench-jade);
+  --cinnabar: var(--bench-red);
+  --gold: #e7bb70;
+  --line: var(--bench-line);
+  --line-strong: #49544a;
+  --radius: 7px;
+  --radius-sm: 4px;
+  --shadow-panel: none;
+  background: var(--bench-bg);
+}
+.forge-page[data-theme="bronze-forge"] .forge-topbar {
+  min-height: 70px;
+  border-bottom: 1px solid #9c7b4e60;
+  background: var(--bench-header);
+  box-shadow: none;
+}
+.forge-page[data-theme="bronze-forge"] .forge-seal,
+.code-body .cd-seal {
+  background: #783d33;
+  border: 1px solid #c08267;
+  color: #fae5c6;
+  border-radius: 3px;
+}
+.forge-page[data-theme="bronze-forge"] .forge-home,
+.forge-page[data-theme="bronze-forge"] .forge-btn {
+  min-height: 36px;
+  padding: 5px 11px;
+  background: #272e28;
+  border: 1px solid #4a554b;
+  color: var(--bench-ink);
+  box-shadow: none;
+}
+.forge-page[data-theme="bronze-forge"] .forge-btn.small { min-height: 30px; }
+.forge-page[data-theme="bronze-forge"] :is(.forge-home,.forge-btn):hover { background: #333d34; border-color: #9c865d; color: var(--bench-ink); }
+.forge-page[data-theme="bronze-forge"] #btn-sim,
+.code-body .cd-btn.primary {
+  background: var(--bench-bronze);
+  color: #242018;
+  border: 1px solid var(--bench-bronze);
+  font-weight: 700;
+}
+.forge-page[data-theme="bronze-forge"] #btn-sim:hover,
+.code-body .cd-btn.primary:hover { background: #eed0a0; }
+.forge-page[data-theme="bronze-forge"] #btn-settle { color: #bce5ce; background: #2f4b3b; border-color: #628873; }
+.forge-page[data-theme="bronze-forge"] .progress-pill { border-color: #846b4c; background: #342c21; border-radius: 4px; }
+.forge-page[data-theme="bronze-forge"] .forge-panel { background: var(--bench-panel); }
+.forge-page[data-theme="bronze-forge"] .forge-panel::before,
+.forge-page[data-theme="bronze-forge"] .forge-panel::after { content: none; }
+.forge-page[data-theme="bronze-forge"] .forge-table { padding: 10px 13px; }
+.forge-page[data-theme="bronze-forge"] #circuit-canvas {
+  background: var(--bench-canvas);
+  border: 1px solid #39453b;
+}
+.forge-page[data-theme="bronze-forge"] .forge-grid-line { stroke: #313a33; }
+.forge-page[data-theme="bronze-forge"] :is(.gate,.palette-gate) {
+  --gate-accent: #e5b68e;
+  --gate-fill: #422d25;
+}
+.forge-page[data-theme="bronze-forge"] [data-type="AND"] { --gate-accent: #9acbad; --gate-fill: #2b4135; }
+.forge-page[data-theme="bronze-forge"] [data-type="OR"] { --gate-accent: #e4c890; --gate-fill: #403a29; }
+.forge-page[data-theme="bronze-forge"] [data-type="NOT"] { --gate-accent: #c9b4df; --gate-fill: #393044; }
+.forge-page[data-theme="bronze-forge"] [data-type="XOR"] { --gate-accent: #a9cbd9; --gate-fill: #263b43; }
+.forge-page[data-theme="bronze-forge"] [data-type="NOR"] { --gate-accent: #e4ada5; --gate-fill: #412d30; }
+.forge-page[data-theme="bronze-forge"] .palette-gate { background: #32342b; min-height: 35px; padding: 5px 12px; }
+.forge-page[data-theme="bronze-forge"] .palette-gate:hover { background: #403e2f; }
+.forge-page[data-theme="bronze-forge"] .input-gate { fill: #2a4136; stroke: #8fc0a8; }
+.forge-page[data-theme="bronze-forge"] .output-gate { fill: #3c3528; stroke: #d6ad72; }
+.forge-page[data-theme="bronze-forge"] :is(.gate-label,.gate-value) { font-family: var(--bench-mono); }
+.forge-page[data-theme="bronze-forge"] .wire-off { stroke: #80aa99; }
+.forge-page[data-theme="bronze-forge"] .wire-on { stroke: #f2aa79; }
+.forge-page[data-theme="bronze-forge"] .port-circle { fill: #1b211e; }
+.forge-page[data-theme="bronze-forge"] .port-circle:is(:hover,.port-active) { fill: #eed0a0; }
+.forge-page[data-theme="bronze-forge"] .panel-heading { border-bottom-style: solid; }
+.forge-page[data-theme="bronze-forge"] .route-tag { background: #393126; border-color: #755e40; }
+.forge-page[data-theme="bronze-forge"] :is(.truth-table,.sim-panel) { background: #1a201c; }
+.forge-page[data-theme="bronze-forge"] .truth-table tbody tr:nth-child(even) { background: #242c25; }
+.forge-page[data-theme="bronze-forge"] .truth-table tr:has([aria-current="true"]) { background: #343c30; }
+.forge-page[data-theme="bronze-forge"] :is(.led-0,.led-pass) { color: #bce4cd; background: #2d4438; border-color: #648873; }
+.forge-page[data-theme="bronze-forge"] :is(.led-1,.led-fail) { color: #f3b59d; background: #4a322a; border-color: #88604f; }
+.forge-page[data-theme="bronze-forge"] .result-pass { background: #263b30; }
+.forge-page[data-theme="bronze-forge"] .result-fail { background: #432d28; }
+.forge-page[data-theme="bronze-forge"] .npc-bar { min-height: 55px; padding: 7px 18px; border-top: 1px solid #4d4c3b; background: #1c231e; box-shadow: none; }
+.forge-page[data-theme="bronze-forge"] .npc-portrait { width: 38px; height: 38px; border-width: 1px; border-radius: 4px; }
+.forge-page[data-theme="bronze-forge"] .npc-line { text-align: left; }
+.forge-page[data-theme="bronze-forge"] #quest-slot .quest-bar {
+  --quest-accent: var(--bench-bronze);
+  --quest-ink: var(--bench-ink);
+  --quest-muted: var(--bench-muted);
+  --quest-line: #53594c;
+  --quest-surface: #272f28;
+}
+.forge-page[data-theme="bronze-forge"] #quest-slot .quest-bar-toggle { color: var(--bench-ink); background: #30392f; border-color: #67715f; }
+.forge-page[data-theme="bronze-forge"] #quest-slot .quest-bar-state[data-tone="pass"] { color: #bce4cd; background: #2d4438; }
+.forge-page[data-theme="bronze-forge"] #quest-slot .quest-bar-state[data-tone="fail"] { color: #f3b59d; background: #4a322a; }
+
+@media (max-width: 1000px), (max-height: 620px) {
+  .forge-page[data-layout="forge"] { height: auto; min-height: 100dvh; overflow: visible; }
+  .forge-page[data-layout="forge"] .forge-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas: "tools" "table" "oracle";
+    overflow: visible;
+  }
+  .forge-table { min-height: 0; grid-template-rows: auto auto auto; }
+  #circuit-canvas { height: clamp(245px, 60vw, 550px); }
+  .forge-topbar { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+  .forge-identity { order: -1; flex: 1 0 100%; }
+}

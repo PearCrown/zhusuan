@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
 
-from accounts.authentication import login_required_api
+from accounts.authentication import login_required_api, login_required_page
 from core.api import ApiError, api_methods, success
 from .access import EXPORT_ROSTER, authorized_class, teacher_classes
 from .models import StudentEnrollment
@@ -44,10 +44,10 @@ def paginate(query, page, serialize):
     return {"items": [serialize(item) for item in query[offset:offset + PAGE_SIZE]], "page": page, "pageSize": PAGE_SIZE, "total": total, "hasNext": offset + PAGE_SIZE < total}
 
 
+@login_required_page
 @require_safe
 @never_cache
 def workspace(request):
-    # Public shell only; data is fetched from independently protected APIs.
     return render(request, "teacher.html")
 
 

@@ -1,0 +1,47 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>铸算·华夏纪 · 云端存档</title>
+  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
+<body>
+<main class="profile">
+  <header class="pf-head">
+    <div>
+      <p class="pf-kicker">铸算 · 华夏纪</p>
+      <h1 class="pf-title">云端存档</h1>
+      <p class="pf-sub">进度与成绩保存在服务器；换设备登录后继续。</p>
+    </div>
+    <nav class="pf-actions">
+      <a class="pf-btn" href="/game/#stage-select">返回关卡</a>
+      <a class="pf-btn ghost" href="/game/profile">战绩</a>
+    </nav>
+  </header>
+
+  <section class="pf-block wide" aria-labelledby="save-title">
+    <h2 id="save-title" class="pf-block-title">各章存档</h2>
+    <ul class="pf-passed">
+      {% for row in rows %}
+        <li class="pf-passed-item save-row">
+          <span class="pf-passed-no">{{ forloop.counter|stringformat:"02d" }}</span>
+          <span class="save-main">
+            <span class="pf-passed-name">{{ row.title }}</span>
+            <span class="save-detail">{{ row.detail }}</span>
+          </span>
+          <span class="save-state">
+            <span class="save-status{% if row.status == '已结算' %} done{% endif %}">{{ row.status }}</span>
+            <span class="pf-passed-score">{% if row.score is not None %}{{ row.score }} / 100{% else %}—{% endif %}</span>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="pf-empty save-note">
+      存档由服务端渲染，浏览器不保存权威进度；本页内容与数据库一致，刷新即可看到最新状态。
+    </p>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,102 @@
+/* 铸言 uses the same workbench palette as the circuit page. */
+* { box-sizing: border-box; }
+.code-body {
+  margin: 0;
+  min-height: 100dvh;
+  color-scheme: dark;
+  color: var(--bench-ink);
+  background: var(--bench-bg);
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+}
+.code-page {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) clamp(265px, 29vw, 360px);
+  gap: 12px;
+  align-items: stretch;
+  width: min(1320px, 100%);
+  margin: auto;
+  padding: clamp(14px, 3vw, 34px);
+}
+.cd-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  min-height: 75px;
+  padding: 12px 17px;
+  border: 1px solid var(--bench-line);
+  border-radius: 7px;
+  background: var(--bench-header);
+}
+.cd-identity { display: flex; align-items: center; gap: 12px; }
+.cd-seal {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  font: 20px var(--bench-serif);
+}
+.cd-title { margin: 0; font: 700 23px var(--bench-serif); letter-spacing: .14em; }
+.cd-sub { margin: 4px 0 0; color: var(--bench-muted); font-size: 12px; }
+.cd-account { margin-inline-start: auto; }
+.cd-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 37px;
+  padding: 7px 13px;
+  color: var(--bench-ink);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  background: #272e28;
+  border: 1px solid #4a554b;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cd-btn:hover { background: #333d34; border-color: #9c865d; }
+.cd-editor, .cd-result {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--bench-line);
+  border-radius: 7px;
+  background: var(--bench-panel);
+}
+.cd-editor { display: grid; grid-template-rows: auto minmax(240px,1fr) auto; gap: 11px; }
+.cd-editor-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.cd-label, .cd-block-title { margin: 0; font: 600 18px/1.35 var(--bench-serif); letter-spacing: .07em; }
+.cd-input {
+  width: 100%;
+  min-height: 250px;
+  height: 100%;
+  padding: 15px 16px;
+  resize: vertical;
+  border: 1px solid var(--bench-line);
+  border-radius: 4px;
+  background: var(--bench-canvas);
+  color: var(--bench-ink);
+  font: 16px/1.7 var(--bench-mono);
+}
+.cd-input::placeholder { color: var(--bench-muted); }
+.cd-buttons { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.cd-status, .cd-note { color: var(--bench-muted); font-size: 12px; line-height: 1.55; }
+.cd-text { margin: 8px 0 21px; color: var(--bench-muted); font-size: 14px; line-height: 1.7; }
+.cd-text code { color: var(--bench-bronze); font-family: var(--bench-mono); }
+.cd-result-title { margin-bottom: 9px; padding-top: 12px; border-top: 1px solid var(--bench-line); }
+.cd-rows { width: 100%; border-collapse: collapse; font: 13px var(--bench-mono); }
+.cd-rows :is(th,td) { border-bottom: 1px solid var(--bench-line); padding: 10px 5px; text-align: center; }
+.cd-rows th { color: var(--bench-muted); font-weight: 500; }
+.cd-rows tbody tr:nth-child(even) { background: #242c25; }
+.cd-rows tr:not([class]) td:nth-last-child(-n+2) { color: var(--bench-muted); }
+.cd-status.ok, .cd-rows .is-pass td:last-child { color: var(--bench-jade); }
+.cd-status.error, .cd-rows .is-fail td:last-child { color: var(--bench-red); }
+.cd-score { margin: 12px 0 0; color: var(--bench-bronze); font-size: 13px; }
+.cd-score:empty { display: none; }
+.cd-note { grid-column: 1 / -1; margin: 0; }
+@media (max-width: 760px) {
+  .code-page { grid-template-columns: minmax(0,1fr); }
+  .cd-head { gap: 8px; }
+  .cd-identity { order: -1; flex-basis: 100%; }
+  .cd-editor { grid-template-rows: auto minmax(160px,1fr) auto; }
+  .cd-input { min-height: 160px; }
+}
